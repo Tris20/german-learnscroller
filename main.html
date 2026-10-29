@@ -1,0 +1,1090 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Endung</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+/* Layout: a vertical snap feed, one grammar question per screen; options sit in the thumb zone, the rule appears between prompt and options. */
+:root{
+  --bg:#ECEEE9; --card:#F8F9F6; --ink:#171B19; --muted:#5A635D; --line:#D2D8D0;
+  --reclam:#F2C230; --reclam-ink:#2A2206;
+  --der:#2D58A6; --die:#B03548; --das:#2C7A57;
+  --ok:#2C7A57; --ok-bg:#DDEEE4; --bad:#B03548; --bad-bg:#F6DEE2; --mark:#F6E2A0;
+  --f-ui:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --f-text:"Newsreader",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111413; --card:#1A1E1C; --ink:#E6E9E3; --muted:#909A93; --line:#2B312E;
+  --reclam:#E7B82A; --reclam-ink:#1A1503;
+  --der:#8BABEC; --die:#EC8D9D; --das:#76C8A0;
+  --ok:#76C8A0; --ok-bg:#16301F; --bad:#EC8D9D; --bad-bg:#3A1C22; --mark:#54451A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111413; --card:#1A1E1C; --ink:#E6E9E3; --muted:#909A93; --line:#2B312E;
+  --reclam:#E7B82A; --reclam-ink:#1A1503;
+  --der:#8BABEC; --die:#EC8D9D; --das:#76C8A0;
+  --ok:#76C8A0; --ok-bg:#16301F; --bad:#EC8D9D; --bad-bg:#3A1C22; --mark:#54451A;
+  color-scheme:dark}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:border-box}
+body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-ui);overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+
+header{padding-block:10px 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;letter-spacing:-.025em}
+.brand i{width:11px;height:20px;background:var(--reclam);border-radius:1.5px;box-shadow:inset -3px 0 0 rgba(0,0,0,.12)}
+.weak-btn{border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:6px 13px;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.weak-btn b{background:var(--bad);color:var(--card);font-size:11px;min-width:18px;height:18px;border-radius:9px;display:inline-grid;place-items:center;padding:0 5px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:-2px;padding-inline:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;padding:6px 12px;border-radius:999px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.focus-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--reclam);color:var(--reclam-ink);border-radius:8px;padding:7px 8px 7px 12px;font-size:13px;font-weight:600}
+.focus-bar button{border:0;background:rgba(0,0,0,.1);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;color:inherit}
+
+html,body{overscroll-behavior:none}
+.feed{overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;overflow-anchor:none;min-height:0}
+.card{height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;justify-content:center;padding-block:18px 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.card-in{width:100%;max-width:520px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;min-height:0;scrollbar-width:thin}
+.meta{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.again{color:var(--reclam-ink);background:var(--reclam);padding:3px 8px;border-radius:3px;letter-spacing:.1em}
+.prompt{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;min-height:110px}
+.task{font-weight:600;font-size:13px;color:var(--muted)}
+.noun{font-weight:800;font-size:clamp(46px,14vw,76px);line-height:1;letter-spacing:-.035em;overflow-wrap:anywhere}
+.noun.sm{font-size:clamp(38px,11vw,60px)}
+.gloss{font-family:var(--f-text);font-style:italic;font-size:19px;color:var(--muted)}
+.sentence{font-family:var(--f-text);font-size:clamp(25px,6.8vw,33px);line-height:1.3;text-wrap:balance}
+.gap{font-family:var(--f-ui);font-weight:600;font-size:.88em;border-bottom:2px solid var(--ink);padding:0 2px;white-space:nowrap}
+.gap .blank{color:var(--muted);font-weight:400}
+mark{background:var(--mark);color:inherit;padding:0 4px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+.opts{display:grid;gap:8px;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr))}
+.opt{min-height:56px;border:1.5px solid var(--line);background:var(--card);border-radius:10px;font-weight:600;font-size:18px;padding:8px 10px;cursor:pointer;transition:background .15s,border-color .15s,opacity .2s,transform .1s;overflow-wrap:anywhere}
+.opt:active{transform:scale(.98)}
+.opt:focus-visible,.chip:focus-visible,.weak-btn:focus-visible,.next:focus-visible,.srow:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.opt.span{grid-column:1/-1}
+.opt.g{font-size:26px;min-height:72px;color:var(--gc);letter-spacing:-.01em}
+.opt:disabled{cursor:default}
+.answered .opt:not(.right):not(.wrong){opacity:.45}
+.opt.right{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.opt.g.right{background:var(--gc);border-color:var(--gc);color:var(--card)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad);text-decoration:line-through;text-decoration-thickness:2px}
+.opt.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-size:16px}
+.opt.quiet{background:transparent;font-size:15px}
+
+.fb{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px;animation:rise .28s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.verdict{font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.ans{font-family:var(--f-text);font-weight:500;font-size:21px;line-height:1.3}
+.why{font-family:var(--f-text);font-size:16.5px;line-height:1.5;max-width:62ch}
+.fb-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:2px}
+.rule-tag{font-weight:600;font-size:12px;color:var(--muted)}
+.next{border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px;cursor:pointer}
+.art-m{color:var(--der)} .art-f{color:var(--die)} .art-n{color:var(--das)}
+
+.info .prompt{justify-content:center}
+.big-h{font-weight:800;font-size:clamp(34px,10vw,52px);line-height:1.02;letter-spacing:-.03em;text-wrap:balance;margin:0}
+.ins-stat{font-weight:600;font-size:14px;color:var(--bad);margin:0}
+.lede{font-family:var(--f-text);font-size:19px;line-height:1.45;margin:0;max-width:40ch}
+.misslist{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.misslist li{font-family:var(--f-text);font-size:17px;padding:8px 12px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.hint{font-weight:600;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.hint svg{width:16px;height:16px;animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.legend{display:flex;gap:14px;font-weight:800;font-size:22px}
+.metabtns{display:flex;gap:6px;align-items:center}
+.keybtn{border:1px solid var(--ink);background:transparent;border-radius:999px;padding:3px 10px;font:600 11px var(--f-ui);letter-spacing:.04em;text-transform:none;color:var(--ink);cursor:pointer}
+.opt small{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:2px;letter-spacing:0}
+.opt.right small,.opt.wrong small{color:inherit;opacity:.85}
+.opt.case{text-align:left;padding:10px 14px;font-size:17px}
+.hintbtn{align-self:flex-start;border:1px dashed var(--muted);background:transparent;border-radius:999px;padding:5px 12px;font:600 13px var(--f-ui);color:var(--muted);cursor:pointer}
+.hintline,.stepnote{font-family:var(--f-text);font-size:17px;line-height:1.45;margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.stepnote.ok{border-color:var(--ok)} .stepnote.bad{border-color:var(--bad)}
+.chain{margin:0;padding-left:1.3em;font-family:var(--f-text);font-size:16.5px;line-height:1.5;display:flex;flex-direction:column;gap:4px}
+.chain.find{font-size:16px}
+.jobs{display:flex;flex-direction:column;gap:8px}
+.job{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;padding:9px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px}
+.job b{font-weight:800;font-size:16px}
+.job i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--muted)}
+.job span{font-family:var(--f-text);font-size:17px;margin-top:3px}
+.job u{text-decoration:none;background:var(--mark);padding:0 3px;border-radius:3px}
+.hooks{margin:0;padding-left:1.2em;font-family:var(--f-text);font-size:16.5px;line-height:1.5;display:flex;flex-direction:column;gap:6px}
+table.ref th small{display:block;font:500 10.5px var(--f-ui);color:var(--muted);letter-spacing:0}
+.skipwarm{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 10px;font:600 11px var(--f-ui);letter-spacing:.06em;text-transform:none;color:var(--muted);cursor:pointer}
+.verdict.curve{color:var(--reclam-ink);background:var(--reclam);align-self:flex-start;padding:3px 8px;border-radius:3px}
+.tablewrap{overflow-x:auto}
+table.ref{border-collapse:collapse;font-size:15px;width:100%;font-variant-numeric:tabular-nums}
+table.ref th,table.ref td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);font-weight:500}
+table.ref thead th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.ref tbody th{font-weight:700}
+table.ref td{font-family:var(--f-text);font-size:17px}
+.ref3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ref3>div{display:flex;flex-direction:column;gap:6px;padding:12px 10px;background:var(--card);border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.35}
+.ref3 b{font-size:24px;font-weight:800}
+.newtag{color:var(--card);background:var(--ink);padding:3px 8px;border-radius:3px;letter-spacing:.1em}
+.preview{font-family:var(--f-text);font-size:19px;line-height:1.6;margin:0}
+.sets{display:flex;flex-direction:column;gap:14px}
+.set{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.set-name{font-weight:600;font-size:15px}
+.set-meta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.set-bar{grid-column:1/-1;position:relative;height:8px;background:var(--line);border-radius:4px;overflow:visible}
+.set-bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+.set-bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);left:60%}
+.set-note{grid-column:1/-1;font-size:13px;color:var(--muted);margin:0}
+.set .add{grid-column:1/-1;justify-self:start;border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer}
+
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:calc(28px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));animation:rise .2s ease-out}
+.sheet-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.sheet-top{display:flex;justify-content:space-between;align-items:center}
+.sheet h2{font-weight:800;font-size:28px;letter-spacing:-.025em;margin:0}
+.close{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13px;cursor:pointer}
+.summary{font-family:var(--f-text);font-size:18px;line-height:1.45;margin:0}
+.grp-h{font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.srows{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name state" "bar count";gap:6px 12px;padding:11px 2px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer}
+.sname{grid-area:name;font-weight:600;font-size:15px}
+.sstate{grid-area:state;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;align-self:center}
+.st-bad{background:var(--bad-bg);color:var(--bad)} .st-mid{background:var(--reclam);color:var(--reclam-ink)} .st-ok{background:var(--ok-bg);color:var(--ok)} .st-none{color:var(--muted)}
+.bar{grid-area:bar;height:6px;background:var(--line);border-radius:3px;overflow:hidden;align-self:center}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--muted)}
+.bar i.st-bad{background:var(--bad)} .bar i.st-mid{background:var(--reclam)} .bar i.st-ok{background:var(--ok)}
+.scount{grid-area:count;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.reset{align-self:flex-start;border:1.5px solid var(--line);background:transparent;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
+.reset.armed{border-color:var(--bad);color:var(--bad)}
+.note{font-size:13px;color:var(--muted);margin:0;line-height:1.45}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand-row">
+      <div class="brand"><i aria-hidden="true"></i>Endung</div>
+      <button class="weak-btn" id="weakBtn" type="button">Weak spots</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Practice area">
+      <button class="chip" type="button" data-mode="all">All</button>
+      <button class="chip" type="button" data-mode="Genus">Genus</button>
+      <button class="chip" type="button" data-mode="Kasus">Kasus</button>
+      <button class="chip" type="button" data-mode="Adjektive">Adjektive</button>
+      <button class="chip" type="button" data-mode="Verben">Verben</button>
+    </div>
+    <div id="warmNav" hidden><button type="button" class="weak-btn" id="warmMenu" style="width:100%;justify-content:center"></button></div>
+    <div class="focus-bar" id="focusBar" hidden><span id="focusText"></span><button type="button" id="focusStop">Stop drill</button></div>
+  </header>
+  <main class="feed" id="feed" aria-live="polite"></main>
+</div>
+<div class="sheet" id="sheet" hidden></div>
+
+<script>
+/* ---------- Rules ---------- */
+const SKILLS={
+ fem_suffix:{g:"Genus",name:"Feminine endings",rule:"Nouns ending in -ung, -heit, -keit, -schaft, -ion, -tät, -ik, -ur, -ei, -enz and -anz are feminine. Check the ending before anything else: this is the most reliable pattern in German."},
+ dim:{g:"Genus",name:"Diminutives",rule:"-chen and -lein make a thing small, and every diminutive is das, whatever the original gender: der Hund becomes das Hündchen. That is why it is das Mädchen."},
+ neut_suffix:{g:"Genus",name:"Neuter endings",rule:"-ment, -um, -nis, -tum, -ma and the prefix Ge- point to das: das Dokument, das Museum, das Ergebnis, das Eigentum, das Klima, das Gespräch. Ge- even beats the -e rule: das Gebäude, das Gemüse. Watch for die Firma and die Erlaubnis."},
+ masc_suffix:{g:"Genus",name:"Masculine endings",rule:"-ling, -ismus, -or, -ig, -ist, -ent, -ant and -eur point to der: der Lehrling, der Tourismus, der Motor, der König, der Journalist, der Präsident. Most nouns in -er are der too, especially people and machines (der Lehrer, der Computer), though das Fenster and die Butter are exceptions."},
+ e_fem:{g:"Genus",name:"Nouns ending in -e",rule:"Around 90% of nouns ending in -e are feminine: die Lampe, die Straße, die Sprache. Bet on die unless the noun is a male person or animal."},
+ e_exception:{g:"Genus",name:"The -e exceptions",rule:"Most -e exceptions are male people and animals: der Junge, der Kunde, der Löwe, der Affe. Then a short list to memorise: der Name, der Gedanke, der Glaube, der Käse, das Auge, das Ende."},
+ masc_semantic:{g:"Genus",name:"Days, seasons, weather",rule:"Days, months, seasons, weather and compass points are der: der Montag, der Januar, der Herbst, der Regen, der Norden."},
+ neut_misc:{g:"Genus",name:"Metals, colours, loanwords",rule:"Most metals are das (das Gold, das Metall), and colours used as nouns are das (das Blau, das Grün). Loanwords ending in -o are das too: das Kino, das Auto, das Büro."},
+ nominal_inf:{g:"Genus",name:"Verbs used as nouns",rule:"Any infinitive can become a noun, and it is always das: das Leben, das Essen, das Wissen, das Vertrauen. If a noun looks exactly like a verb, bet on das."},
+ compound:{g:"Genus",name:"Compound nouns",rule:"A compound takes the gender of its last part. das Haus + die Tür = die Haustür. die Kranken + das Haus = das Krankenhaus."},
+ arbitrary:{g:"Genus",name:"No-rule nouns",rule:"No dependable pattern here. Learn the article as part of the word: not \"Tisch, masculine\" but \"der Tisch\", said aloud as one unit."},
+ case_acc_prep:{g:"Kasus",name:"Accusative prepositions",rule:"durch, für, gegen, ohne and um always take the accusative. Only the masculine visibly changes: ein becomes einen, mein becomes meinen."},
+ case_dat_prep:{g:"Kasus",name:"Dative prepositions",rule:"aus, bei, mit, nach, seit, von, zu and gegenüber always take the dative: -em for masculine and neuter, -er for feminine, -en for plural."},
+ case_twoway:{g:"Kasus",name:"Two-way prepositions",rule:"in, an, auf, über, unter, vor, hinter, neben, zwischen. Destination/change of location (wohin?) takes accusative; location (wo?) takes dative. Movement by itself does not decide. Compare legen/stellen/setzen (put) with liegen/stehen/sitzen (be)."},
+ case_gen_prep:{g:"Kasus",name:"Genitive",rule:"wegen, trotz, während and statt take the genitive even without ownership; possession also often uses genitive (das Auto meiner Schwester). Masculine and neuter nouns also add -s or -es: des Regens, eines Briefes."},
+ case_verb:{g:"Kasus",name:"Subjects and objects",rule:"The subject is nominative. The direct object is accusative (ich sehe meinen Vater). The indirect object (person given something) is dative (ich gebe meiner Schwester …). Some verbs always take the dative: helfen, danken, gehören, gefallen."},
+ case_id:{g:"Kasus",name:"Spotting the case",rule:"First check a preposition or a verb requiring a fixed case. Otherwise ask: wer? (nominative), wen or was? (accusative), wem? (dative), wessen? (genitive). Prepositions and certain verbs override the question, so check those first."},
+ adj_weak:{g:"Adjektive",name:"After der/die/das",rule:"After der, die, das, dieser, jeder, the article already shows gender and case, so the adjective only needs -e or -en. It is -e in the nominative singular and in feminine and neuter accusative. Everywhere else, -en."},
+ adj_mixed:{g:"Adjektive",name:"After ein/mein/kein",rule:"ein, mein and kein have no ending in the masculine nominative and the neuter nominative and accusative. In those three slots the adjective shows the gender instead: ein alter Mann, ein kaltes Bier. Everywhere else it works like after der."},
+ adj_strong:{g:"Adjektive",name:"No article",rule:"With no article, the adjective takes the article's own ending: kaltes Wasser (das), schwarzen Kaffee (den), bei schlechtem Wetter (dem), mit großer Freude (der). The one exception is masculine and neuter genitive, which use -en: trotz schlechten Wetters."},
+ aux_sein:{g:"Verben",name:"Perfekt with sein",rule:"sein is for movement from A to B (gehen, fahren, fliegen) and changes of state (einschlafen, sterben, wachsen). sein, bleiben, werden and passieren take sein too, with no movement at all."},
+ aux_haben:{g:"Verben",name:"Perfekt with haben",rule:"Everything else takes haben, including every verb with a direct object and the position verbs liegen, sitzen, stehen. (Southern Germany and Austria say \"ich bin gelegen\", but haben is standard.)"},
+ part_strong:{g:"Verben",name:"Strong participles",rule:"Strong verbs: ge- + stem, often with a new vowel, + -en. The vowels run in families, so learn them in groups: trinken/getrunken, finden/gefunden, schreiben/geschrieben, bleiben/geblieben."},
+ part_weak:{g:"Verben",name:"Regular participles",rule:"Regular verbs: ge- + stem + -t. Stems ending in -t or -d add -et: gearbeitet. If you can say the Präteritum with -te (machte), the participle is ge…t (gemacht)."},
+ part_mixed:{g:"Verben",name:"Mixed verbs",rule:"A small group changes the vowel like a strong verb but ends in -t like a regular one: denken/gedacht, bringen/gebracht, wissen/gewusst, kennen/gekannt, rennen/gerannt."},
+ part_insep:{g:"Verben",name:"Participles without ge-",rule:"No ge- after an inseparable prefix (be-, ver-, ent-, er-, ge-, zer-, emp-, miss-) and none on -ieren verbs: verstanden, besucht, bekommen, studiert, passiert."},
+ part_sep:{g:"Verben",name:"Separable verbs",rule:"With a separable prefix (an, auf, aus, ein, mit, um, zu …), ge- goes between prefix and stem: an·ge·rufen, auf·ge·standen, ein·ge·kauft."},
+ praet:{g:"Verben",name:"Präteritum forms",rule:"Strong verbs change the vowel and take no ending in the er/sie/es form: er ging, sie las, es kam. Mixed verbs change the vowel and add -te: dachte, brachte, wusste. Separable prefixes go to the end: er stand früh auf."},
+ tense_id:{g:"Verben",name:"Naming the tense",rule:"Find the conjugated verb. Present haben/sein + participle = Perfekt. hatte/war + participle = Plusquamperfekt. werden + infinitive = Futur I. werden on its own is a full verb (become), and werden + participle is the passive."},
+};
+const GROUP_LABEL={Genus:"Genus",Kasus:"Kasus",Adjektive:"Adjektivendung",Verben:"Verben"};
+
+/* ---------- Content ---------- */
+const NOUNS=[
+["Zeitung","f","newspaper","fem_suffix"],["Freiheit","f","freedom","fem_suffix"],["Möglichkeit","f","possibility","fem_suffix"],["Freundschaft","f","friendship","fem_suffix"],["Nation","f","nation","fem_suffix"],["Universität","f","university","fem_suffix"],["Musik","f","music","fem_suffix"],["Kultur","f","culture","fem_suffix"],["Wohnung","f","flat","fem_suffix"],["Gesundheit","f","health","fem_suffix"],["Wissenschaft","f","science","fem_suffix"],["Information","f","information","fem_suffix"],["Meinung","f","opinion","fem_suffix"],["Mannschaft","f","team","fem_suffix"],["Qualität","f","quality","fem_suffix"],["Politik","f","politics","fem_suffix"],
+["Mädchen","n","girl","dim"],["Brötchen","n","bread roll","dim"],["Fräulein","n","young lady (dated)","dim"],["Häuschen","n","little house","dim"],["Kaninchen","n","rabbit","dim"],["Märchen","n","fairy tale","dim"],["Würstchen","n","sausage","dim"],["Hündchen","n","puppy","dim"],
+["Dokument","n","document","neut_suffix"],["Museum","n","museum","neut_suffix"],["Zentrum","n","centre","neut_suffix"],["Ergebnis","n","result","neut_suffix"],["Zeugnis","n","certificate","neut_suffix"],["Gebäude","n","building","neut_suffix"],["Gemüse","n","vegetables","neut_suffix"],["Getränk","n","drink","neut_suffix"],["Gesicht","n","face","neut_suffix"],["Gespräch","n","conversation","neut_suffix"],["Instrument","n","instrument","neut_suffix"],["Studium","n","degree course","neut_suffix"],["Geheimnis","n","secret","neut_suffix"],["Gedicht","n","poem","neut_suffix"],
+["Lehrer","m","teacher","masc_suffix"],["Schmetterling","m","butterfly","masc_suffix"],["Kapitalismus","m","capitalism","masc_suffix"],["Motor","m","engine","masc_suffix"],["Computer","m","computer","masc_suffix"],["Tourismus","m","tourism","masc_suffix"],["Professor","m","professor","masc_suffix"],["Fernseher","m","TV set","masc_suffix"],["Lehrling","m","apprentice","masc_suffix"],["Optimismus","m","optimism","masc_suffix"],
+["Lampe","f","lamp","e_fem"],["Straße","f","street","e_fem"],["Blume","f","flower","e_fem"],["Tasche","f","bag","e_fem"],["Kirche","f","church","e_fem"],["Brücke","f","bridge","e_fem"],["Reise","f","journey","e_fem"],["Sprache","f","language","e_fem"],["Katze","f","cat","e_fem"],["Küche","f","kitchen","e_fem"],["Tasse","f","cup","e_fem"],["Woche","f","week","e_fem"],["Farbe","f","colour","e_fem"],["Schule","f","school","e_fem"],
+["Name","m","name","e_exception"],["Junge","m","boy","e_exception"],["Käse","m","cheese","e_exception"],["Affe","m","monkey","e_exception"],["Gedanke","m","thought","e_exception"],["Glaube","m","belief","e_exception"],["Kunde","m","customer","e_exception"],["Löwe","m","lion","e_exception"],["Hase","m","hare","e_exception"],["Auge","n","eye","e_exception"],["Ende","n","end","e_exception"],
+["Montag","m","Monday","masc_semantic"],["Januar","m","January","masc_semantic"],["Sommer","m","summer","masc_semantic"],["Frühling","m","spring","masc_semantic"],["Regen","m","rain","masc_semantic"],["Schnee","m","snow","masc_semantic"],["Wind","m","wind","masc_semantic"],["Norden","m","north","masc_semantic"],["Freitag","m","Friday","masc_semantic"],["Herbst","m","autumn","masc_semantic"],["Nebel","m","fog","masc_semantic"],["August","m","August","masc_semantic"],
+["Gold","n","gold","neut_misc"],["Eisen","n","iron","neut_misc"],["Silber","n","silver","neut_misc"],["Hotel","n","hotel","neut_misc"],["Café","n","café","neut_misc"],["Kino","n","cinema","neut_misc"],["Auto","n","car","neut_misc"],["Büro","n","office","neut_misc"],["Radio","n","radio","neut_misc"],
+["Krankenhaus","n","hospital","compound"],["Haustür","f","front door","compound"],["Kühlschrank","m","fridge","compound"],["Handtasche","f","handbag","compound"],["Wörterbuch","n","dictionary","compound"],["Bahnhof","m","train station","compound"],["Schlafzimmer","n","bedroom","compound"],["Geburtstag","m","birthday","compound"],["Hausaufgabe","f","homework","compound"],["Fahrrad","n","bicycle","compound"],
+["Tisch","m","table","arbitrary"],["Stuhl","m","chair","arbitrary"],["Tür","f","door","arbitrary"],["Bett","n","bed","arbitrary"],["Löffel","m","spoon","arbitrary"],["Gabel","f","fork","arbitrary"],["Messer","n","knife","arbitrary"],["Butter","f","butter","arbitrary"],["Apfel","m","apple","arbitrary"],["Wand","f","wall","arbitrary"],["Fenster","n","window","arbitrary"],["Schlüssel","m","key","arbitrary"],["Hand","f","hand","arbitrary"],["Fuß","m","foot","arbitrary"],["Herz","n","heart","arbitrary"],["Nacht","f","night","arbitrary"],["Tag","m","day","arbitrary"],["Jahr","n","year","arbitrary"],["Stadt","f","city","arbitrary"],["Land","n","country","arbitrary"],["Berg","m","mountain","arbitrary"],["Meer","n","sea","arbitrary"],["Buch","n","book","arbitrary"],["Baum","m","tree","arbitrary"],["Maus","f","mouse","arbitrary"],["Milch","f","milk","arbitrary"],["Brot","n","bread","arbitrary"],["Hund","m","dog","arbitrary"],["Pferd","n","horse","arbitrary"],["Vogel","m","bird","arbitrary"],["Uhr","f","clock","arbitrary"],["Geld","n","money","arbitrary"],["Zug","m","train","arbitrary"],["Schiff","n","ship","arbitrary"],["Wald","m","forest","arbitrary"],["Bier","n","beer","arbitrary"],["Wein","m","wine","arbitrary"],["Wurst","f","sausage","arbitrary"],["Wasser","n","water","arbitrary"],["Kaffee","m","coffee","arbitrary"],["Tee","m","tea","arbitrary"],["Zeit","f","time","arbitrary"],["Problem","n","problem","arbitrary"],["Thema","n","topic","arbitrary"],["Kopf","m","head","arbitrary"],["Arbeit","f","work","arbitrary"],["Bild","n","picture","arbitrary"],["Welt","f","world","arbitrary"],["Platz","m","square, seat","arbitrary"]
+];
+// [sentence, gender, case, reason, skill]
+const CASES=[
+["Das Geschenk ist für {mein} Bruder.","m","A","für always takes the accusative","case_acc_prep"],
+["Wir laufen durch {ein} Wald.","m","A","durch always takes the accusative","case_acc_prep"],
+["Ohne {mein} Brille sehe ich nichts.","f","A","ohne always takes the accusative","case_acc_prep"],
+["Er fährt gegen {ein} Baum.","m","A","gegen always takes the accusative","case_acc_prep"],
+["Wir gehen um {unser} Haus herum.","n","A","um always takes the accusative","case_acc_prep"],
+["Das ist für {dein} Kind.","n","A","für always takes the accusative","case_acc_prep"],
+["Ohne {mein} Schlüssel komme ich nicht rein.","m","A","ohne always takes the accusative","case_acc_prep"],
+["Ich fahre mit {mein} Fahrrad zur Arbeit.","n","D","mit always takes the dative","case_dat_prep"],
+["Er kommt gerade aus {sein} Büro.","n","D","aus always takes the dative","case_dat_prep"],
+["Ich wohne bei {mein} Tante.","f","D","bei always takes the dative","case_dat_prep"],
+["Seit {ein} Woche regnet es.","f","D","seit always takes the dative","case_dat_prep"],
+["Das ist ein Brief von {mein} Vater.","m","D","von always takes the dative","case_dat_prep"],
+["Nach {ein} Stunde war alles vorbei.","f","D","nach always takes the dative","case_dat_prep"],
+["Ich gehe morgen zu {mein} Arzt.","m","D","zu always takes the dative","case_dat_prep"],
+["Sie spricht mit {ihr} Kindern.","p","D","mit always takes the dative","case_dat_prep"],
+["Gegenüber {unser} Haus ist ein Park.","n","D","gegenüber always takes the dative","case_dat_prep"],
+["Er wohnt noch bei {sein} Eltern.","p","D","bei always takes the dative","case_dat_prep"],
+["Ich lege das Buch auf {mein} Tisch.","m","A","auf + movement to a place (wohin?)","case_twoway"],
+["Das Buch liegt auf {mein} Tisch.","m","D","auf + fixed location (wo?)","case_twoway"],
+["Wir gehen heute in {ein} Restaurant.","n","A","in + movement to a place (wohin?)","case_twoway"],
+["Wir essen heute in {ein} Restaurant.","n","D","in + fixed location (wo?)","case_twoway"],
+["Ich hänge das Bild an {unser} Wand.","f","A","an + movement to a place (wohin?)","case_twoway"],
+["Das Bild hängt an {unser} Wand.","f","D","an + fixed location (wo?)","case_twoway"],
+["Die Katze kriecht unter {mein} Bett.","n","A","unter + movement to a place (wohin?)","case_twoway"],
+["Die Katze schläft unter {mein} Bett.","n","D","unter + fixed location (wo?)","case_twoway"],
+["Sie setzt sich neben {ihr} Freund.","m","A","neben + movement to a place (wohin?)","case_twoway"],
+["Sie sitzt neben {ihr} Freund.","m","D","neben + fixed location (wo?)","case_twoway"],
+["Er stellt das Rad hinter {sein} Haus.","n","A","hinter + movement to a place (wohin?)","case_twoway"],
+["Das Rad steht hinter {sein} Haus.","n","D","hinter + fixed location (wo?)","case_twoway"],
+["Wegen {mein} Erkältung bleibe ich zu Hause.","f","G","wegen takes the genitive","case_gen_prep"],
+["Trotz {ein} Regens gingen wir spazieren.","m","G","trotz takes the genitive","case_gen_prep"],
+["Während {unser} Urlaubs hat es nur geregnet.","m","G","während takes the genitive","case_gen_prep"],
+["Statt {ein} Briefes schrieb sie eine E-Mail.","m","G","statt takes the genitive","case_gen_prep"],
+["Das ist das Auto {mein} Schwester.","f","G","possession (whose car?) takes the genitive","case_gen_prep"],
+["Die Farbe {dein} Hauses gefällt mir.","n","G","possession (whose colour?) takes the genitive","case_gen_prep"],
+["Ich helfe {mein} Schwester.","f","D","helfen always takes the dative","case_verb"],
+["Das Buch gehört {mein} Bruder.","m","D","gehören always takes the dative","case_verb"],
+["Ich danke {dein} Mutter.","f","D","danken always takes the dative","case_verb"],
+["Ich sehe {mein} Vater im Park.","m","A","the direct object of sehen is accusative","case_verb"],
+["Hast du {ein} Hund?","m","A","the direct object of haben is accusative","case_verb"],
+["{Mein} Bruder wohnt in Hamburg.","m","N","the subject is nominative","case_verb"],
+["Er gibt {sein} Freundin einen Ring.","f","D","the person receiving is dative","case_verb"],
+["{Unser} Kinder spielen draußen.","p","N","the subject is nominative","case_verb"],
+["Ich kaufe {mein} Kindern ein Eis.","p","D","the person receiving is dative","case_verb"]
+];
+// [sentence, gender, case, kind]
+const ADJ=[
+["Der alt{} Mann wartet.","m","N","weak"],["Ich kenne den jung{} Lehrer.","m","A","weak"],["Die klein{} Katze schläft.","f","N","weak"],["Wir sehen das neu{} Haus.","n","A","weak"],["Mit dem rot{} Auto fahren wir.","n","D","weak"],["Ich helfe der alt{} Frau.","f","D","weak"],["Die deutsch{} Bücher sind teuer.","p","N","weak"],["Dieser warm{} Tee ist gut.","m","N","weak"],["Am Ende des lang{} Tages.","m","G","weak"],["Ich nehme die blau{} Jacke.","f","A","weak"],
+["Ein alt{} Mann wartet.","m","N","mixed"],["Ich habe einen neu{} Computer.","m","A","mixed"],["Das ist ein schön{} Haus.","n","N","mixed"],["Ich trinke ein kalt{} Bier.","n","A","mixed"],["Sie hat eine klein{} Wohnung.","f","A","mixed"],["Mit meinem neu{} Fahrrad.","n","D","mixed"],["Er wohnt in einer groß{} Stadt.","f","D","mixed"],["Mein best{} Freund heißt Jan.","m","N","mixed"],["Kein gut{} Film dauert vier Stunden.","m","N","mixed"],["Wir haben keine frisch{} Eier.","p","A","mixed"],
+["Kalt{} Wasser ist gesund.","n","N","strong"],["Ich trinke gern schwarz{} Kaffee.","m","A","strong"],["Frisch{} Milch schmeckt besser.","f","N","strong"],["Mit groß{} Freude habe ich es gelesen.","f","D","strong"],["Rot{} Wein passt zu Käse.","m","N","strong"],["Ich esse gern frisch{} Brot.","n","A","strong"],["Bei schlecht{} Wetter bleiben wir drinnen.","n","D","strong"],["Alt{} Freunde sind die besten.","p","N","strong"],["Mit heiß{} Tee geht es mir besser.","m","D","strong"],["Wir kaufen frisch{} Brötchen.","p","A","strong"],["Trotz schlecht{} Wetters gingen wir los.","n","G","strong"]
+];
+// verbs: i inf, en, p3 er-präteritum, pp, aux, t type, dp participle distractors, dr präteritum distractors (irregular only), s aux sentence, pr person, note
+const VERBS=[
+{i:"gehen",en:"to go",p3:"ging",pp:"gegangen",aux:"sein",t:"strong",dp:["gegeht","gegingen"],dr:["gehte","gang"],s:"Ich {} gestern früh nach Hause gegangen.",pr:"ich"},
+{i:"fahren",en:"to drive, travel",p3:"fuhr",pp:"gefahren",aux:"sein",t:"strong",dp:["gefahrt","gefuhren"],dr:["fahrte","fuhrte"],s:"Er {} mit dem Zug nach Berlin gefahren.",pr:"er"},
+{i:"kommen",en:"to come",p3:"kam",pp:"gekommen",aux:"sein",t:"strong",dp:["gekommt","gekamen"],dr:["kommte","kamte"],s:"Ich {} zu spät zur Arbeit gekommen.",pr:"ich"},
+{i:"bleiben",en:"to stay",p3:"blieb",pp:"geblieben",aux:"sein",t:"strong",dp:["gebleibt","gebleiben"],dr:["bleibte","blab"],s:"Ich {} am Wochenende zu Hause geblieben.",pr:"ich",note:"bleiben takes sein even though nothing moves. Learn it with sein, werden and passieren."},
+{i:"sein",en:"to be",p3:"war",pp:"gewesen",aux:"sein",t:"strong",dp:["geseint","gewart"],dr:["seite","warte"],s:"Er {} letztes Jahr in Wien gewesen.",pr:"er",note:"sein forms its own Perfekt with sein: ist gewesen."},
+{i:"werden",en:"to become",p3:"wurde",pp:"geworden",aux:"sein",t:"strong",dp:["gewerdet","gewurden"],dr:["werdete","wurdte"],s:"Mein Bruder {} Arzt geworden.",pr:"er",note:"werden is a change of state, so it takes sein: ist geworden."},
+{i:"fliegen",en:"to fly",p3:"flog",pp:"geflogen",aux:"sein",t:"strong",dp:["gefliegt","geflogt"],dr:["fliegte","flug"],s:"Ich {} nach Lissabon geflogen.",pr:"ich"},
+{i:"laufen",en:"to run, walk",p3:"lief",pp:"gelaufen",aux:"sein",t:"strong",dp:["gelauft","geliefen"],dr:["laufte","lauf"],s:"Er {} schnell zum Bahnhof gelaufen.",pr:"er"},
+{i:"aufstehen",en:"to get up",p3:"stand auf",pp:"aufgestanden",aux:"sein",t:"sep",dp:["geaufstanden","aufgestehet"],dr:["stehte auf","stund auf"],s:"Ich {} heute um sechs aufgestanden.",pr:"ich",note:"Getting up is a change of position, so sein."},
+{i:"einschlafen",en:"to fall asleep",p3:"schlief ein",pp:"eingeschlafen",aux:"sein",t:"sep",dp:["geeinschlafen","eingeschlaft"],dr:["schlafte ein","schluf ein"],s:"Das Baby {} endlich eingeschlafen.",pr:"er",note:"Falling asleep is a change of state, so sein. Plain schlafen takes haben."},
+{i:"sterben",en:"to die",p3:"starb",pp:"gestorben",aux:"sein",t:"strong",dp:["gesterbt","gestarben"],dr:["sterbte","storb"],s:"Mein Kaktus {} leider gestorben.",pr:"er",note:"Dying is a change of state, so sein."},
+{i:"passieren",en:"to happen",p3:"passierte",pp:"passiert",aux:"sein",t:"ieren",dp:["gepassiert","passieret"],s:"Was {} denn passiert?",pr:"er",note:"passieren (and geschehen) take sein."},
+{i:"essen",en:"to eat",p3:"aß",pp:"gegessen",aux:"haben",t:"strong",dp:["geesst","gegaßen"],dr:["esste","iss"],s:"Ich {} schon zu Mittag gegessen.",pr:"ich"},
+{i:"trinken",en:"to drink",p3:"trank",pp:"getrunken",aux:"haben",t:"strong",dp:["getrinkt","getranken"],dr:["trinkte","trunk"],s:"Er {} zu viel Kaffee getrunken.",pr:"er"},
+{i:"schreiben",en:"to write",p3:"schrieb",pp:"geschrieben",aux:"haben",t:"strong",dp:["geschreibt","geschrabt"],dr:["schreibte","schrob"],s:"Ich {} dir eine E-Mail geschrieben.",pr:"ich"},
+{i:"lesen",en:"to read",p3:"las",pp:"gelesen",aux:"haben",t:"strong",dp:["gelest","gelasen"],dr:["leste","lies"],s:"Ich {} das Buch zweimal gelesen.",pr:"ich"},
+{i:"sehen",en:"to see",p3:"sah",pp:"gesehen",aux:"haben",t:"strong",dp:["geseht","gesahen"],dr:["sehte","sach"],s:"Sie {} den Film schon gesehen.",pr:"er"},
+{i:"schlafen",en:"to sleep",p3:"schlief",pp:"geschlafen",aux:"haben",t:"strong",dp:["geschlaft","geschliefen"],dr:["schlafte","schluf"],s:"Ich {} schlecht geschlafen.",pr:"ich",note:"Sleeping is neither movement nor a change of state, so haben. Compare: ich bin eingeschlafen."},
+{i:"arbeiten",en:"to work",p3:"arbeitete",pp:"gearbeitet",aux:"haben",t:"weak",dp:["gearbeiten","gearbeitt"],s:"Sie {} bis spät gearbeitet.",pr:"er"},
+{i:"kaufen",en:"to buy",p3:"kaufte",pp:"gekauft",aux:"haben",t:"weak",dp:["gekaufen","gekoffen"],s:"Ich {} ein neues Fahrrad gekauft.",pr:"ich"},
+{i:"machen",en:"to make, do",p3:"machte",pp:"gemacht",aux:"haben",t:"weak",dp:["gemachen","gemocht"],s:"Er {} einen Fehler gemacht.",pr:"er"},
+{i:"spielen",en:"to play",p3:"spielte",pp:"gespielt",aux:"haben",t:"weak",dp:["gespielen","gespolt"],s:"Ich {} gestern Tennis gespielt.",pr:"ich"},
+{i:"denken",en:"to think",p3:"dachte",pp:"gedacht",aux:"haben",t:"mixed",dp:["gedenkt","gedunken"],dr:["denkte","dank"],s:"Ich {} oft an dich gedacht.",pr:"ich"},
+{i:"bringen",en:"to bring",p3:"brachte",pp:"gebracht",aux:"haben",t:"mixed",dp:["gebringt","gebrungen"],dr:["bringte","brang"],s:"Er {} mir Blumen gebracht.",pr:"er"},
+{i:"wissen",en:"to know (a fact)",p3:"wusste",pp:"gewusst",aux:"haben",t:"mixed",dp:["gewisst","gewissen"],dr:["wisste","weißte"],s:"Das {} ich nicht gewusst.",pr:"ich"},
+{i:"verstehen",en:"to understand",p3:"verstand",pp:"verstanden",aux:"haben",t:"insep",dp:["geverstanden","verstehet"],dr:["verstehte","verstund"],s:"Ich {} die Frage nicht verstanden.",pr:"ich"},
+{i:"besuchen",en:"to visit",p3:"besuchte",pp:"besucht",aux:"haben",t:"insep",dp:["gebesucht","besuchen"],s:"Ich {} meine Oma besucht.",pr:"ich"},
+{i:"bekommen",en:"to receive",p3:"bekam",pp:"bekommen",aux:"haben",t:"insep",dp:["gebekommen","bekommt"],dr:["bekommte","bekamte"],s:"Sie {} ein Paket bekommen.",pr:"er",note:"bekommen means receive, not become, and it takes haben."},
+{i:"vergessen",en:"to forget",p3:"vergaß",pp:"vergessen",aux:"haben",t:"insep",dp:["gevergessen","vergesst"],dr:["vergesste","vergiss"],s:"Ich {} meinen Schlüssel vergessen.",pr:"ich"},
+{i:"studieren",en:"to study",p3:"studierte",pp:"studiert",aux:"haben",t:"ieren",dp:["gestudiert","studieret"],s:"Er {} in Leipzig studiert.",pr:"er"},
+{i:"anrufen",en:"to call (phone)",p3:"rief an",pp:"angerufen",aux:"haben",t:"sep",dp:["geanrufen","angeruft"],dr:["rufte an","ruf an"],s:"Ich {} dich gestern angerufen.",pr:"ich"},
+{i:"einkaufen",en:"to go shopping",p3:"kaufte ein",pp:"eingekauft",aux:"haben",t:"sep",dp:["geeinkauft","eingekaufen"],s:"Sie {} schon eingekauft.",pr:"er"},
+{i:"beginnen",en:"to begin",p3:"begann",pp:"begonnen",aux:"haben",t:"insep",dp:["gebeginnt","begannen"],dr:["beginnte","begonn"],s:"Der Film {} schon begonnen.",pr:"er"},
+{i:"liegen",en:"to lie (be lying)",p3:"lag",pp:"gelegen",aux:"haben",t:"strong",dp:["geliegt","gelagen"],dr:["liegte","lug"],s:"Ich {} den ganzen Tag im Bett gelegen.",pr:"ich",note:"Position verbs (liegen, sitzen, stehen) take haben in standard German. In the south and Austria you will hear sein."},
+{i:"treffen",en:"to meet",p3:"traf",pp:"getroffen",aux:"haben",t:"strong",dp:["getrefft","getraffen"],dr:["treffte","troff"],s:"Ich {} Anna im Café getroffen.",pr:"ich"},
+{i:"nehmen",en:"to take",p3:"nahm",pp:"genommen",aux:"haben",t:"strong",dp:["genehmt","genahmen"],dr:["nehmte","nimmte"],s:"Er {} den letzten Bus genommen.",pr:"er"},
+{i:"finden",en:"to find",p3:"fand",pp:"gefunden",aux:"haben",t:"strong",dp:["gefindet","gefanden"],dr:["findete","fund"],s:"Ich {} meine Brille gefunden.",pr:"ich"},
+{i:"umziehen",en:"to move house",p3:"zog um",pp:"umgezogen",aux:"sein",t:"sep",dp:["geumzogen","umgezieht"],dr:["ziehte um","zug um"],s:"Ich {} nach Leipzig umgezogen.",pr:"ich"},
+{i:"wachsen",en:"to grow",p3:"wuchs",pp:"gewachsen",aux:"sein",t:"strong",dp:["gewachst","gewuchsen"],dr:["wachste","wachs"],s:"Das Kind {} schnell gewachsen.",pr:"er",note:"Growing is a change of state, so sein."},
+{i:"reisen",en:"to travel",p3:"reiste",pp:"gereist",aux:"sein",t:"weak",dp:["gereisen","gerist"],s:"Ich {} viel gereist.",pr:"ich"}
+];
+const TENSES=["Präsens","Präteritum","Perfekt","Plusquamperfekt","Futur I"];
+const TENSE_ITEMS=[
+["Ich habe das Buch gelesen.","Perfekt","habe is present tense, plus the participle gelesen."],
+["Wir fuhren nach Italien.","Präteritum","fuhren is the Präteritum of fahren: the vowel changes from a to u."],
+["Sie wird morgen anrufen.","Futur I","wird + the infinitive anrufen."],
+["Er hatte schon gegessen.","Plusquamperfekt","hatte is past tense, plus the participle gegessen."],
+["Ich lerne seit zwei Jahren Deutsch.","Präsens","German uses the Präsens with seit for something still going on. English would say \"have been learning\"."],
+["Sie war schon gegangen, als ich kam.","Plusquamperfekt","war + gegangen: her leaving happened before my arriving."],
+["Wir sind nach Hause gelaufen.","Perfekt","sind is present tense, so sind + participle is the Perfekt, even though it looks like \"we are\"."],
+["Er wird langsam müde.","Präsens","werden is the main verb here, meaning \"become\". There is no infinitive, so it is not the future."],
+["Das Haus wurde 1910 gebaut.","Präteritum","wurde + participle is the passive, set in the Präteritum: \"was built\"."],
+["Ich war gestern krank.","Präteritum","war on its own is the Präteritum of sein."],
+["Ich bin krank gewesen.","Perfekt","bin + gewesen is the Perfekt of sein."],
+["Morgen fahre ich nach Hamburg.","Präsens","A present form with a time word. German usually uses the Präsens for plans."],
+["Du wirst das schaffen.","Futur I","wirst + the infinitive schaffen."],
+["Sie hatten keine Zeit.","Präteritum","hatten is the main verb here, with no participle, so it is simply \"had\"."],
+["Wir hatten das schon gewusst.","Plusquamperfekt","hatten + the participle gewusst."],
+["Er ist gestern angekommen.","Perfekt","ist + the participle angekommen."],
+["Ich dachte oft an dich.","Präteritum","dachte is the Präteritum of the mixed verb denken."],
+["Ihr werdet das bald verstehen.","Futur I","werdet + the infinitive verstehen."]
+];
+const CASES4=["N","A","D","G"];
+const CASEID=[
+["[[Der Hund]] bellt laut.","N","It is the subject. Ask: wer bellt?"],
+["Ich sehe [[den Hund]].","A","The direct object of sehen. The article den gives it away."],
+["Ich gebe [[dem Hund]] einen Knochen.","D","The one receiving. Ask: wem gebe ich den Knochen?"],
+["Das ist das Spielzeug [[des Hundes]].","G","Possession. Ask: wessen Spielzeug?"],
+["Wir warten auf [[den Bus]].","A","warten auf always takes the accusative."],
+["Sie hilft [[ihrer Mutter]].","D","helfen always takes the dative."],
+["[[Die Kinder]] spielen im Garten.","N","The subject. Ask: wer spielt?"],
+["Er schenkt [[den Kindern]] Bücher.","D","The ones receiving. Dative plural is den + noun with -n."],
+["Ich kaufe [[die Bücher]].","A","die could be nominative or accusative. Here it is what I buy, so accusative."],
+["Ich gebe dem Kind [[das Buch]].","A","The thing being given is the direct object."],
+["Trotz [[des Regens]] gehen wir raus.","G","trotz takes the genitive. Note the -s on Regen."],
+["Das gefällt [[meinem Vater]].","D","gefallen takes the dative: the person who likes it."],
+["[[Mein Vater]] mag Jazz.","N","The subject. Ask: wer mag Jazz?"],
+["Wir fahren durch [[die Stadt]].","A","durch always takes the accusative."],
+["Er ist [[ein guter Lehrer]].","N","sein links two nominatives: er = ein guter Lehrer."],
+["Ich habe [[keinen Hunger]].","A","The object of haben is accusative: keinen."],
+["Hier gibt es [[einen Park]].","A","es gibt always takes the accusative."],
+["Wir wohnen in [[der Stadt]].","D","in + fixed location (wo?) takes the dative."],
+["Wir fahren in [[die Stadt]].","A","in + movement to a place (wohin?) takes the accusative."]
+];
+
+/* Frequency-ordered expansion sets (most common first), unlocked in packs. */
+const NOUNS_X=[["Leben","n","life","nominal_inf"],["Macht","f","power","arbitrary"],["Mann","m","man","arbitrary"],["Bitte","f","request","e_fem"],["Weg","m","way, path","arbitrary"],["Frau","f","woman","arbitrary"],["Recht","n","right, law","arbitrary"],["Frage","f","question","e_fem"],["Wissen","n","knowledge","nominal_inf"],["Art","f","kind, type","arbitrary"],["Seite","f","side, page","e_fem"],["Spiel","n","game","arbitrary"],["Liebe","f","love","e_fem"],["Geschichte","f","history, story","e_fem"],["Familie","f","family","e_fem"],["Unternehmen","n","company","nominal_inf"],["Grund","m","reason","arbitrary"],["Beispiel","n","example","compound","das Spiel"],["Essen","n","food, meal","nominal_inf"],["Abend","m","evening","arbitrary"],["Dank","m","thanks","arbitrary"],["Person","f","person","arbitrary"],["Gesellschaft","f","society","fem_suffix"],["Alter","n","age","arbitrary"],["Anfang","m","beginning","arbitrary"],["Kind","n","child","arbitrary"],["Gott","m","god","arbitrary"],["Mutter","f","mother","arbitrary"],["Gruppe","f","group","e_fem"],["Schreiben","n","letter (formal)","nominal_inf"],["Treffen","n","meeting","nominal_inf"],["Artikel","m","article","arbitrary"],["Folge","f","consequence, episode","e_fem"],["Glück","n","luck, happiness","arbitrary"],["Herr","m","gentleman, Mr","arbitrary"],["Hilfe","f","help","e_fem"],["Sache","f","thing, matter","e_fem"],["Film","m","film","arbitrary"],["Internet","n","internet","arbitrary"],["Laut","m","sound","arbitrary"],["Regierung","f","government","fem_suffix"],["Richtung","f","direction","fem_suffix"],["Team","n","team","arbitrary"],["Prozent","n","percent","arbitrary"],["Sohn","m","son","arbitrary"],["Spaß","m","fun","arbitrary"],["Stelle","f","place, position","e_fem"],["Wort","n","word","arbitrary"],["Ernst","m","seriousness","arbitrary"],["Vater","m","father","masc_suffix"],["Zukunft","f","future","arbitrary"],["All","n","space (universe)","arbitrary"],["Fest","n","celebration","arbitrary"],["Form","f","form, shape","arbitrary"],["Idee","f","idea","e_fem"],["Wahl","f","choice, election","arbitrary"],["Wert","m","value","arbitrary"],["Entwicklung","f","development","fem_suffix"],["Ziel","n","goal","arbitrary"],["Angst","f","fear","arbitrary"],["Erfolg","m","success","arbitrary"],["Krieg","m","war","arbitrary"],["Lage","f","situation","e_fem"],["Mai","m","May","masc_semantic"],["September","m","September","masc_semantic"],["Klasse","f","class","e_fem"],["Preis","m","price, prize","arbitrary"],["Tod","m","death","arbitrary"],["Blick","m","look, view","arbitrary"],["Partei","f","political party","fem_suffix"],["Mitte","f","middle","e_fem"],["November","m","November","masc_semantic"],["April","m","April","masc_semantic"],["Freund","m","friend","arbitrary"],["Raum","m","room, space","arbitrary"],["System","n","system","arbitrary"],["Juli","m","July","masc_semantic"],["Juni","m","June","masc_semantic"],["Oktober","m","October","masc_semantic"],["Suche","f","search","e_fem"],["Einsatz","m","deployment, effort","compound","der Satz"],["Rahmen","m","frame","arbitrary"],["Höhe","f","height","e_fem"],["Job","m","job","arbitrary"],["Stunde","f","hour","e_fem"],["Titel","m","title","arbitrary"],["Tochter","f","daughter","arbitrary"],["Zahl","f","number","arbitrary"],["Kunst","f","art","arbitrary"],["Mitarbeiter","m","employee","masc_suffix"],["Weise","f","manner, way","e_fem"],["Bad","n","bathroom","arbitrary"],["Chance","f","chance","e_fem"],["Fehler","m","mistake","masc_suffix"],["Menge","f","amount, crowd","e_fem"],["Sicherheit","f","safety","fem_suffix"],["Spieler","m","player","masc_suffix"],["Gefühl","n","feeling","neut_suffix"],["Saison","f","season (sport)","arbitrary"],["Antwort","f","answer","arbitrary"],["Bahn","f","railway","arbitrary"],["Dezember","m","December","masc_semantic"],["Vergleich","m","comparison","arbitrary"],["Entscheidung","f","decision","fem_suffix"],["Gemeinde","f","municipality","e_fem"],["Nähe","f","proximity","e_fem"],["Sinn","m","sense, meaning","arbitrary"],["Sucht","f","addiction","arbitrary"],["Interesse","n","interest","e_exception"],["König","m","king","masc_suffix"],["Lösung","f","solution","fem_suffix"],["Reihe","f","row, series","e_fem"],["Stimme","f","voice","e_fem"],["Boden","m","floor, ground","arbitrary"],["Bruder","m","brother","masc_suffix"],["Februar","m","February","masc_semantic"],["Kritik","f","criticism","fem_suffix"],["Opfer","n","victim","arbitrary"],["Region","f","region","fem_suffix"],["Situation","f","situation","fem_suffix"],["Sonntag","m","Sunday","masc_semantic"],["Wirtschaft","f","economy","fem_suffix"],["Bevölkerung","f","population","fem_suffix"],["Firma","f","company","arbitrary"],["Kreis","m","circle, district","arbitrary"],["Körper","m","body","masc_suffix"],["Punkt","m","point","arbitrary"],["Rede","f","speech","e_fem"],["Typ","m","type, guy","arbitrary"],["Verein","m","club, association","arbitrary"],["Ausbildung","f","training","fem_suffix"],["Beginn","m","start","arbitrary"],["Freundin","f","girlfriend, friend","arbitrary"],["Licht","n","light","arbitrary"],["Markt","m","market","arbitrary"],["Politiker","m","politician","masc_suffix"],["Regel","f","rule","arbitrary"],["Staat","m","state","arbitrary"],["Bedeutung","f","meaning","fem_suffix"],["Hälfte","f","half","e_fem"],["Programm","n","programme","arbitrary"],["Schüler","m","pupil","masc_suffix"],["Text","m","text","arbitrary"],["Verbindung","f","connection","fem_suffix"],["Ahnung","f","idea, notion","fem_suffix"],["Bürger","m","citizen","masc_suffix"],["Erfahrung","f","experience","fem_suffix"],["Kampf","m","fight","arbitrary"],["Kraft","f","strength","arbitrary"],["Projekt","n","project","arbitrary"],["Präsident","m","president","masc_suffix"],["Sport","m","sport","arbitrary"],["Tat","f","deed","arbitrary"],["Zimmer","n","room","arbitrary"],["Druck","m","pressure","arbitrary"],["Liste","f","list","e_fem"],["Wochenende","n","weekend","e_exception"],["Schritt","m","step","arbitrary"],["Unterstützung","f","support","fem_suffix"],["Verfügung","f","disposal","fem_suffix"],["Angebot","n","offer","arbitrary"],["Gefahr","f","danger","arbitrary"],["Linie","f","line","e_fem"],["Natur","f","nature","fem_suffix"],["Schuld","f","guilt, fault","arbitrary"],["Wahrheit","f","truth","fem_suffix"],["Ordnung","f","order","fem_suffix"],["Reich","n","empire","arbitrary"],["Samstag","m","Saturday","masc_semantic"],["Satz","m","sentence","arbitrary"],["Aufgabe","f","task","e_fem"],["Chef","m","boss","arbitrary"],["Dollar","m","dollar","arbitrary"],["Runde","f","round","e_fem"],["Schluss","m","end, conclusion","arbitrary"],["Serie","f","series","e_fem"],["Bank","f","bank, bench","arbitrary"],["Beitrag","m","contribution, post","arbitrary"],["Gesetz","n","law","neut_suffix"],["Bewegung","f","movement","fem_suffix"],["Ehe","f","marriage","e_fem"],["Erde","f","earth","e_fem"],["Gewalt","f","violence","arbitrary"],["Nummer","f","number","arbitrary"],["Sieg","m","victory","arbitrary"],["Start","m","start","arbitrary"],["Verhalten","n","behaviour","nominal_inf"],["Besuch","m","visit","arbitrary"],["Bildung","f","education","fem_suffix"],["Rest","m","rest, remainder","arbitrary"],["Ruhe","f","quiet, calm","e_fem"],["Werk","n","work, factory","arbitrary"],["Begriff","m","term","arbitrary"],["Bericht","m","report","arbitrary"],["Stolz","m","pride","arbitrary"],["Verfahren","n","procedure","nominal_inf"],["Zeichen","n","sign","dim"],["Auswahl","f","selection","compound","die Wahl"],["Freude","f","joy","e_fem"],["Leistung","f","performance","fem_suffix"],["Plan","m","plan","arbitrary"],["Versuch","m","attempt","arbitrary"],["Vertrag","m","contract","arbitrary"],["Zusammenhang","m","context","arbitrary"],["Arzt","m","doctor","arbitrary"],["Sicht","f","view","arbitrary"],["Zeitpunkt","m","point in time","compound","der Punkt"],["Anzahl","f","number, quantity","arbitrary"],["Bau","m","construction","arbitrary"],["Hintergrund","m","background","compound","der Grund"],["Karte","f","card, map, ticket","e_fem"],["Lust","f","desire","arbitrary"],["Meister","m","master","masc_suffix"],["Volk","n","people, nation","arbitrary"],["Website","f","website","e_fem"],["Grenze","f","border","e_fem"],["Handy","n","mobile phone","arbitrary"],["Kontakt","m","contact","arbitrary"],["Position","f","position","fem_suffix"],["Schloss","n","castle, lock","arbitrary"],["Schutz","m","protection","arbitrary"],["Unterschied","m","difference","arbitrary"],["Winter","m","winter","masc_semantic"],["Leid","n","suffering","arbitrary"],["Mitglied","n","member","compound","das Lied"],["Quelle","f","source","e_fem"],["Studie","f","study","e_fem"],["Technik","f","technology","fem_suffix"],["Union","f","union","fem_suffix"],["Urlaub","m","holiday","arbitrary"],["Werbung","f","advertising","fem_suffix"],["Amt","n","office (public)","arbitrary"],["Betrieb","m","business, operation","arbitrary"],["Club","m","club","arbitrary"],["Einfluss","m","influence","compound","der Fluss"],["Gebiet","n","area","neut_suffix"],["Gericht","n","court, dish","neut_suffix"],["Himmel","m","sky, heaven","arbitrary"],["Jahrhundert","n","century","arbitrary"],["Jugend","f","youth","arbitrary"],["Teilnehmer","m","participant","masc_suffix"],["Energie","f","energy","e_fem"],["Hoffnung","f","hope","fem_suffix"],["Show","f","show","arbitrary"],["Trainer","m","coach","masc_suffix"],["Version","f","version","fem_suffix"],["Abschluss","m","degree, conclusion","arbitrary"],["Basis","f","basis","arbitrary"],["Ding","n","thing","arbitrary"],["Nachricht","f","message, news","arbitrary"],["Partner","m","partner","masc_suffix"],["Party","f","party","arbitrary"],["Richter","m","judge","masc_suffix"],["Schaden","m","damage","arbitrary"],["Aktion","f","action, campaign","fem_suffix"],["Anteil","m","share","arbitrary"],["Beziehung","f","relationship","fem_suffix"],["Funktion","f","function","fem_suffix"],["Haut","f","skin","arbitrary"],["Inhalt","m","content","arbitrary"],["Kontrolle","f","control","e_fem"],["Minute","f","minute","e_fem"],["Rücken","m","back","arbitrary"],["Vergangenheit","f","past","fem_suffix"],["Vertrauen","n","trust","nominal_inf"],["Zustand","m","condition","arbitrary"],["Aussehen","n","appearance","nominal_inf"],["Diskussion","f","discussion","fem_suffix"],["Künstler","m","artist","masc_suffix"],["Literatur","f","literature","fem_suffix"],["Organisation","f","organisation","fem_suffix"],["Rennen","n","race","nominal_inf"],["Umgebung","f","surroundings","fem_suffix"],["Zusammenarbeit","f","cooperation","compound","die Arbeit"],["Gegensatz","m","contrast","compound","der Satz"],["Insel","f","island","arbitrary"],["Netz","n","net, network","arbitrary"],["Prozess","m","process, trial","arbitrary"],["Schwester","f","sister","arbitrary"],["Zuhause","n","home","e_exception"],["Autor","m","author","masc_suffix"],["Dienst","m","service","arbitrary"],["Eindruck","m","impression","compound","der Druck"],["Feuer","n","fire","arbitrary"],["Halle","f","hall","e_fem"],["Interview","n","interview","arbitrary"],["Kamera","f","camera","arbitrary"],["Lachen","n","laughter","nominal_inf"],["Praxis","f","practice, surgery","arbitrary"],["Szene","f","scene","e_fem"],["Telefon","n","telephone","arbitrary"],["Album","n","album","neut_suffix"],["Demokratie","f","democracy","e_fem"],["Flughafen","m","airport","compound","der Hafen"],["Grün","n","green (the colour)","neut_misc"],["Link","m","link","arbitrary"],["Osten","m","east","masc_semantic"],["Tritt","m","kick","arbitrary"],["Verkehr","m","traffic","arbitrary"],["Verlag","m","publisher","arbitrary"],["Anschluss","m","connection","arbitrary"],["Anspruch","m","claim","arbitrary"],["Arm","m","arm","arbitrary"],["Armee","f","army","e_fem"],["Auftrag","m","order, assignment","arbitrary"],["Ausland","n","abroad","compound","das Land"],["Behandlung","f","treatment","fem_suffix"],["Dorf","n","village","arbitrary"],["Konzept","n","concept","arbitrary"],["Rat","m","advice, council","arbitrary"],["Spiegel","m","mirror","arbitrary"],["Spitze","f","tip, top","e_fem"],["Star","m","star (celebrity)","arbitrary"],["Test","m","test","arbitrary"],["Tour","f","tour","fem_suffix"],["Verantwortung","f","responsibility","fem_suffix"],["Wunsch","m","wish","arbitrary"],["Blut","n","blood","arbitrary"],["Bürgermeister","m","mayor","masc_suffix"],["Führung","f","leadership","fem_suffix"],["Garten","m","garden","arbitrary"],["Gegner","m","opponent","masc_suffix"],["Heimat","f","homeland","arbitrary"],["Industrie","f","industry","e_fem"],["Leitung","f","management, line","fem_suffix"],["Lied","n","song","arbitrary"],["Liga","f","league","arbitrary"],["Mehrheit","f","majority","fem_suffix"],["Westen","m","west","masc_semantic"],["Bezug","m","reference","arbitrary"],["Fernsehen","n","television","nominal_inf"],["Finale","n","final","e_exception"],["Kaiser","m","emperor","masc_suffix"],["Park","m","park","arbitrary"],["Theater","n","theatre","arbitrary"],["Traum","m","dream","arbitrary"],["Verwendung","f","use","fem_suffix"],["Wirkung","f","effect","fem_suffix"],["Anlage","f","facility, system","e_fem"],["Ausgabe","f","edition, expense","e_fem"],["Baby","n","baby","arbitrary"],["Brief","m","letter","arbitrary"],["Fahrt","f","journey, ride","arbitrary"],["Gewissen","n","conscience","neut_suffix"],["Kauf","m","purchase","arbitrary"],["Kommentar","m","comment","arbitrary"],["Landkreis","m","rural district","compound","der Kreis"],["Modell","n","model","arbitrary"],["Religion","f","religion","fem_suffix"],["Urteil","n","verdict","arbitrary"],["Vertreter","m","representative","masc_suffix"],["Verwaltung","f","administration","fem_suffix"],["Angriff","m","attack","arbitrary"],["Forschung","f","research","fem_suffix"],["Grundlage","f","basis","e_fem"],["Karriere","f","career","e_fem"],["Material","n","material","arbitrary"],["Seele","f","soul","e_fem"],["Strom","m","electricity","arbitrary"],["Unfall","m","accident","arbitrary"],["Ausstellung","f","exhibition","fem_suffix"],["Erklärung","f","explanation","fem_suffix"],["Falle","f","trap","e_fem"],["Frieden","m","peace","arbitrary"],["Gelegenheit","f","opportunity","fem_suffix"],["Geschäft","n","shop, business","neut_suffix"],["Lauf","m","run, course","arbitrary"],["Mittwoch","m","Wednesday","masc_semantic"],["Strecke","f","route, distance","e_fem"],["Öffentlichkeit","f","public","fem_suffix"],["Aussage","f","statement","e_fem"],["Fahrer","m","driver","masc_suffix"],["Hof","m","yard, court","arbitrary"],["Mama","f","mum","arbitrary"],["Not","f","need, distress","arbitrary"],["Presse","f","press","e_fem"],["Produktion","f","production","fem_suffix"],["Sendung","f","broadcast","fem_suffix"],["Song","m","song","arbitrary"],["Wunder","n","miracle","arbitrary"],["Bedarf","m","demand, need","arbitrary"],["Ecke","f","corner","e_fem"],["Einführung","f","introduction","fem_suffix"],["Generation","f","generation","fem_suffix"],["Masse","f","mass","e_fem"],["Stiftung","f","foundation","fem_suffix"],["Beruf","m","profession","arbitrary"],["Finger","m","finger","masc_suffix"],["Fleisch","n","meat","arbitrary"],["Geist","m","ghost, mind","arbitrary"],["Roman","m","novel","arbitrary"],["Stein","m","stone","arbitrary"],["Verhältnis","n","relationship, ratio","neut_suffix"],["Zweifel","m","doubt","arbitrary"],["Alkohol","m","alcohol","arbitrary"],["Blau","n","blue (the colour)","neut_misc"],["Donnerstag","m","Thursday","masc_semantic"],["Ebene","f","level","e_fem"],["Erinnerung","f","memory","fem_suffix"],["Handel","m","trade","arbitrary"],["Hinweis","m","hint, note","arbitrary"],["Institut","n","institute","arbitrary"],["Kurs","m","course","arbitrary"],["Lager","n","warehouse, camp","arbitrary"],["Reaktion","f","reaction","fem_suffix"],["Veranstaltung","f","event","fem_suffix"],["Aufmerksamkeit","f","attention","fem_suffix"],["Ball","m","ball","arbitrary"],["Breite","f","width","e_fem"],["Dienstag","m","Tuesday","masc_semantic"],["Gegend","f","area","arbitrary"],["Holz","n","wood","arbitrary"],["Kommission","f","commission","fem_suffix"],["Länge","f","length","e_fem"],["Risiko","n","risk","neut_misc"],["Sorge","f","worry","e_fem"],["Stil","m","style","arbitrary"],["Stimmung","f","mood","fem_suffix"],["Tatsache","f","fact","e_fem"],["Täter","m","culprit","masc_suffix"],["Zuschauer","m","spectator","masc_suffix"],["Zweck","m","purpose","arbitrary"],["Bestand","m","stock","arbitrary"],["Besucher","m","visitor","masc_suffix"],["Darstellung","f","depiction","fem_suffix"],["Feld","n","field","arbitrary"],["Gewinn","m","profit, win","arbitrary"],["Nase","f","nose","e_fem"],["Original","n","original","arbitrary"],["Pause","f","break","e_fem"],["Prinzip","n","principle","arbitrary"],["Prüfung","f","exam","fem_suffix"],["Tradition","f","tradition","fem_suffix"],["Training","n","training","arbitrary"],["Tätigkeit","f","activity","fem_suffix"],["Umwelt","f","environment","arbitrary"],["Vorstellung","f","idea, performance","fem_suffix"],["Vorteil","m","advantage","arbitrary"],["Abstand","m","distance","arbitrary"],["Antrag","m","application","arbitrary"],["Anwendung","f","application, use","fem_suffix"],["Bühne","f","stage","e_fem"],["Parlament","n","parliament","neut_suffix"],["Respekt","m","respect","arbitrary"],["Analyse","f","analysis","e_fem"],["Aufnahme","f","recording, admission","e_fem"],["Auftritt","m","appearance","compound","der Tritt"],["Förderung","f","funding","fem_suffix"],["Glas","n","glass","arbitrary"],["Konzert","n","concert","arbitrary"],["Publikum","n","audience","neut_suffix"],["Rechnung","f","bill","fem_suffix"],["Sammlung","f","collection","fem_suffix"],["Standard","m","standard","arbitrary"],["Streit","m","argument","arbitrary"],["Theorie","f","theory","e_fem"],["Tier","n","animal","arbitrary"],["Umgang","m","dealings","arbitrary"],["Verkauf","m","sale","compound","der Kauf"],["Verständnis","n","understanding","neut_suffix"],["Beschreibung","f","description","fem_suffix"],["Charakter","m","character","masc_suffix"],["Gerät","n","device","neut_suffix"],["Realität","f","reality","fem_suffix"],["Republik","f","republic","fem_suffix"],["Termin","m","appointment","arbitrary"],["Witz","m","joke","arbitrary"],["Zugang","m","access","arbitrary"],["Einrichtung","f","facility, furnishings","fem_suffix"],["Fan","m","fan","arbitrary"],["Gast","m","guest","arbitrary"],["Gegenteil","n","opposite","neut_suffix"],["Homepage","f","homepage","e_fem"],["Kategorie","f","category","e_fem"],["Krankheit","f","illness","fem_suffix"],["Nutzer","m","user","masc_suffix"],["Nutzung","f","use","fem_suffix"],["Papier","n","paper","arbitrary"],["Posten","m","post, position","arbitrary"],["Sitz","m","seat","arbitrary"],["Ton","m","tone, clay","arbitrary"],["Verlauf","m","course, history","compound","der Lauf"],["Wechsel","m","change","arbitrary"],["Ansicht","f","view, opinion","arbitrary"],["Aufbau","m","structure","arbitrary"],["Islam","m","Islam","arbitrary"],["Keller","m","cellar","masc_suffix"],["Rock","m","skirt, rock music","arbitrary"],["Untersuchung","f","investigation","fem_suffix"],["Anhänger","m","supporter, trailer","masc_suffix"],["Anlass","m","occasion","arbitrary"],["Dach","n","roof","arbitrary"],["Dauer","f","duration","arbitrary"],["Einheit","f","unit, unity","fem_suffix"],["Gewicht","n","weight","neut_suffix"],["Hersteller","m","manufacturer","masc_suffix"],["Minister","m","minister","masc_suffix"],["Niveau","n","level","arbitrary"],["Philosophie","f","philosophy","e_fem"],["Software","f","software","e_fem"],["Süden","m","south","masc_semantic"],["Unterricht","m","lessons","arbitrary"],["Vorschlag","m","suggestion","compound","der Schlag"],["Widerstand","m","resistance","arbitrary"],["Wolf","m","wolf","arbitrary"],["Zentrale","f","headquarters","e_fem"],["Abteilung","f","department","fem_suffix"],["Adresse","f","address","e_fem"],["Anzeige","f","advert, report","e_fem"],["Ausnahme","f","exception","e_fem"],["Fläche","f","surface, area","e_fem"],["Hauptstadt","f","capital city","compound","die Stadt"],["Medizin","f","medicine","arbitrary"],["Mission","f","mission","fem_suffix"],["Nachmittag","m","afternoon","arbitrary"],["Pass","m","passport","arbitrary"],["Pflicht","f","duty","arbitrary"],["Ruf","m","reputation, call","arbitrary"],["Zeug","n","stuff","arbitrary"],["Beweis","m","proof","arbitrary"],["Geschenk","n","present, gift","neut_suffix"],["Kommunikation","f","communication","fem_suffix"],["Leser","m","reader","masc_suffix"],["Manager","m","manager","masc_suffix"],["Mühe","f","effort","e_fem"],["Rang","m","rank","arbitrary"],["Revolution","f","revolution","fem_suffix"],["Schauspieler","m","actor","masc_suffix"],["Temperatur","f","temperature","fem_suffix"],["Wettbewerb","m","competition","arbitrary"],["Auflösung","f","resolution","fem_suffix"],["Besitz","m","possession","arbitrary"],["Einstellung","f","attitude, setting","fem_suffix"],["Figur","f","figure","fem_suffix"],["Flucht","f","escape","arbitrary"],["Formel","f","formula","arbitrary"],["Griff","m","grip, handle","arbitrary"],["Integration","f","integration","fem_suffix"],["Maschine","f","machine","e_fem"],["Mut","m","courage","arbitrary"],["Phase","f","phase","e_fem"],["Produkt","n","product","arbitrary"],["Ring","m","ring","arbitrary"],["Teilnahme","f","participation","e_fem"],["Übersetzung","f","translation","fem_suffix"],["Ausdruck","m","expression","compound","der Druck"],["Bewohner","m","resident","masc_suffix"],["Bundestag","m","German parliament","arbitrary"],["Code","m","code","arbitrary"],["Debatte","f","debate","e_fem"],["Ehre","f","honour","e_fem"],["Forum","n","forum","neut_suffix"],["Gas","n","gas","arbitrary"],["Geschmack","m","taste","arbitrary"],["Mord","m","murder","arbitrary"],["Personal","n","staff","arbitrary"],["Restaurant","n","restaurant","arbitrary"],["Spur","f","trace, lane","fem_suffix"],["Standort","m","location","arbitrary"],["Wähler","m","voter","masc_suffix"],["Achtung","f","attention, respect","fem_suffix"],["Fahrzeug","n","vehicle","compound","das Zeug"],["Gemeinschaft","f","community","fem_suffix"],["Marke","f","brand, stamp","e_fem"],["Musiker","m","musician","masc_suffix"],["Schlaf","m","sleep","arbitrary"],["Schnitt","m","cut","arbitrary"],["Smartphone","n","smartphone","arbitrary"],["Status","m","status","arbitrary"],["Story","f","story","arbitrary"],["Anwalt","m","lawyer","arbitrary"],["Engel","m","angel","arbitrary"],["Haltung","f","attitude, posture","fem_suffix"],["Krise","f","crisis","e_fem"],["Methode","f","method","e_fem"],["Strafe","f","punishment","e_fem"],["Sturm","m","storm","masc_semantic"],["Tipp","m","tip","arbitrary"],["Verlust","m","loss","arbitrary"],["Webseite","f","web page","e_fem"],["Zeitraum","m","period","compound","der Raum"],["Zustimmung","f","approval","fem_suffix"],["Abschnitt","m","section","arbitrary"],["Alltag","m","everyday life","arbitrary"],["Auflage","f","edition, condition","e_fem"],["Einwohner","m","inhabitant","masc_suffix"],["Frühstück","n","breakfast","arbitrary"],["Geburt","f","birth","arbitrary"],["Hass","m","hatred","arbitrary"],["Kern","m","core","arbitrary"],["Kreuz","n","cross","arbitrary"],["Planung","f","planning","fem_suffix"],["Schatten","m","shadow","arbitrary"],["Schicksal","n","fate","arbitrary"],["Shop","m","shop","arbitrary"],["Stern","m","star","arbitrary"],["Tiefe","f","depth","e_fem"],["Unternehmer","m","entrepreneur","masc_suffix"],["Ursache","f","cause","e_fem"],["Verbrechen","n","crime","nominal_inf"],["Wolle","f","wool","e_fem"],["Änderung","f","change","fem_suffix"],["Übersicht","f","overview","compound","die Sicht"],["Arbeitgeber","m","employer","masc_suffix"],["Besitzer","m","owner","masc_suffix"],["Bundesrepublik","f","federal republic","fem_suffix"],["Feuerwehr","f","fire brigade","arbitrary"],["Flug","m","flight","arbitrary"],["Hochschule","f","university, college","e_fem"],["Infrastruktur","f","infrastructure","fem_suffix"],["Nachfolger","m","successor","masc_suffix"],["Oma","f","grandma","arbitrary"],["Operation","f","operation","fem_suffix"],["Pfarrer","m","priest, pastor","masc_suffix"],["Pflege","f","care","e_fem"],["Profil","n","profile","arbitrary"],["Rückkehr","f","return","arbitrary"],["Sender","m","broadcaster","masc_suffix"],["Sieger","m","winner","masc_suffix"],["Statistik","f","statistics","fem_suffix"],["Stress","m","stress","arbitrary"],["Umfeld","n","environment","arbitrary"],["Verstand","m","mind, reason","arbitrary"],["Weltkrieg","m","world war","compound","der Krieg"],["Arbeiter","m","worker","masc_suffix"],["Botschaft","f","embassy, message","fem_suffix"],["Bundeswehr","f","German armed forces","arbitrary"],["Festival","n","festival","arbitrary"],["Gelände","n","grounds, terrain","neut_suffix"],["Geschwindigkeit","f","speed","fem_suffix"],["Herkunft","f","origin","arbitrary"],["Hochzeit","f","wedding","compound","die Zeit"],["Humor","m","humour","masc_suffix"],["Initiative","f","initiative","e_fem"],["Kanal","m","channel, canal","arbitrary"],["Kuchen","m","cake","arbitrary"],["Marketing","n","marketing","arbitrary"],["Stellung","f","position","fem_suffix"],["Variante","f","variant","e_fem"],["Zeitschrift","f","magazine","compound","die Schrift"],["Augenblick","m","moment","compound","der Blick"],["Brauch","m","custom","arbitrary"],["Frühjahr","n","spring","compound","das Jahr"],["Graf","m","count (noble)","arbitrary"],["Kombination","f","combination","fem_suffix"],["Niederlage","f","defeat","e_fem"],["Papst","m","pope","arbitrary"],["Rand","m","edge","arbitrary"],["Server","m","server","masc_suffix"],["Stadion","n","stadium","arbitrary"],["Station","f","station","fem_suffix"],["Verbot","n","ban","arbitrary"],["Vorstand","m","board","arbitrary"],["Vortrag","m","talk, lecture","arbitrary"],["Absicht","f","intention","arbitrary"],["Aufklärung","f","enlightenment","fem_suffix"],["Begründung","f","justification","fem_suffix"],["Bezeichnung","f","name, term","fem_suffix"],["Direktor","m","director","masc_suffix"],["Eintritt","m","admission","compound","der Tritt"],["Flugzeug","n","aeroplane","compound","das Zeug"],["Führer","m","leader, guide","masc_suffix"],["Gefängnis","n","prison","neut_suffix"],["Gelb","n","yellow (the colour)","neut_misc"],["Hals","m","neck, throat","arbitrary"],["Hunger","m","hunger","masc_suffix"],["Kleidung","f","clothing","fem_suffix"],["Königin","f","queen","arbitrary"],["Landschaft","f","landscape","fem_suffix"],["Lehre","f","apprenticeship, teaching","e_fem"],["Management","n","management","neut_suffix"],["Menschheit","f","humanity","fem_suffix"],["Papa","m","dad","arbitrary"],["Trend","m","trend","arbitrary"],["Verfassung","f","constitution","fem_suffix"],["Vorbereitung","f","preparation","fem_suffix"],["Zufall","m","chance, coincidence","arbitrary"],["Bescheid","m","notice","arbitrary"],["Bezirk","m","district","arbitrary"],["Brand","m","fire","arbitrary"],["Business","n","business","arbitrary"],["Engagement","n","commitment","neut_suffix"],["Hölle","f","hell","e_fem"],["Landwirtschaft","f","agriculture","fem_suffix"],["Last","f","load, burden","arbitrary"],["Stoff","m","fabric, material","arbitrary"],["Studio","n","studio","neut_misc"],["Summe","f","sum","e_fem"],["Therapie","f","therapy","e_fem"],["Umsetzung","f","implementation","fem_suffix"],["Verband","m","association, bandage","arbitrary"],["Öl","n","oil","arbitrary"],["Betrug","m","fraud","arbitrary"],["Fluss","m","river","arbitrary"],["Gestaltung","f","design","fem_suffix"],["Heim","n","home","arbitrary"],["Herstellung","f","production","fem_suffix"],["Hose","f","trousers","e_fem"],["Kapitel","n","chapter","arbitrary"],["Klima","n","climate","neut_suffix"],["Klinik","f","clinic","fem_suffix"],["Konto","n","bank account","neut_misc"],["Motto","n","motto","neut_misc"],["Nachfrage","f","demand","e_fem"],["Prinz","m","prince","arbitrary"],["Strand","m","beach","arbitrary"],["Strategie","f","strategy","e_fem"],["Struktur","f","structure","fem_suffix"],["Stufe","f","step, level","e_fem"],["Stärke","f","strength","e_fem"],["Vermögen","n","fortune, assets","nominal_inf"],["Vorgehen","n","approach","nominal_inf"],["Überraschung","f","surprise","fem_suffix"],["Anbieter","m","provider","masc_suffix"],["Anfrage","f","enquiry","e_fem"],["Autobahn","f","motorway","compound","die Bahn"],["Fett","n","fat","arbitrary"],["Forderung","f","demand","fem_suffix"],["Gegenwart","f","present","arbitrary"],["Gehirn","n","brain","neut_suffix"],["Gründung","f","founding","fem_suffix"],["Gymnasium","n","grammar school","neut_suffix"],["Handlung","f","plot, action","fem_suffix"],["Konkurrenz","f","competition","fem_suffix"],["Mauer","f","wall","arbitrary"],["Million","f","million","fem_suffix"],["Schlag","m","blow","arbitrary"],["Schweigen","n","silence","nominal_inf"],["Turnier","n","tournament","arbitrary"],["Vorbild","n","role model","compound","das Bild"],["Weile","f","while","e_fem"],["Wissenschaftler","m","scientist","masc_suffix"],["Zucker","m","sugar","masc_suffix"],["Abenteuer","n","adventure","arbitrary"],["Archiv","n","archive","arbitrary"],["Effekt","m","effect","arbitrary"],["Ei","n","egg","arbitrary"],["Identität","f","identity","fem_suffix"],["Kerl","m","guy, bloke","arbitrary"],["Magazin","n","magazine","arbitrary"],["Messe","f","trade fair, mass","e_fem"],["Netzwerk","n","network","compound","das Werk"],["Rad","n","wheel, bike","arbitrary"],["Schuss","m","shot","arbitrary"],["Schönheit","f","beauty","fem_suffix"],["Unterhaltung","f","conversation, entertainment","fem_suffix"],["Wesen","n","being, nature","arbitrary"],["Überblick","m","overview","compound","der Blick"],["Anerkennung","f","recognition","fem_suffix"],["Ansatz","m","approach","arbitrary"],["Ausbau","m","expansion","arbitrary"],["Chat","m","chat","arbitrary"],["Chemie","f","chemistry","e_fem"],["Flasche","f","bottle","e_fem"],["Format","n","format","arbitrary"],["Geschlecht","n","sex, gender","neut_suffix"],["Mischung","f","mix","fem_suffix"],["Mittelpunkt","m","centre","compound","der Punkt"],["Müll","m","rubbish","arbitrary"],["Plattform","f","platform","compound","die Form"],["Pop","m","pop music","arbitrary"],["Rassismus","m","racism","masc_suffix"],["Sitzung","f","meeting, session","fem_suffix"],["Tabelle","f","table (chart)","e_fem"],["Umfang","m","scope, extent","arbitrary"],["Wachstum","n","growth","neut_suffix"],["Waffe","f","weapon","e_fem"],["Übel","n","evil","arbitrary"],["Absatz","m","paragraph, heel","arbitrary"],["Atmosphäre","f","atmosphere","e_fem"],["Bibliothek","f","library","arbitrary"],["Brust","f","chest","arbitrary"],["Eingang","m","entrance","arbitrary"],["Ernährung","f","nutrition","fem_suffix"],["Fraktion","f","parliamentary group","fem_suffix"],["Haar","n","hair","arbitrary"],["Hammer","m","hammer","masc_suffix"],["Konflikt","m","conflict","arbitrary"],["Kooperation","f","cooperation","fem_suffix"],["Sänger","m","singer","masc_suffix"],["Umfrage","f","survey","e_fem"],["Versprechen","n","promise","nominal_inf"],["Wirklichkeit","f","reality","fem_suffix"],["Akademie","f","academy","e_fem"],["Datum","n","date","neut_suffix"],["Deal","m","deal","arbitrary"],["Definition","f","definition","fem_suffix"],["Einladung","f","invitation","fem_suffix"],["Finanzierung","f","financing","fem_suffix"],["Gerechtigkeit","f","justice","fem_suffix"],["Kapitän","m","captain","arbitrary"],["Koalition","f","coalition","fem_suffix"],["Paket","n","parcel","arbitrary"],["Perspektive","f","perspective","e_fem"],["Regelung","f","regulation","fem_suffix"],["Teufel","m","devil","arbitrary"],["Vorsicht","f","caution","compound","die Sicht"],["Aufstieg","m","rise, promotion","arbitrary"],["Aufwand","m","effort, expense","arbitrary"],["Burg","f","castle","arbitrary"],["Edition","f","edition","fem_suffix"],["Entwurf","m","draft","arbitrary"],["Freizeit","f","free time","compound","die Zeit"],["Front","f","front","arbitrary"],["Gewinner","m","winner","masc_suffix"],["Innenstadt","f","city centre","compound","die Stadt"],["Jäger","m","hunter","masc_suffix"],["Rente","f","pension","e_fem"],["Ritter","m","knight","masc_suffix"],["Schwerpunkt","m","focus","compound","der Punkt"],["Verbesserung","f","improvement","fem_suffix"],["Versicherung","f","insurance","fem_suffix"],["Versorgung","f","supply","fem_suffix"],["Veröffentlichung","f","publication","fem_suffix"],["Aussicht","f","view, prospect","compound","die Sicht"],["Bauch","m","belly","arbitrary"],["Cent","m","cent","masc_suffix"],["Entfernung","f","distance","fem_suffix"],["Eröffnung","f","opening","fem_suffix"],["Fach","n","subject, compartment","arbitrary"],["Feier","f","party, celebration","arbitrary"],["Hauptsache","f","main thing","e_fem"],["Hinsicht","f","respect, regard","compound","die Sicht"],["Kohle","f","coal, cash","e_fem"],["Oberfläche","f","surface","e_fem"],["Opposition","f","opposition","fem_suffix"],["Option","f","option","fem_suffix"],["Sand","m","sand","arbitrary"],["Schatz","m","treasure, darling","arbitrary"],["Schmerz","m","pain","arbitrary"],["Tanz","m","dance","arbitrary"],["Tatort","m","crime scene","arbitrary"],["Verdacht","m","suspicion","arbitrary"],["Verteidigung","f","defence","fem_suffix"],["Ärger","m","trouble, anger","masc_suffix"],["Beratung","f","advice","fem_suffix"],["Beteiligung","f","participation","fem_suffix"],["Decke","f","blanket, ceiling","e_fem"],["Einkommen","n","income","nominal_inf"],["Existenz","f","existence","fem_suffix"],["Fokus","m","focus","arbitrary"],["Forscher","m","researcher","masc_suffix"],["Geschäftsführer","m","managing director","masc_suffix"],["Glückwunsch","m","congratulations","compound","der Wunsch"],["Hafen","m","harbour","arbitrary"],["Rezept","n","recipe, prescription","arbitrary"],["Spannung","f","tension, suspense","fem_suffix"],["Trennung","f","separation","fem_suffix"],["Veränderung","f","change","fem_suffix"],["Wahnsinn","m","madness","compound","der Sinn"],["Bewertung","f","rating","fem_suffix"],["Bischof","m","bishop","arbitrary"],["Chaos","n","chaos","arbitrary"],["Dichter","m","poet","masc_suffix"],["Ersatz","m","replacement","arbitrary"],["Erweiterung","f","extension","fem_suffix"],["Feind","m","enemy","arbitrary"],["Flügel","m","wing","arbitrary"],["Gebrauch","m","use","compound","der Rauch"],["Haufen","m","pile","arbitrary"],["Haushalt","m","household, budget","arbitrary"],["Herrschaft","f","rule, reign","fem_suffix"],["Kindheit","f","childhood","fem_suffix"],["Knie","n","knee","e_exception"],["Kontext","m","context","compound","der Text"],["Krebs","m","cancer, crab","arbitrary"],["Leidenschaft","f","passion","fem_suffix"],["Miete","f","rent","e_fem"],["Mond","m","moon","arbitrary"],["Ohr","n","ear","arbitrary"],["Rathaus","n","town hall","arbitrary"],["Rose","f","rose","e_fem"],["Schriftsteller","m","writer","masc_suffix"],["Sprecher","m","speaker","masc_suffix"],["Stahl","m","steel","arbitrary"],["Zitat","n","quote","arbitrary"],["Überleben","n","survival","nominal_inf"],["Box","f","box","arbitrary"],["Branche","f","industry, sector","e_fem"],["Fisch","m","fish","arbitrary"],["Galerie","f","gallery","e_fem"],["Herausforderung","f","challenge","fem_suffix"],["Herzog","m","duke","arbitrary"],["Justiz","f","judiciary","arbitrary"],["Kampagne","f","campaign","e_fem"],["Krone","f","crown","e_fem"],["Lebensmittel","n","food (groceries)","arbitrary"],["Priester","m","priest","masc_suffix"],["Stock","m","stick, floor (storey)","arbitrary"],["Träger","m","carrier, strap","masc_suffix"],["Unrecht","n","injustice","arbitrary"],["Villa","f","villa","arbitrary"],["Wahlkampf","m","election campaign","compound","der Kampf"],["Arbeitnehmer","m","employee","masc_suffix"],["Architektur","f","architecture","fem_suffix"],["Auseinandersetzung","f","dispute","fem_suffix"],["Bach","m","stream","arbitrary"],["Heft","n","exercise book","arbitrary"],["Hitze","f","heat","e_fem"],["Händler","m","dealer","masc_suffix"],["Physik","f","physics","fem_suffix"],["Portal","n","portal","arbitrary"],["Reifen","m","tyre","arbitrary"],["Salz","n","salt","arbitrary"],["Wandel","m","change","arbitrary"],["Weite","f","vastness","e_fem"],["Übernahme","f","takeover","e_fem"],["Annahme","f","assumption","e_fem"],["Ausländer","m","foreigner","masc_suffix"],["Befehl","m","order, command","arbitrary"],["Behörde","f","authority","e_fem"],["Bein","n","leg","arbitrary"],["Berater","m","adviser","masc_suffix"],["Betrag","m","amount","arbitrary"],["Bibel","f","Bible","arbitrary"],["Durchschnitt","m","average","compound","der Schnitt"],["Ehefrau","f","wife","compound","die Frau"],["Gipfel","m","summit","arbitrary"],["Klang","m","sound","arbitrary"],["Mathematik","f","mathematics","fem_suffix"],["Motivation","f","motivation","fem_suffix"],["Prinzessin","f","princess","arbitrary"],["Profi","m","professional","arbitrary"],["Quatsch","m","nonsense","arbitrary"],["Schrift","f","writing, font","arbitrary"],["Technologie","f","technology","e_fem"],["Verletzung","f","injury","fem_suffix"],["Ausstattung","f","equipment","fem_suffix"],["Beschluss","m","resolution","arbitrary"],["Bestandteil","m","component","arbitrary"],["Drama","n","drama","neut_suffix"],["Entstehung","f","origin","fem_suffix"],["Halbfinale","n","semi-final","e_exception"],["Jagd","f","hunt","arbitrary"],["Kenntnis","f","knowledge","arbitrary"],["Klage","f","lawsuit, complaint","e_fem"],["Kloster","n","monastery","arbitrary"],["Kollege","m","colleague","e_exception"],["Konferenz","f","conference","fem_suffix"],["Objekt","n","object","arbitrary"],["Polizist","m","police officer","masc_suffix"],["Wahrscheinlichkeit","f","probability","fem_suffix"],["Weltmeister","m","world champion","masc_suffix"],["Zone","f","zone","e_fem"],["Austausch","m","exchange","arbitrary"],["Block","m","block","arbitrary"],["Dialog","m","dialogue","arbitrary"],["Fassung","f","version","fem_suffix"],["Grab","n","grave","arbitrary"],["Kabel","n","cable","arbitrary"],["Kleid","n","dress","arbitrary"],["Küste","f","coast","e_fem"],["Note","f","grade, note","e_fem"],["Pizza","f","pizza","arbitrary"],["Provinz","f","province","arbitrary"],["Redaktion","f","editorial team","fem_suffix"],["Sekunde","f","second","e_fem"],["Signal","n","signal","arbitrary"],["Symbol","n","symbol","arbitrary"],["Unsinn","m","nonsense","arbitrary"],["Update","n","update","arbitrary"],["Vorlage","f","template","e_fem"],["Ablauf","m","process","arbitrary"],["Abschied","m","farewell","arbitrary"],["Arena","f","arena","arbitrary"],["Bewusstsein","n","consciousness","arbitrary"],["Eigentum","n","property","neut_suffix"],["Hahn","m","tap, rooster","arbitrary"],["Kumpel","m","mate, buddy","arbitrary"],["Motiv","n","motive, motif","arbitrary"],["Muster","n","pattern","arbitrary"],["Parkplatz","m","car park","compound","der Platz"],["Partie","f","match, game","e_fem"],["Protest","m","protest","compound","der Test"],["Schlacht","f","battle","arbitrary"],["Transport","m","transport","compound","der Sport"],["Vielfalt","f","diversity","arbitrary"],["Voraussetzung","f","prerequisite","fem_suffix"],["Widerspruch","m","contradiction","compound","der Spruch"],["Affäre","f","affair","e_fem"],["Dreck","m","dirt","arbitrary"],["Durchführung","f","implementation","fem_suffix"],["Entschuldigung","f","apology","fem_suffix"],["Grundstück","n","plot of land","arbitrary"],["Index","m","index","arbitrary"],["Kasse","f","till, checkout","e_fem"],["Kindergarten","m","nursery school","compound","der Garten"],["Knochen","m","bone","arbitrary"],["Laune","f","mood","e_fem"],["Logik","f","logic","fem_suffix"],["Mittelalter","n","Middle Ages","compound","das Alter"],["Onkel","m","uncle","arbitrary"],["Pokal","m","cup, trophy","arbitrary"],["Propaganda","f","propaganda","arbitrary"],["Qualifikation","f","qualification","fem_suffix"],["Regisseur","m","film director","masc_suffix"],["Schulter","f","shoulder","arbitrary"],["Streifen","m","stripe","arbitrary"],["Talent","n","talent","arbitrary"],["Vorwurf","m","accusation","arbitrary"],["Ware","f","goods","e_fem"],["Wut","f","rage","arbitrary"],["Abstimmung","f","vote","fem_suffix"],["Anruf","m","phone call","arbitrary"],["Armut","f","poverty","arbitrary"],["Grundschule","f","primary school","e_fem"],["Klassiker","m","classic","masc_suffix"],["Meldung","f","report, notification","fem_suffix"],["Power","f","power","arbitrary"],["Reform","f","reform","arbitrary"],["Scheitern","n","failure","nominal_inf"],["Spieltag","m","match day","arbitrary"],["Ticket","n","ticket","arbitrary"],["Verordnung","f","regulation","fem_suffix"],["Abkommen","n","agreement","nominal_inf"],["Agentur","f","agency","fem_suffix"],["Ausführung","f","execution, model","fem_suffix"],["Bonus","m","bonus","arbitrary"],["Ehemann","m","husband","compound","der Mann"],["Empfang","m","reception","arbitrary"],["Experte","m","expert","e_exception"],["Fähigkeit","f","ability","fem_suffix"],["Gras","n","grass","arbitrary"],["Höhepunkt","m","highlight","compound","der Punkt"],["Katastrophe","f","disaster","e_fem"],["Kette","f","chain","e_fem"],["Leere","f","emptiness","e_fem"],["Legende","f","legend","e_fem"],["Premiere","f","premiere","e_fem"],["Sack","m","sack","arbitrary"],["Stille","f","silence","e_fem"],["Umsatz","m","turnover","arbitrary"],["Versammlung","f","assembly","fem_suffix"],["Welle","f","wave","e_fem"],["Wärme","f","warmth","e_fem"],["Überwachung","f","surveillance","fem_suffix"],["Altstadt","f","old town","compound","die Stadt"],["Argument","n","argument","neut_suffix"],["Belastung","f","burden, strain","fem_suffix"],["College","n","college","arbitrary"],["Durchmesser","m","diameter","masc_suffix"],["Eigentümer","m","owner","masc_suffix"],["Erhöhung","f","increase","fem_suffix"],["Erziehung","f","upbringing","fem_suffix"],["Faktor","m","factor","masc_suffix"],["Geduld","f","patience","arbitrary"],["Gründer","m","founder","masc_suffix"],["Hobby","n","hobby","arbitrary"],["Kritiker","m","critic","masc_suffix"],["Kämpfer","m","fighter","masc_suffix"],["Lohn","m","wage","arbitrary"],["Lüge","f","lie","e_fem"],["Ministerium","n","ministry","neut_suffix"],["Psychologie","f","psychology","e_fem"],["Senat","m","senate","arbitrary"],["Wahrnehmung","f","perception","fem_suffix"],["Werkstatt","f","workshop, garage","arbitrary"],["Zunge","f","tongue","e_fem"],["Aufenthalt","m","stay","arbitrary"],["Betreuung","f","care, supervision","fem_suffix"],["Börse","f","stock exchange","e_fem"],["Empfehlung","f","recommendation","fem_suffix"],["Ereignis","n","event","neut_suffix"],["Genehmigung","f","permit","fem_suffix"],["Jacke","f","jacket","e_fem"],["Lehrerin","f","teacher (female)","arbitrary"],["Meisterschaft","f","championship","fem_suffix"],["Metall","n","metal","neut_misc"],["Modus","m","mode","arbitrary"],["Oper","f","opera","arbitrary"],["Tempo","n","pace, speed","neut_misc"],["These","f","thesis","e_fem"],["Vielzahl","f","multitude","compound","die Zahl"],["Angabe","f","statement, detail","e_fem"],["Ankunft","f","arrival","arbitrary"],["Anschlag","m","attack, notice","arbitrary"],["Autofahrer","m","driver","masc_suffix"],["Betreiber","m","operator","masc_suffix"],["Brille","f","glasses","e_fem"],["Detail","n","detail","arbitrary"],["Fazit","n","conclusion","arbitrary"],["Fortsetzung","f","continuation, sequel","fem_suffix"],["Intelligenz","f","intelligence","fem_suffix"],["Journalist","m","journalist","masc_suffix"],["Kapital","n","capital (money)","arbitrary"],["Kongress","m","congress","arbitrary"],["Magen","m","stomach","arbitrary"],["Ministerpräsident","m","state premier","masc_suffix"],["Nahrung","f","food","fem_suffix"],["Nationalmannschaft","f","national team","fem_suffix"],["Obst","n","fruit","arbitrary"],["Pech","n","bad luck","arbitrary"],["Regie","f","direction (film)","e_fem"],["Skandal","m","scandal","arbitrary"],["Tal","n","valley","arbitrary"],["Tendenz","f","tendency","fem_suffix"],["Terror","m","terror","masc_suffix"],["Treffer","m","hit, goal","masc_suffix"],["Tunnel","m","tunnel","arbitrary"],["Verlängerung","f","extension, extra time","fem_suffix"],["Vorhaben","n","plan, project","nominal_inf"],["Übertragung","f","broadcast, transfer","fem_suffix"],["Übung","f","exercise","fem_suffix"],["Abitur","n","school-leaving exam","arbitrary"],["Anliegen","n","concern","nominal_inf"],["Autorin","f","author (female)","arbitrary"],["Begegnung","f","encounter","fem_suffix"],["Diesel","m","diesel","arbitrary"],["Dokumentation","f","documentation, documentary","fem_suffix"],["Dusche","f","shower","e_fem"],["Einschätzung","f","assessment","fem_suffix"],["Gesang","m","singing","arbitrary"],["Halbzeit","f","half-time","compound","die Zeit"],["Held","m","hero","arbitrary"],["Hütte","f","hut","e_fem"],["Jahrgang","m","year group, vintage","arbitrary"],["Monster","n","monster","arbitrary"],["Persönlichkeit","f","personality","fem_suffix"],["Platte","f","plate, record","e_fem"],["Schauspielerin","f","actress","arbitrary"],["Sound","m","sound","arbitrary"],["Spruch","m","saying","arbitrary"],["Störung","f","disruption","fem_suffix"],["Support","m","support","arbitrary"],["Tempel","m","temple","arbitrary"],["Ufer","n","shore, bank","arbitrary"],["Ausgleich","m","balance, equaliser","arbitrary"],["Auskunft","f","information","arbitrary"],["Auszeichnung","f","award","fem_suffix"],["Berufung","f","appeal, vocation","fem_suffix"],["Botschafter","m","ambassador","masc_suffix"],["Doktor","m","doctor","masc_suffix"],["Erfüllung","f","fulfilment","fem_suffix"],["Flagge","f","flag","e_fem"],["Fortschritt","m","progress","compound","der Schritt"],["Friedhof","m","cemetery","arbitrary"],["Fuchs","m","fox","arbitrary"],["Gitarre","f","guitar","e_fem"],["Grafik","f","graphic","fem_suffix"],["Ideal","n","ideal","arbitrary"],["Kugel","f","ball, sphere","arbitrary"],["Mörder","m","murderer","masc_suffix"],["Opa","m","grandpa","arbitrary"],["Patient","m","patient","masc_suffix"],["Roboter","m","robot","masc_suffix"],["Schmuck","m","jewellery","arbitrary"],["Umzug","m","move (house)","arbitrary"],["Vergnügen","n","pleasure","nominal_inf"],["Zerstörung","f","destruction","fem_suffix"],["Anstieg","m","rise","arbitrary"],["Ausgang","m","exit","arbitrary"],["Besetzung","f","cast, occupation","fem_suffix"],["Burger","m","burger","masc_suffix"],["Daumen","m","thumb","arbitrary"],["Distanz","f","distance","fem_suffix"],["Entwickler","m","developer","masc_suffix"],["Erkrankung","f","illness","fem_suffix"],["Erlebnis","n","experience","neut_suffix"],["Gen","n","gene","arbitrary"],["Hauptbahnhof","m","central station","compound","der Bahnhof"],["Interpretation","f","interpretation","fem_suffix"],["Klavier","n","piano","arbitrary"],["Lokal","n","pub, restaurant","arbitrary"],["Maler","m","painter","masc_suffix"],["Motorrad","n","motorbike","arbitrary"],["Panik","f","panic","fem_suffix"],["Phänomen","n","phenomenon","arbitrary"],["Schokolade","f","chocolate","e_fem"],["Unabhängigkeit","f","independence","fem_suffix"],["Verteilung","f","distribution","fem_suffix"],["Wette","f","bet","e_fem"],["Wohnzimmer","n","living room","compound","das Zimmer"],["Adler","m","eagle","masc_suffix"],["Angelegenheit","f","matter","fem_suffix"],["Anmeldung","f","registration","fem_suffix"],["Auffassung","f","view","fem_suffix"],["Ausschuss","m","committee","compound","der Schuss"],["Balkon","m","balcony","arbitrary"],["Bogen","m","arc, bow, sheet","arbitrary"],["Faust","f","fist","arbitrary"],["Führerschein","m","driving licence","arbitrary"],["Gutachten","n","expert report","nominal_inf"],["Güte","f","goodness","e_fem"],["Helfer","m","helper","masc_suffix"],["Jazz","m","jazz","arbitrary"],["Koffer","m","suitcase","masc_suffix"],["Luxus","m","luxury","arbitrary"],["Radfahrer","m","cyclist","masc_suffix"],["Reichweite","f","range","e_fem"],["Rücktritt","m","resignation","compound","der Tritt"],["Stadtteil","m","district","arbitrary"],["Treppe","f","stairs","e_fem"],["Turm","m","tower","arbitrary"],["Verbraucher","m","consumer","masc_suffix"],["Verfolgung","f","pursuit","fem_suffix"],["Zugriff","m","access","arbitrary"],["Aspekt","m","aspect","arbitrary"],["Bande","f","gang","e_fem"],["Bearbeitung","f","editing, processing","fem_suffix"],["Beschäftigung","f","employment","fem_suffix"],["Bündnis","n","alliance","neut_suffix"],["Dom","m","cathedral","arbitrary"],["Fabrik","f","factory","fem_suffix"],["Gegenstand","m","object","arbitrary"],["Handbuch","n","manual","compound","das Buch"],["Hirn","n","brain","arbitrary"],["Kammer","f","chamber","arbitrary"],["Konzentration","f","concentration","fem_suffix"],["Mitteilung","f","notice","fem_suffix"],["Pfund","n","pound","arbitrary"],["Rettung","f","rescue","fem_suffix"],["Schreibtisch","m","desk","compound","der Tisch"],["Sportler","m","athlete","masc_suffix"],["Strich","m","line, stroke","arbitrary"],["Tante","f","aunt","e_fem"],["Umbau","m","renovation","arbitrary"],["Verpflichtung","f","obligation","fem_suffix"],["Weiterbildung","f","further training","fem_suffix"],["Winkel","m","angle, corner","arbitrary"],["Übergang","m","transition, crossing","arbitrary"],["Überzeugung","f","conviction","fem_suffix"],["Ablehnung","f","rejection","fem_suffix"],["Bart","m","beard","arbitrary"],["Behauptung","f","claim","fem_suffix"],["Bilanz","f","balance sheet","fem_suffix"],["Budget","n","budget","arbitrary"],["Element","n","element","neut_suffix"],["Gemälde","n","painting","neut_suffix"],["Konstruktion","f","construction","fem_suffix"],["Mieter","m","tenant","masc_suffix"],["Moderator","m","presenter","masc_suffix"],["Notwendigkeit","f","necessity","fem_suffix"],["Rauch","m","smoke","arbitrary"],["Rätsel","n","puzzle","arbitrary"],["Schicht","f","layer, shift","arbitrary"],["Sprung","m","jump","arbitrary"],["Supermarkt","m","supermarket","compound","der Markt"],["Tafel","f","board, bar (chocolate)","arbitrary"],["Tennis","n","tennis","neut_suffix"],["Unglück","n","misfortune","arbitrary"],["Ursprung","m","origin","arbitrary"],["Vorgänger","m","predecessor","masc_suffix"],["Akt","m","act","arbitrary"],["Aufregung","f","excitement","fem_suffix"],["Aufstellung","f","line-up","fem_suffix"],["Bedrohung","f","threat","fem_suffix"],["Bestätigung","f","confirmation","fem_suffix"],["Beute","f","loot, prey","e_fem"],["Blödsinn","m","nonsense","compound","der Sinn"],["Boss","m","boss","arbitrary"],["Eintrag","m","entry","arbitrary"],["Gestalt","f","figure, shape","arbitrary"],["Handwerk","n","craft, trade","compound","das Werk"],["Kalender","m","calendar","masc_suffix"],["Kompetenz","f","competence","fem_suffix"],["Käufer","m","buyer","masc_suffix"],["Moral","f","morals","arbitrary"],["Pilot","m","pilot","arbitrary"],["Pleite","f","bankruptcy","e_fem"],["Probe","f","rehearsal, sample","e_fem"],["Saal","m","hall","arbitrary"],["Schande","f","disgrace","e_fem"],["Scheibe","f","slice, pane","e_fem"],["Solo","n","solo","neut_misc"],["Theologie","f","theology","e_fem"],["Allianz","f","alliance","fem_suffix"],["Asyl","n","asylum","arbitrary"],["Ausrüstung","f","equipment","fem_suffix"],["Basketball","m","basketball","compound","der Ball"],["Bestimmung","f","regulation","fem_suffix"],["Diagnose","f","diagnosis","e_fem"],["Höhle","f","cave","e_fem"],["Image","n","image","arbitrary"],["Kanzler","m","chancellor","masc_suffix"],["Konzern","m","corporation","arbitrary"],["Leiche","f","corpse","e_fem"],["Medium","n","medium","neut_suffix"],["Mitgliedschaft","f","membership","fem_suffix"],["Orchester","n","orchestra","arbitrary"],["Rechtsanwalt","m","lawyer","compound","der Anwalt"],["Route","f","route","e_fem"],["Sofa","n","sofa","arbitrary"],["Soldat","m","soldier","arbitrary"],["Spektrum","n","spectrum","neut_suffix"],["Vereinbarung","f","agreement","fem_suffix"],["Zeuge","m","witness","e_exception"],["Zoo","m","zoo","arbitrary"],["Abendessen","n","dinner","compound","das Essen"],["Akku","m","battery (rechargeable)","arbitrary"],["Arbeitsplatz","m","workplace, job","compound","der Platz"],["Begleitung","f","company, escort","fem_suffix"],["Coach","m","coach","arbitrary"],["Einblick","m","insight","compound","der Blick"],["Episode","f","episode","e_fem"],["Fitness","f","fitness","arbitrary"],["Genuss","m","enjoyment","arbitrary"],["Geruch","m","smell","arbitrary"],["Kandidat","m","candidate","arbitrary"],["Kanzlerin","f","chancellor (female)","arbitrary"],["Kennzeichen","n","number plate, feature","dim"],["Marine","f","navy","e_fem"],["Missbrauch","m","abuse","compound","der Brauch"],["Mittagessen","n","lunch","compound","das Essen"],["Panzer","m","tank","masc_suffix"],["Präsentation","f","presentation","fem_suffix"],["Rate","f","instalment, rate","e_fem"],["Rechner","m","computer, calculator","masc_suffix"],["Reihenfolge","f","order, sequence","e_fem"],["Rekord","m","record","arbitrary"],["Schrank","m","cupboard","arbitrary"],["Treue","f","loyalty","e_fem"],["Trick","m","trick","arbitrary"],["Verkäufer","m","salesperson","masc_suffix"],["Vision","f","vision","fem_suffix"],["Zelle","f","cell","e_fem"],["Aufruf","m","appeal, call","arbitrary"],["Benzin","n","petrol","arbitrary"],["Camp","n","camp","arbitrary"],["Empfänger","m","recipient","masc_suffix"],["Experiment","n","experiment","neut_suffix"],["Gedächtnis","n","memory","neut_suffix"],["Inhaber","m","owner","masc_suffix"],["Komplex","m","complex","arbitrary"],["Lieferung","f","delivery","fem_suffix"],["Nachbar","m","neighbour","arbitrary"],["Nachbarschaft","f","neighbourhood","fem_suffix"],["Norm","f","norm","arbitrary"],["Pflanze","f","plant","e_fem"],["Reporter","m","reporter","masc_suffix"],["Solidarität","f","solidarity","fem_suffix"],["Sozialismus","m","socialism","masc_suffix"],["Spielzeug","n","toy","compound","das Zeug"],["Student","m","student","masc_suffix"]];
+const VERBS_X=[{"i":"leben","en":"to live","p3":"lebte","pp":"gelebt","aux":"haben","t":"weak","dp":["geleben","gelebet"],"s":"Ich {} drei Jahre in Wien gelebt.","pr":"ich"},{"i":"lassen","en":"to let, leave","p3":"ließ","pp":"gelassen","aux":"haben","t":"strong","dp":["gelasst","geließen"],"s":"Ich {} meine Jacke im Auto gelassen.","pr":"ich","dr":["lasste","ließte"]},{"i":"sagen","en":"to say","p3":"sagte","pp":"gesagt","aux":"haben","t":"weak","dp":["gesagen","gesaget"],"s":"Ich {} ihm die Wahrheit gesagt.","pr":"ich"},{"i":"geben","en":"to give","p3":"gab","pp":"gegeben","aux":"haben","t":"strong","dp":["gegebt","gegaben"],"s":"Er {} mir das Geld gegeben.","pr":"er","dr":["gebte","gabte"]},{"i":"tun","en":"to do","p3":"tat","pp":"getan","aux":"haben","t":"strong","dp":["getut","getaten"],"s":"Ich {} mein Bestes getan.","pr":"ich","dr":["tute","tate"]},{"i":"stehen","en":"to stand","p3":"stand","pp":"gestanden","aux":"haben","t":"strong","dp":["gesteht","gestehen"],"s":"Wir {} lange an der Kasse gestanden.","pr":"wir","dr":["stehte","standte"],"note":"Position verbs (stehen, liegen, sitzen) take haben in standard German. In the south and Austria you will hear sein."},{"i":"fragen","en":"to ask","p3":"fragte","pp":"gefragt","aux":"haben","t":"weak","dp":["gefragen","gefraget"],"s":"Er {} nach dem Weg gefragt.","pr":"er"},{"i":"stellen","en":"to put (upright)","p3":"stellte","pp":"gestellt","aux":"haben","t":"weak","dp":["gestellen","gestellet"],"s":"Sie {} die Flasche auf den Tisch gestellt.","pr":"er"},{"i":"halten","en":"to hold, stop","p3":"hielt","pp":"gehalten","aux":"haben","t":"strong","dp":["gehaltet","gehielten"],"s":"Der Bus {} direkt vor dem Haus gehalten.","pr":"er","dr":["haltete","hielte"],"note":"halten takes haben, even when a vehicle stops."},{"i":"erhalten","en":"to receive","p3":"erhielt","pp":"erhalten","aux":"haben","t":"insep","dp":["geerhalten","erhaltet"],"s":"Wir {} Ihre Nachricht erhalten.","pr":"wir","dr":["erhaltete","erhielte"]},{"i":"zeigen","en":"to show","p3":"zeigte","pp":"gezeigt","aux":"haben","t":"weak","dp":["gezeigen","gezeiget"],"s":"Sie {} mir die Stadt gezeigt.","pr":"er"},{"i":"suchen","en":"to look for","p3":"suchte","pp":"gesucht","aux":"haben","t":"weak","dp":["gesuchen","gesuchet"],"s":"Ich {} überall meine Brille gesucht.","pr":"ich"},{"i":"folgen","en":"to follow","p3":"folgte","pp":"gefolgt","aux":"sein","t":"weak","dp":["gefolgen","gefolget"],"s":"Der Hund {} mir nach Hause gefolgt.","pr":"er","note":"folgen takes sein: you move after someone."},{"i":"helfen","en":"to help","p3":"half","pp":"geholfen","aux":"haben","t":"strong","dp":["gehelft","gehalfen"],"s":"Er {} mir beim Umzug geholfen.","pr":"er","dr":["helfte","halfte"]},{"i":"brauchen","en":"to need","p3":"brauchte","pp":"gebraucht","aux":"haben","t":"weak","dp":["gebrauchen","gebrauchet"],"s":"Wir {} keine Hilfe gebraucht.","pr":"wir"},{"i":"zahlen","en":"to pay","p3":"zahlte","pp":"gezahlt","aux":"haben","t":"weak","dp":["gezahlen","gezahlet"],"s":"Er {} bar gezahlt.","pr":"er"},{"i":"führen","en":"to lead","p3":"führte","pp":"geführt","aux":"haben","t":"weak","dp":["geführen","geführet"],"s":"Er {} die Firma zehn Jahre geführt.","pr":"er"},{"i":"lernen","en":"to learn","p3":"lernte","pp":"gelernt","aux":"haben","t":"weak","dp":["gelernen","gelernet"],"s":"Ich {} zwei Jahre Spanisch gelernt.","pr":"ich"},{"i":"sprechen","en":"to speak","p3":"sprach","pp":"gesprochen","aux":"haben","t":"strong","dp":["gesprecht","gesprachen"],"s":"Ich {} mit meinem Chef gesprochen.","pr":"ich","dr":["sprechte","sprachte"]},{"i":"glauben","en":"to believe","p3":"glaubte","pp":"geglaubt","aux":"haben","t":"weak","dp":["geglauben","geglaubet"],"s":"Das {} ich dir nicht geglaubt.","pr":"ich"},{"i":"schaffen","en":"to manage","p3":"schaffte","pp":"geschafft","aux":"haben","t":"weak","dp":["geschaffen","geschaffet"],"s":"Ich {} die Prüfung geschafft.","pr":"ich"},{"i":"setzen","en":"to put, seat","p3":"setzte","pp":"gesetzt","aux":"haben","t":"weak","dp":["gesetzen","gesetzet"],"s":"Ich {} mich ans Fenster gesetzt.","pr":"ich","note":"sich setzen has a (reflexive) object, so haben. Compare: ich habe gesessen."},{"i":"hören","en":"to hear","p3":"hörte","pp":"gehört","aux":"haben","t":"weak","dp":["gehören","gehöret"],"s":"Ich {} nichts gehört.","pr":"ich"},{"i":"kennen","en":"to know (a person)","p3":"kannte","pp":"gekannt","aux":"haben","t":"mixed","dp":["gekennt","gekennen"],"s":"Ich {} ihn schon als Kind gekannt.","pr":"ich","dr":["kennte","kann"]},{"i":"ziehen","en":"to pull","p3":"zog","pp":"gezogen","aux":"haben","t":"strong","dp":["gezieht","geziehen"],"s":"Er {} an der Tür gezogen.","pr":"er","dr":["ziehte","zogte"],"note":"ziehen meaning pull takes haben. ziehen meaning move house takes sein: sie ist nach Köln gezogen."},{"i":"tragen","en":"to carry, wear","p3":"trug","pp":"getragen","aux":"haben","t":"strong","dp":["getragt","getrugen"],"s":"Er {} den schweren Koffer getragen.","pr":"er","dr":["tragte","trugte"]},{"i":"versuchen","en":"to try","p3":"versuchte","pp":"versucht","aux":"haben","t":"insep","dp":["geversucht","versuchen"],"s":"Ich {} es dreimal versucht.","pr":"ich"},{"i":"gehören","en":"to belong","p3":"gehörte","pp":"gehört","aux":"haben","t":"insep","dp":["gegehört","gehören"],"s":"Das Haus {} meinem Opa gehört.","pr":"er"},{"i":"erreichen","en":"to reach","p3":"erreichte","pp":"erreicht","aux":"haben","t":"insep","dp":["geerreicht","erreichen"],"s":"Ich {} ihn telefonisch nicht erreicht.","pr":"ich"},{"i":"warten","en":"to wait","p3":"wartete","pp":"gewartet","aux":"haben","t":"weak","dp":["gewarten","wartet"],"s":"Ich {} eine Stunde gewartet.","pr":"ich"},{"i":"gewinnen","en":"to win","p3":"gewann","pp":"gewonnen","aux":"haben","t":"insep","dp":["gegewonnen","gewinnt"],"s":"Wir {} das Spiel gewonnen.","pr":"wir","dr":["gewinnte","gewannte"]},{"i":"gefallen","en":"to please","p3":"gefiel","pp":"gefallen","aux":"haben","t":"insep","dp":["gegefallen","gefallt"],"s":"Der Film {} mir gut gefallen.","pr":"er","dr":["gefallte","gefielte"],"note":"gefallen (to please) takes haben, unlike fallen (to fall)."},{"i":"erklären","en":"to explain","p3":"erklärte","pp":"erklärt","aux":"haben","t":"insep","dp":["geerklärt","erklären"],"s":"Sie {} mir alles erklärt.","pr":"er"},{"i":"schauen","en":"to look, watch","p3":"schaute","pp":"geschaut","aux":"haben","t":"weak","dp":["geschauen","geschauet"],"s":"Wir {} einen Film geschaut.","pr":"wir"},{"i":"fallen","en":"to fall","p3":"fiel","pp":"gefallen","aux":"sein","t":"strong","dp":["gefallt","gefielen"],"s":"Das Glas {} auf den Boden gefallen.","pr":"er","dr":["fallte","fielte"],"note":"Falling is movement from A to B, so sein."},{"i":"verlassen","en":"to leave","p3":"verließ","pp":"verlassen","aux":"haben","t":"insep","dp":["geverlassen","verlasst"],"s":"Er {} das Haus früh verlassen.","pr":"er","dr":["verlasste","verließte"],"note":"verlassen has a direct object (das Haus), so haben, although it sounds like movement."},{"i":"entscheiden","en":"to decide","p3":"entschied","pp":"entschieden","aux":"haben","t":"insep","dp":["geentschieden","entscheidet"],"s":"Wir {} uns schon entschieden.","pr":"wir","dr":["entscheidete","entschiedte"]},{"i":"erkennen","en":"to recognise","p3":"erkannte","pp":"erkannt","aux":"haben","t":"insep","dp":["geerkannt","erkennen"],"s":"Ich {} dich sofort erkannt.","pr":"ich","dr":["erkennte","erkann"]},{"i":"nennen","en":"to name","p3":"nannte","pp":"genannt","aux":"haben","t":"mixed","dp":["genennt","genennen"],"s":"Sie {} ihre Tochter Emma genannt.","pr":"er","dr":["nennte","nann"]},{"i":"sitzen","en":"to sit","p3":"saß","pp":"gesessen","aux":"haben","t":"strong","dp":["gesitzt","gesaßen"],"s":"Ich {} den ganzen Tag im Büro gesessen.","pr":"ich","dr":["sitzte","saßte"],"note":"Position verbs (stehen, liegen, sitzen) take haben in standard German. In the south and Austria you will hear sein."},{"i":"erfahren","en":"to find out","p3":"erfuhr","pp":"erfahren","aux":"haben","t":"insep","dp":["geerfahren","erfahrt"],"s":"Ich {} es aus der Zeitung erfahren.","pr":"ich","dr":["erfahrte","erfuhrte"]},{"i":"vorstellen","en":"to introduce","p3":"stellte vor","pp":"vorgestellt","aux":"haben","t":"sep","dp":["gevorstellt","vorgestellen"],"s":"Er {} mir seine Freundin vorgestellt.","pr":"er"},{"i":"verkaufen","en":"to sell","p3":"verkaufte","pp":"verkauft","aux":"haben","t":"insep","dp":["geverkauft","verkaufen"],"s":"Er {} sein Auto verkauft.","pr":"er"},{"i":"heißen","en":"to be called","p3":"hieß","pp":"geheißen","aux":"haben","t":"strong","dp":["geheißt","gehießen"],"s":"Wie {} das Lied noch mal geheißen?","pr":"er","dr":["heißte","hießte"]},{"i":"legen","en":"to lay, put","p3":"legte","pp":"gelegt","aux":"haben","t":"weak","dp":["gelegen","geleget"],"s":"Ich {} das Handy aufs Bett gelegt.","pr":"ich"},{"i":"fühlen","en":"to feel","p3":"fühlte","pp":"gefühlt","aux":"haben","t":"weak","dp":["gefühlen","gefühlet"],"s":"Ich {} mich gut gefühlt.","pr":"ich"},{"i":"bauen","en":"to build","p3":"baute","pp":"gebaut","aux":"haben","t":"weak","dp":["gebauen","gebauet"],"s":"Sie {} ein Haus gebaut.","pr":"er"},{"i":"bieten","en":"to offer","p3":"bot","pp":"geboten","aux":"haben","t":"strong","dp":["gebietet","gebieten"],"s":"Er {} mir einen Job geboten.","pr":"er","dr":["bietete","bote"]},{"i":"holen","en":"to fetch","p3":"holte","pp":"geholt","aux":"haben","t":"weak","dp":["geholen","geholet"],"s":"Er {} Brötchen geholt.","pr":"er"},{"i":"antworten","en":"to answer","p3":"antwortete","pp":"geantwortet","aux":"haben","t":"weak","dp":["geantworten","antwortet"],"s":"Er {} sofort geantwortet.","pr":"er"},{"i":"verlieren","en":"to lose","p3":"verlor","pp":"verloren","aux":"haben","t":"insep","dp":["geverloren","verliert"],"s":"Ich {} meinen Schlüssel verloren.","pr":"ich","dr":["verlierte","verlorte"]},{"i":"rennen","en":"to run","p3":"rannte","pp":"gerannt","aux":"sein","t":"mixed","dp":["gerennt","gerennen"],"s":"Er {} zum Bus gerannt.","pr":"er","dr":["rennte","rann"]},{"i":"aussehen","en":"to look (appear)","p3":"sah aus","pp":"ausgesehen","aux":"haben","t":"sep","dp":["geaussehen","ausgeseht"],"s":"Er {} sehr müde ausgesehen.","pr":"er","dr":["sehte aus","sahte aus"]},{"i":"entstehen","en":"to arise","p3":"entstand","pp":"entstanden","aux":"sein","t":"insep","dp":["geentstanden","entsteht"],"s":"Die Idee {} beim Kaffee entstanden.","pr":"er","dr":["entstehte","entstandte"],"note":"Coming into being is a change of state, so sein."},{"i":"geschehen","en":"to happen","p3":"geschah","pp":"geschehen","aux":"sein","t":"insep","dp":["gegeschehen","gescheht"],"s":"Was {} hier geschehen?","pr":"er","dr":["geschehte","geschahte"],"note":"geschehen takes sein, like passieren."},{"i":"bezahlen","en":"to pay","p3":"bezahlte","pp":"bezahlt","aux":"haben","t":"insep","dp":["gebezahlt","bezahlen"],"s":"Wir {} schon bezahlt.","pr":"wir"},{"i":"lachen","en":"to laugh","p3":"lachte","pp":"gelacht","aux":"haben","t":"weak","dp":["gelachen","gelachet"],"s":"Wir {} viel gelacht.","pr":"wir"},{"i":"schließen","en":"to close","p3":"schloss","pp":"geschlossen","aux":"haben","t":"strong","dp":["geschließt","geschließen"],"s":"Ich {} das Fenster geschlossen.","pr":"ich","dr":["schließte","schlosste"]},{"i":"wohnen","en":"to live (reside)","p3":"wohnte","pp":"gewohnt","aux":"haben","t":"weak","dp":["gewohnen","gewohnet"],"s":"Ich {} fünf Jahre in Köln gewohnt.","pr":"ich"},{"i":"fernsehen","en":"to watch TV","p3":"sah fern","pp":"ferngesehen","aux":"haben","t":"sep","dp":["gefernsehen","ferngeseht"],"s":"Wir {} den ganzen Abend ferngesehen.","pr":"wir","dr":["sehte fern","sahte fern"]},{"i":"erzählen","en":"to tell","p3":"erzählte","pp":"erzählt","aux":"haben","t":"insep","dp":["geerzählt","erzählen"],"s":"Sie {} uns eine Geschichte erzählt.","pr":"er"},{"i":"schicken","en":"to send","p3":"schickte","pp":"geschickt","aux":"haben","t":"weak","dp":["geschicken","geschicket"],"s":"Sie {} mir ein Foto geschickt.","pr":"er"},{"i":"verdienen","en":"to earn","p3":"verdiente","pp":"verdient","aux":"haben","t":"insep","dp":["geverdient","verdienen"],"s":"Sie {} dort gut verdient.","pr":"er"},{"i":"leiden","en":"to suffer","p3":"litt","pp":"gelitten","aux":"haben","t":"strong","dp":["geleidet","geleiden"],"s":"Er {} sehr unter der Hitze gelitten.","pr":"er","dr":["leidete","litte"]},{"i":"empfehlen","en":"to recommend","p3":"empfahl","pp":"empfohlen","aux":"haben","t":"insep","dp":["geempfohlen","empfehlt"],"s":"Sie {} mir das Buch empfohlen.","pr":"er","dr":["empfehlte","empfahlte"]},{"i":"benutzen","en":"to use","p3":"benutzte","pp":"benutzt","aux":"haben","t":"insep","dp":["gebenutzt","benutzen"],"s":"Ich {} dein Handtuch benutzt.","pr":"ich"},{"i":"anfangen","en":"to begin","p3":"fing an","pp":"angefangen","aux":"haben","t":"sep","dp":["geanfangen","angefangt"],"s":"Der Kurs {} schon angefangen.","pr":"er","dr":["fangte an","fingte an"]},{"i":"schlagen","en":"to hit","p3":"schlug","pp":"geschlagen","aux":"haben","t":"strong","dp":["geschlagt","geschlugen"],"s":"Er {} mit der Faust auf den Tisch geschlagen.","pr":"er","dr":["schlagte","schlugte"]},{"i":"erleben","en":"to experience","p3":"erlebte","pp":"erlebt","aux":"haben","t":"insep","dp":["geerlebt","erleben"],"s":"Ich {} so etwas noch nie erlebt.","pr":"ich"},{"i":"entwickeln","en":"to develop","p3":"entwickelte","pp":"entwickelt","aux":"haben","t":"insep","dp":["geentwickelt","entwickeln"],"s":"Sie {} eine App entwickelt.","pr":"er"},{"i":"öffnen","en":"to open","p3":"öffnete","pp":"geöffnet","aux":"haben","t":"weak","dp":["geöffnen","öffnet"],"s":"Sie {} die Tür geöffnet.","pr":"er"},{"i":"behalten","en":"to keep","p3":"behielt","pp":"behalten","aux":"haben","t":"insep","dp":["gebehalten","behaltet"],"s":"Er {} das Geld behalten.","pr":"er","dr":["behaltete","behielte"]},{"i":"werfen","en":"to throw","p3":"warf","pp":"geworfen","aux":"haben","t":"strong","dp":["gewerft","gewarfen"],"s":"Er {} den Ball geworfen.","pr":"er","dr":["werfte","warfte"]},{"i":"steigen","en":"to climb, rise","p3":"stieg","pp":"gestiegen","aux":"sein","t":"strong","dp":["gesteigt","gesteigen"],"s":"Die Preise {} stark gestiegen.","pr":"wir","dr":["steigte","stiegte"],"note":"Rising is a change of position, so sein."},{"i":"erscheinen","en":"to appear","p3":"erschien","pp":"erschienen","aux":"sein","t":"insep","dp":["geerschienen","erscheint"],"s":"Das Buch {} letztes Jahr erschienen.","pr":"er","dr":["erscheinte","erschiente"]},{"i":"singen","en":"to sing","p3":"sang","pp":"gesungen","aux":"haben","t":"strong","dp":["gesingt","gesangen"],"s":"Wir {} zusammen gesungen.","pr":"wir","dr":["singte","sangte"]},{"i":"aufhören","en":"to stop","p3":"hörte auf","pp":"aufgehört","aux":"haben","t":"sep","dp":["geaufhört","aufgehören"],"s":"Ich {} mit dem Rauchen aufgehört.","pr":"ich"},{"i":"rufen","en":"to call","p3":"rief","pp":"gerufen","aux":"haben","t":"strong","dp":["geruft","geriefen"],"s":"Ich {} den Arzt gerufen.","pr":"ich","dr":["rufte","riefte"]},{"i":"kochen","en":"to cook","p3":"kochte","pp":"gekocht","aux":"haben","t":"weak","dp":["gekochen","gekochet"],"s":"Ich {} Suppe gekocht.","pr":"ich"},{"i":"bitten","en":"to ask (request)","p3":"bat","pp":"gebeten","aux":"haben","t":"strong","dp":["gebittet","gebaten"],"s":"Sie {} mich um Hilfe gebeten.","pr":"er","dr":["bittete","bate"]},{"i":"funktionieren","en":"to work (function)","p3":"funktionierte","pp":"funktioniert","aux":"haben","t":"ieren","dp":["gefunktioniert","funktionieret"],"s":"Der Trick {} funktioniert.","pr":"er"},{"i":"verschwinden","en":"to disappear","p3":"verschwand","pp":"verschwunden","aux":"sein","t":"insep","dp":["geverschwunden","verschwindet"],"s":"Mein Fahrrad {} verschwunden.","pr":"er","dr":["verschwindete","verschwandte"],"note":"Disappearing is a change of state, so sein."},{"i":"greifen","en":"to grab","p3":"griff","pp":"gegriffen","aux":"haben","t":"strong","dp":["gegreift","gegreifen"],"s":"Sie {} nach meiner Hand gegriffen.","pr":"er","dr":["greifte","griffte"]},{"i":"vergleichen","en":"to compare","p3":"verglich","pp":"verglichen","aux":"haben","t":"insep","dp":["geverglichen","vergleicht"],"s":"Ich {} die Preise verglichen.","pr":"ich","dr":["vergleichte","verglichte"]},{"i":"bestellen","en":"to order","p3":"bestellte","pp":"bestellt","aux":"haben","t":"insep","dp":["gebestellt","bestellen"],"s":"Ich {} eine Pizza bestellt.","pr":"ich"},{"i":"schweigen","en":"to be silent","p3":"schwieg","pp":"geschwiegen","aux":"haben","t":"strong","dp":["geschweigt","geschweigen"],"s":"Er {} die ganze Zeit geschwiegen.","pr":"er","dr":["schweigte","schwiegte"]},{"i":"verbringen","en":"to spend (time)","p3":"verbrachte","pp":"verbracht","aux":"haben","t":"insep","dp":["geverbracht","verbringen"],"s":"Wir {} den Sommer am Meer verbracht.","pr":"wir","dr":["verbringte","verbrach"]},{"i":"diskutieren","en":"to discuss","p3":"diskutierte","pp":"diskutiert","aux":"haben","t":"ieren","dp":["gediskutiert","diskutieret"],"s":"Wir {} lange darüber diskutiert.","pr":"wir"},{"i":"tanzen","en":"to dance","p3":"tanzte","pp":"getanzt","aux":"haben","t":"weak","dp":["getanzen","getanzet"],"s":"Wir {} die ganze Nacht getanzt.","pr":"wir"},{"i":"ausgehen","en":"to go out","p3":"ging aus","pp":"ausgegangen","aux":"sein","t":"sep","dp":["geausgangen","ausgegeht"],"s":"Wir {} am Samstag ausgegangen.","pr":"wir","dr":["gehte aus","gingte aus"]},{"i":"schwimmen","en":"to swim","p3":"schwamm","pp":"geschwommen","aux":"sein","t":"strong","dp":["geschwimmt","geschwammen"],"s":"Ich {} über den See geschwommen.","pr":"ich","dr":["schwimmte","schwammte"],"note":"With a destination (über den See) it is always sein."},{"i":"stattfinden","en":"to take place","p3":"fand statt","pp":"stattgefunden","aux":"haben","t":"sep","dp":["gestattfunden","stattgefindet"],"s":"Das Konzert {} gestern stattgefunden.","pr":"er","dr":["findete statt","fandte statt"]},{"i":"landen","en":"to land","p3":"landete","pp":"gelandet","aux":"sein","t":"weak","dp":["gelanden","landet"],"s":"Das Flugzeug {} pünktlich gelandet.","pr":"er"},{"i":"beschreiben","en":"to describe","p3":"beschrieb","pp":"beschrieben","aux":"haben","t":"insep","dp":["gebeschrieben","beschreibt"],"s":"Er {} den Weg genau beschrieben.","pr":"er","dr":["beschreibte","beschriebte"]},{"i":"probieren","en":"to try, taste","p3":"probierte","pp":"probiert","aux":"haben","t":"ieren","dp":["geprobiert","probieret"],"s":"Ich {} den Kuchen probiert.","pr":"ich"},{"i":"weinen","en":"to cry","p3":"weinte","pp":"geweint","aux":"haben","t":"weak","dp":["geweinen","geweinet"],"s":"Das Baby {} die ganze Nacht geweint.","pr":"er"},{"i":"entdecken","en":"to discover","p3":"entdeckte","pp":"entdeckt","aux":"haben","t":"insep","dp":["geentdeckt","entdecken"],"s":"Wir {} ein tolles Café entdeckt.","pr":"wir"},{"i":"schneiden","en":"to cut","p3":"schnitt","pp":"geschnitten","aux":"haben","t":"strong","dp":["geschneidet","geschneiden"],"s":"Ich {} mir in den Finger geschnitten.","pr":"ich","dr":["schneidete","schnitte"]},{"i":"springen","en":"to jump","p3":"sprang","pp":"gesprungen","aux":"sein","t":"strong","dp":["gespringt","gesprangen"],"s":"Der Hund {} ins Wasser gesprungen.","pr":"er","dr":["springte","sprangte"]},{"i":"fangen","en":"to catch","p3":"fing","pp":"gefangen","aux":"haben","t":"strong","dp":["gefangt","gefingen"],"s":"Er {} den Ball gefangen.","pr":"er","dr":["fangte","fingte"]},{"i":"mieten","en":"to rent","p3":"mietete","pp":"gemietet","aux":"haben","t":"weak","dp":["gemieten","mietet"],"s":"Wir {} ein Auto gemietet.","pr":"wir"},{"i":"streiten","en":"to argue","p3":"stritt","pp":"gestritten","aux":"haben","t":"strong","dp":["gestreitet","gestreiten"],"s":"Wir {} uns gestern gestritten.","pr":"wir","dr":["streitete","stritte"]},{"i":"packen","en":"to pack","p3":"packte","pp":"gepackt","aux":"haben","t":"weak","dp":["gepacken","gepacket"],"s":"Ich {} schon meinen Koffer gepackt.","pr":"ich"},{"i":"kennenlernen","en":"to get to know","p3":"lernte kennen","pp":"kennengelernt","aux":"haben","t":"sep","dp":["gekennenlernt","kennengelernen"],"s":"Wir {} uns in Berlin kennengelernt.","pr":"wir"},{"i":"wandern","en":"to hike","p3":"wanderte","pp":"gewandert","aux":"sein","t":"weak","dp":["gewanderen","gewanderet"],"s":"Wir {} durch den Wald gewandert.","pr":"wir"},{"i":"waschen","en":"to wash","p3":"wusch","pp":"gewaschen","aux":"haben","t":"strong","dp":["gewascht","gewuschen"],"s":"Ich {} das Auto gewaschen.","pr":"ich","dr":["waschte","wuschte"]},{"i":"begegnen","en":"to meet (by chance)","p3":"begegnete","pp":"begegnet","aux":"sein","t":"insep","dp":["gebegegnet","begegnen"],"s":"Ich {} ihm im Park begegnet.","pr":"ich","note":"begegnen takes sein, even with a dative person."},{"i":"gießen","en":"to pour, water","p3":"goss","pp":"gegossen","aux":"haben","t":"strong","dp":["gegießt","gegießen"],"s":"Ich {} die Blumen gegossen.","pr":"ich","dr":["gießte","gosste"]},{"i":"verbieten","en":"to forbid","p3":"verbot","pp":"verboten","aux":"haben","t":"insep","dp":["geverboten","verbietet"],"s":"Die Stadt {} das Grillen verboten.","pr":"er","dr":["verbietete","verbote"]},{"i":"anziehen","en":"to put on","p3":"zog an","pp":"angezogen","aux":"haben","t":"sep","dp":["geanzogen","angezieht"],"s":"Ich {} mich warm angezogen.","pr":"ich","dr":["ziehte an","zogte an"]},{"i":"schieben","en":"to push","p3":"schob","pp":"geschoben","aux":"haben","t":"strong","dp":["geschiebt","geschieben"],"s":"Wir {} das Auto geschoben.","pr":"wir","dr":["schiebte","schobte"]},{"i":"reiten","en":"to ride (horse)","p3":"ritt","pp":"geritten","aux":"sein","t":"strong","dp":["gereitet","gereiten"],"s":"Wir {} durch den Wald geritten.","pr":"wir","dr":["reitete","ritte"]},{"i":"gelingen","en":"to succeed","p3":"gelang","pp":"gelungen","aux":"sein","t":"insep","dp":["gegelungen","gelingt"],"s":"Der Kuchen {} mir gut gelungen.","pr":"er","dr":["gelingte","gelangte"],"note":"gelingen takes sein, like passieren and geschehen."},{"i":"abholen","en":"to pick up","p3":"holte ab","pp":"abgeholt","aux":"haben","t":"sep","dp":["geabholt","abgeholen"],"s":"Ich {} dich vom Bahnhof abgeholt.","pr":"ich"},{"i":"brennen","en":"to burn","p3":"brannte","pp":"gebrannt","aux":"haben","t":"mixed","dp":["gebrennt","gebrennen"],"s":"Das Licht {} die ganze Nacht gebrannt.","pr":"er","dr":["brennte","brann"]},{"i":"ankommen","en":"to arrive","p3":"kam an","pp":"angekommen","aux":"sein","t":"sep","dp":["geankommen","angekommt"],"s":"Der Zug {} pünktlich angekommen.","pr":"er","dr":["kommte an","kamte an"]},{"i":"fliehen","en":"to flee","p3":"floh","pp":"geflohen","aux":"sein","t":"strong","dp":["geflieht","gefliehen"],"s":"Die Familie {} aus dem Krieg geflohen.","pr":"er","dr":["fliehte","flohte"]},{"i":"ausgeben","en":"to spend","p3":"gab aus","pp":"ausgegeben","aux":"haben","t":"sep","dp":["geausgeben","ausgegebt"],"s":"Sie {} viel Geld ausgegeben.","pr":"er","dr":["gebte aus","gabte aus"]},{"i":"mitbringen","en":"to bring along","p3":"brachte mit","pp":"mitgebracht","aux":"haben","t":"sep","dp":["gemitbracht","mitgebringen"],"s":"Ich {} Kuchen mitgebracht.","pr":"ich","dr":["bringte mit","brach mit"]},{"i":"einsteigen","en":"to get on","p3":"stieg ein","pp":"eingestiegen","aux":"sein","t":"sep","dp":["geeinstiegen","eingesteigt"],"s":"Er {} in den falschen Bus eingestiegen.","pr":"er","dr":["steigte ein","stiegte ein"]},{"i":"einladen","en":"to invite","p3":"lud ein","pp":"eingeladen","aux":"haben","t":"sep","dp":["geeinladen","eingeladet"],"s":"Sie {} uns zum Essen eingeladen.","pr":"er","dr":["ladete ein","ludte ein"]},{"i":"putzen","en":"to clean","p3":"putzte","pp":"geputzt","aux":"haben","t":"weak","dp":["geputzen","geputzet"],"s":"Ich {} das Bad geputzt.","pr":"ich"},{"i":"telefonieren","en":"to phone","p3":"telefonierte","pp":"telefoniert","aux":"haben","t":"ieren","dp":["getelefoniert","telefonieret"],"s":"Wir {} eine Stunde telefoniert.","pr":"wir"},{"i":"fotografieren","en":"to photograph","p3":"fotografierte","pp":"fotografiert","aux":"haben","t":"ieren","dp":["gefotografiert","fotografieret"],"s":"Ich {} den Sonnenuntergang fotografiert.","pr":"ich"},{"i":"aufwachen","en":"to wake up","p3":"wachte auf","pp":"aufgewacht","aux":"sein","t":"sep","dp":["geaufwacht","aufgewachen"],"s":"Ich {} um fünf aufgewacht.","pr":"ich","note":"Waking up is a change of state, so sein."},{"i":"aussteigen","en":"to get off","p3":"stieg aus","pp":"ausgestiegen","aux":"sein","t":"sep","dp":["geausstiegen","ausgesteigt"],"s":"Ich {} am Hauptbahnhof ausgestiegen.","pr":"ich","dr":["steigte aus","stiegte aus"]},{"i":"aufmachen","en":"to open","p3":"machte auf","pp":"aufgemacht","aux":"haben","t":"sep","dp":["geaufmacht","aufgemachen"],"s":"Ich {} das Fenster aufgemacht.","pr":"ich"},{"i":"klettern","en":"to climb","p3":"kletterte","pp":"geklettert","aux":"sein","t":"weak","dp":["gekletteren","gekletteret"],"s":"Das Kind {} auf den Baum geklettert.","pr":"er"},{"i":"reparieren","en":"to repair","p3":"reparierte","pp":"repariert","aux":"haben","t":"ieren","dp":["gerepariert","reparieret"],"s":"Er {} das Fahrrad repariert.","pr":"er"},{"i":"riechen","en":"to smell","p3":"roch","pp":"gerochen","aux":"haben","t":"strong","dp":["geriecht","geriechen"],"s":"Es {} nach Kaffee gerochen.","pr":"er","dr":["riechte","rochte"]},{"i":"stehlen","en":"to steal","p3":"stahl","pp":"gestohlen","aux":"haben","t":"strong","dp":["gestehlt","gestahlen"],"s":"Jemand {} mein Fahrrad gestohlen.","pr":"er","dr":["stehlte","stahlte"]},{"i":"aufräumen","en":"to tidy up","p3":"räumte auf","pp":"aufgeräumt","aux":"haben","t":"sep","dp":["geaufräumt","aufgeräumen"],"s":"Ich {} mein Zimmer aufgeräumt.","pr":"ich"},{"i":"zurückkommen","en":"to come back","p3":"kam zurück","pp":"zurückgekommen","aux":"sein","t":"sep","dp":["gezurückkommen","zurückgekommt"],"s":"Sie {} spät zurückgekommen.","pr":"er","dr":["kommte zurück","kamte zurück"]},{"i":"umsteigen","en":"to change (trains)","p3":"stieg um","pp":"umgestiegen","aux":"sein","t":"sep","dp":["geumstiegen","umgesteigt"],"s":"Ich {} in Köln umgestiegen.","pr":"ich","dr":["steigte um","stiegte um"]},{"i":"schmelzen","en":"to melt","p3":"schmolz","pp":"geschmolzen","aux":"sein","t":"strong","dp":["geschmelzt","geschmelzen"],"s":"Der Schnee {} geschmolzen.","pr":"er","dr":["schmelzte","schmolzte"],"note":"Melting is a change of state, so sein."},{"i":"vorbeikommen","en":"to drop by","p3":"kam vorbei","pp":"vorbeigekommen","aux":"sein","t":"sep","dp":["gevorbeikommen","vorbeigekommt"],"s":"Mein Bruder {} gestern vorbeigekommen.","pr":"er","dr":["kommte vorbei","kamte vorbei"]},{"i":"weggehen","en":"to leave","p3":"ging weg","pp":"weggegangen","aux":"sein","t":"sep","dp":["geweggangen","weggegeht"],"s":"Sie {} ohne ein Wort weggegangen.","pr":"er","dr":["gehte weg","gingte weg"]},{"i":"zumachen","en":"to close","p3":"machte zu","pp":"zugemacht","aux":"haben","t":"sep","dp":["gezumacht","zugemachen"],"s":"Er {} die Tür zugemacht.","pr":"er"},{"i":"frieren","en":"to be cold","p3":"fror","pp":"gefroren","aux":"haben","t":"strong","dp":["gefriert","gefrieren"],"s":"Ich {} die ganze Nacht gefroren.","pr":"ich","dr":["frierte","frorte"],"note":"frieren (to feel cold) takes haben. zufrieren (to freeze over) takes sein."},{"i":"mitkommen","en":"to come along","p3":"kam mit","pp":"mitgekommen","aux":"sein","t":"sep","dp":["gemitkommen","mitgekommt"],"s":"Er {} ins Kino mitgekommen.","pr":"er","dr":["kommte mit","kamte mit"]},{"i":"abfahren","en":"to depart","p3":"fuhr ab","pp":"abgefahren","aux":"sein","t":"sep","dp":["geabfahren","abgefahrt"],"s":"Der Zug {} schon abgefahren.","pr":"er","dr":["fahrte ab","fuhrte ab"]}];
+
+/* ---------- Grammar tables ---------- */
+const EIN={m:{N:"",A:"en",D:"em",G:"es"},f:{N:"e",A:"e",D:"er",G:"er"},n:{N:"",A:"",D:"em",G:"es"},p:{N:"e",A:"e",D:"en",G:"er"}};
+const ADJT={
+ weak:{m:{N:"e",A:"en",D:"en",G:"en"},f:{N:"e",A:"e",D:"en",G:"en"},n:{N:"e",A:"e",D:"en",G:"en"},p:{N:"en",A:"en",D:"en",G:"en"}},
+ mixed:{m:{N:"er",A:"en",D:"en",G:"en"},f:{N:"e",A:"e",D:"en",G:"en"},n:{N:"es",A:"es",D:"en",G:"en"},p:{N:"en",A:"en",D:"en",G:"en"}},
+ strong:{m:{N:"er",A:"en",D:"em",G:"en"},f:{N:"e",A:"e",D:"er",G:"er"},n:{N:"es",A:"es",D:"em",G:"en"},p:{N:"e",A:"e",D:"en",G:"er"}}
+};
+const ADJKIND={weak:"After a der-word",mixed:"After an ein-word",strong:"No article"};
+const GEN={m:"masculine",f:"feminine",n:"neuter",p:"plural"};
+const ART={m:"der",f:"die",n:"das"};
+const CASEN={N:"nominative",A:"accusative",D:"dative",G:"genitive"};
+const CASEDE={N:"Nominativ",A:"Akkusativ",D:"Dativ",G:"Genitiv"};
+/* Plain-English jobs for the cases, used on buttons, explanations and the Case key. */
+const CI={N:{job:"subject · who/what?",q:"wer?",en:"he"},A:{job:"direct object · whom/what?",q:"wen? was?",en:"him"},D:{job:"indirect object / required case",q:"wem?",en:"to him"},G:{job:"relationship / required case",q:"wessen?",en:"his"}};
+const DEF={m:{N:"der",A:"den",D:"dem",G:"des"},f:{N:"die",A:"die",D:"der",G:"der"},n:{N:"das",A:"das",D:"dem",G:"des"},p:{N:"die",A:"die",D:"den",G:"der"}};
+const GENW={m:"masculine",f:"feminine",n:"neuter",p:"plural"};
+const caseBtn=c=>`${CASEDE[c]}<small>${CI[c].job}</small>`;
+const caseTag=c=>`<b>${CASEDE[c]}</b> (${CI[c].job})`;
+function nounAfterGap(s,c,g){const m=s.match(/\{\w+\}\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)/);if(!m)return null;return c==="G"&&(g==="m"||g==="n")?m[1].replace(/e?s$/,""):m[1]}
+// mein/ein/kein copy the article's ending, except where the article is der (masc. Nom) or das.
+function articleStep(item){
+ const noun=nounAfterGap(item.s,item.c,item.g),a=DEF[item.g][item.c],base=DEF[item.g].N;
+ const who=noun?`${noun} is ${GENW[item.g]}`:`The noun is ${GENW[item.g]}`;
+ return a===base?`${who}. Step 2: in ${CASEDE[item.c]}, the definite article is <b>${a}</b> (same as nominative).`:`${who}. Step 2: in ${CASEDE[item.c]}, the definite article changes <b>${base} → ${a}</b>.`;
+}
+function caseReason(item){
+ if(item.s.includes("gibt {sein} Freundin"))return "What is given? <b>einen Ring</b> (direct object → Akkusativ). To whom? <b>Freundin</b> (indirect object → Dativ). The person receiving the ring is NOT the direct object";
+ if(item.s.includes("kaufe {mein} Kindern"))return "What is bought? <b>ein Eis</b> (Akkusativ). For whom? <b>Kindern</b> (indirect object → Dativ)";
+ if(item.skill==="case_gen_prep"&&/^(Trotz|Wegen|Während|Statt)/.test(item.s))return "The preposition decides: "+item.r+". Genitiv does not necessarily mean ownership";
+ if(item.skill==="case_verb"&&/^(Ich helfe|Ich danke|Das Buch gehört)/.test(item.s))return "Fixed verb rule: "+item.r+". Being affected does not automatically mean Akkusativ";
+ if(item.skill==="case_twoway")return item.r.replace("movement to a place","destination/change of location").replace("fixed location","location")+". Movement alone does not decide the case";
+ return item.r;
+}
+function caseChain(item){
+ const stem=item.s.match(/\{(\w+)\}/)[1],end=EIN[item.g][item.c],ans=stem+end;
+ return `<ol class="chain"><li>${caseReason(item)} → ${caseTag(item.c)}</li><li>${articleStep(item)}</li><li>${end?`${stem} copies the article's ending: ${stem} + ${end} = <b>${ans}</b>`:`${stem} takes no ending here: <b>${ans}</b> (like ein Mann, ein Kind)`}</li></ol>`;
+}
+const PTEXT={strong:"Strong verb: ge- + stem with a changed vowel + -en.",weak:"Regular verb: ge- + stem + -t.",mixed:"Mixed verb: the vowel changes like a strong verb, but it ends in -t.",insep:"The inseparable prefix blocks ge-.",ieren:"-ieren verbs never take ge-.",sep:"ge- goes between the separable prefix and the stem."};
+const PSKILL={strong:"part_strong",weak:"part_weak",mixed:"part_mixed",insep:"part_insep",ieren:"part_insep",sep:"part_sep"};
+
+/* ---------- Item bank ---------- */
+const ITEMS=[];
+NOUNS.forEach((n,i)=>ITEMS.push({key:"g"+i,type:"gender",skill:n[3],word:n[0],g:n[1],en:n[2]}));
+CASES.forEach((c,i)=>ITEMS.push({key:"c"+i,type:"case",skill:c[4],s:c[0],g:c[1],c:c[2],r:c[3]}));
+ADJ.forEach((a,i)=>ITEMS.push({key:"j"+i,type:"adj",skill:"adj_"+a[3],s:a[0],g:a[1],c:a[2],k:a[3]}));
+VERBS.forEach((v,i)=>{
+ ITEMS.push({key:"a"+i,type:"aux",skill:v.aux==="sein"?"aux_sein":"aux_haben",v});
+ ITEMS.push({key:"p"+i,type:"part",skill:PSKILL[v.t],v});
+ if(v.dr) ITEMS.push({key:"r"+i,type:"praet",skill:"praet",v});
+});
+TENSE_ITEMS.forEach((t,i)=>ITEMS.push({key:"t"+i,type:"tense",skill:"tense_id",s:t[0],a:t[1],why:t[2]}));
+CASEID.forEach((t,i)=>ITEMS.push({key:"i"+i,type:"caseid",skill:"case_id",s:t[0],a:t[1],why:t[2]}));
+// Expansion packs: frequency order is preserved through `ord` (lower = more common).
+const PACK_SIZE={Genus:50,Verben:20};
+NOUNS_X.forEach((n,i)=>ITEMS.push({key:"gx"+i,type:"gender",skill:n[3],word:n[0],g:n[1],en:n[2],part:n[4],pack:1+Math.floor(i/PACK_SIZE.Genus),ord:i}));
+VERBS_X.forEach((v,i)=>{
+ const pack=1+Math.floor(i/PACK_SIZE.Verben);
+ ITEMS.push({key:"ax"+i,type:"aux",skill:v.aux==="sein"?"aux_sein":"aux_haben",v,pack,ord:i});
+ ITEMS.push({key:"px"+i,type:"part",skill:PSKILL[v.t],v,pack,ord:i});
+ if(v.dr) ITEMS.push({key:"rx"+i,type:"praet",skill:"praet",v,pack,ord:i});
+});
+const MAXPACK={Genus:Math.ceil(NOUNS_X.length/PACK_SIZE.Genus),Verben:Math.ceil(VERBS_X.length/PACK_SIZE.Verben)};
+const UNLOCK_AT=0.6;
+
+/* ---------- Storage ---------- */
+const KEY="endung.v1";
+function fresh(){return {skills:{},items:{},misses:[],answered:0,mode:"all",focus:null,seen:false,packs:{Genus:0,Verben:0},snooze:{}}}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);return Object.assign(fresh(),s)}}catch(e){}return fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+let state=load();
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const strip=h=>h.replace(/<[^>]+>/g,"");
+function wpick(list,wf){const ws=list.map(wf);const tot=ws.reduce((a,b)=>a+b,0);let r=Math.random()*tot;for(let i=0;i<list.length;i++){r-=ws[i];if(r<=0)return list[i]}return list[list.length-1]}
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Learner model ---------- */
+function sk(id){return state.skills[id]||(state.skills[id]={n:0,c:0,ew:0.5})}
+function mastery(id){const s=state.skills[id];if(!s||!s.n)return null;return 0.5*s.ew+0.5*((s.c+1)/(s.n+2))}
+function status(id){const s=state.skills[id];const m=mastery(id);if(!s||s.n<4)return["none","Too few"];if(m<0.6)return["bad","Needs work"];if(m<0.8)return["mid","Shaky"];return["ok","Solid"]}
+function weakSkills(){return Object.keys(SKILLS).filter(id=>status(id)[0]==="bad").sort((a,b)=>mastery(a)-mastery(b))}
+function record(item,ok,summary){
+ const s=sk(item.skill);s.n++;if(ok)s.c++;s.ew=s.ew*0.7+(ok?0.3:0);
+ const it=state.items[item.key]||{box:0,wrong:0};
+ state.answered++;
+ if(ok){it.box=Math.min(it.box+1,5);it.due=null}
+ else{it.box=0;it.wrong++;it.due=state.answered+3+Math.floor(Math.random()*4);
+   state.misses.unshift({skill:item.skill,text:summary});state.misses=state.misses.slice(0,40)}
+ it.last=state.answered;state.items[item.key]=it;save();updateWeakBtn();
+}
+function unlocked(i){return !i.pack||i.pack<=((state.packs||{})[SKILLS[i.skill].g]||0)}
+function allowedItems(){
+ const open=ITEMS.filter(unlocked);
+ if(state.focus) return open.filter(i=>i.skill===state.focus.skill);
+ if(state.mode==="all") return open;
+ return open.filter(i=>SKILLS[i.skill].g===state.mode);
+}
+/* Word sets: share of the unlocked items in an area whose latest answer was right. */
+function areaProgress(g){
+ const pool=ITEMS.filter(i=>SKILLS[i.skill].g===g&&unlocked(i));
+ const known=pool.filter(i=>{const r=state.items[i.key];return r&&r.box>=1}).length;
+ return {pool:pool.length,known,ratio:pool.length?known/pool.length:0,packs:state.packs[g]||0,max:MAXPACK[g]};
+}
+function canUnlock(g){const a=areaProgress(g);return a.packs<a.max&&a.ratio>=UNLOCK_AT}
+function nextPackItems(g){const n=(state.packs[g]||0)+1;return ITEMS.filter(i=>i.pack===n&&SKILLS[i.skill].g===g)}
+function addPack(g){if((state.packs[g]||0)>=MAXPACK[g])return;state.packs[g]=(state.packs[g]||0)+1;state.snooze[g]=null;save();closeSheet();resetAhead()}
+function pick(){
+ const pool=allowedItems();const pend=pendingKeys();
+ const due=pool.filter(i=>{const r=state.items[i.key];return r&&r.due!=null&&r.due<=state.answered&&!pend.has(i.key)}).sort((a,b)=>state.items[a.key].due-state.items[b.key].due);
+ let res;
+ if(due.length) res={item:due[0],again:true};
+ else{
+  // Introduce unseen words from added packs steadily, most frequent first.
+  const unseen=pool.filter(i=>i.pack&&!state.items[i.key]&&!pend.has(i.key)).sort((a,b)=>a.pack-b.pack||a.ord-b.ord);
+  if(unseen.length&&Math.random()<0.4){res={item:unseen[0],again:false,isNew:true}}
+  else{
+  const skills=[...new Set(pool.map(i=>i.skill))];
+  const skill=wpick(skills,id=>{const s=state.skills[id];if(!s||s.n<3)return 1;return (1-mastery(id))*1.8+0.12});
+  let items=pool.filter(i=>i.skill===skill&&!pend.has(i.key));
+  const fresh=items.filter(i=>{const r=state.items[i.key];return !r||r.last==null||r.last<state.answered-10});
+  if(fresh.length) items=fresh;
+  if(!items.length) items=pool.filter(i=>!pend.has(i.key));
+  const it=wpick(items,i=>{const r=state.items[i.key];return 1/(1+(r?r.box:0))});
+  res={item:it,again:false,isNew:!!(it.pack&&!state.items[it.key])};
+  }
+ }
+ if(state.focus){state.focus.left--;if(state.focus.left<=0)state.focus=null;save();updateFocusBar()}
+ return res;
+}
+
+/* ---------- Question builders ---------- */
+function build(item){
+ const v=item.v;
+ switch(item.type){
+ case "gender":{
+  const opts=["m","f","n"].map(g=>({label:ART[g],cls:"g",style:`--gc:var(--${ART[g]})`}));
+  const ans=ART[item.g];
+  return {cols:3,task:"Which article?",prompt:`<div class="noun">${item.word}</div><div class="gloss">${item.en}</div>`,options:opts,correct:["m","f","n"].indexOf(item.g),
+   explain:`<p class="ans"><b class="art-${item.g}">${ans}</b> ${item.word}</p><p class="why">${item.part?`Last part: <b>${item.part}</b>. `:""}${SKILLS[item.skill].rule}</p>`,summary:`${ans} ${item.word}`};
+ }
+ case "case":{
+  const m=item.s.match(/\{(\w+)\}/);const stem=m[1];
+  const forms=["","e","en","em","er","es"].map(e=>stem+e);const ans=stem+EIN[item.g][item.c];
+  const full=item.s.replace(m[0],ans);
+  return {cols:3,task:"Fill the gap",prompt:`<div class="sentence">${item.s.replace(m[0],`<span class="gap">${stem}<span class="blank">___</span></span>`)}</div>`,
+   options:forms.map(f=>({label:f})),correct:forms.indexOf(ans),
+   explain:`<p class="ans">${item.s.replace(m[0],"<b>"+ans+"</b>")}</p>${caseChain(item)}`,summary:full};
+ }
+ case "adj":{
+  const m=item.s.match(/([A-Za-zÄÖÜäöüß]+)\{\}/);const stem=m[1];
+  const ends=["e","en","er","es","em"];const forms=ends.map(e=>stem+e);
+  const ans=stem+ADJT[item.k][item.g][item.c];
+  return {cols:3,task:"Choose the adjective ending",prompt:`<div class="sentence">${item.s.replace(m[0],`<span class="gap">${stem}<span class="blank">__</span></span>`)}</div>`,
+   options:forms.map(f=>({label:f})),correct:forms.indexOf(ans),
+   explain:`<p class="ans">${item.s.replace(m[0],"<b>"+ans+"</b>")}</p><p class="why">${ADJKIND[item.k]}, ${GENW[item.g]}, ${caseTag(item.c)}: <b>-${ADJT[item.k][item.g][item.c]}</b>. ${SKILLS[item.skill].rule}</p>`,summary:item.s.replace(m[0],ans)};
+ }
+ case "aux":{
+  const o=v.pr==="ich"?["habe","bin"]:v.pr==="wir"?["haben","sind"]:["hat","ist"];const ci=v.aux==="sein"?1:0;
+  const why=v.note||(v.aux==="sein"?"Movement from A to B, so sein.":"No movement to a new place and no change of state, so haben.");
+  return {cols:2,task:"haben or sein?",prompt:`<div class="sentence">${v.s.replace("{}",'<span class="gap"><span class="blank">_____</span></span>')}</div>`,options:o.map(l=>({label:l})),correct:ci,
+   explain:`<p class="ans">${v.s.replace("{}","<b>"+o[ci]+"</b>")}</p><p class="why">${why}</p>`,summary:v.s.replace("{}",o[ci])};
+ }
+ case "part":{
+  const o=shuffle([v.pp,...v.dp]);const a=(v.aux==="sein"?"ist ":"hat ");
+  return {cols:1,task:"Partizip II",prompt:`<div class="noun sm">${v.i}</div><div class="gloss">${v.en}</div>`,options:o.map(l=>({label:l})),correct:o.indexOf(v.pp),
+   explain:`<p class="ans">${v.i} → ${a}<b>${v.pp}</b></p><p class="why">${PTEXT[v.t]}${v.t==="sep"||v.t==="insep"?"":""}</p>`,summary:`${v.i} → ${a}${v.pp}`};
+ }
+ case "praet":{
+  const o=shuffle([v.p3,...v.dr]);
+  const why=v.t==="mixed"?"Mixed verb: new vowel plus -te.":v.t==="sep"?"The stem changes like the base verb, and the prefix moves to the end.":"Strong verb: new vowel, no ending in the er/sie/es form.";
+  return {cols:1,task:"Präteritum, er/sie/es",prompt:`<div class="noun sm">${v.i}</div><div class="gloss">${v.en}</div>`,options:o.map(l=>({label:"er "+l})),correct:o.indexOf(v.p3),
+   explain:`<p class="ans">${v.i} → er <b>${v.p3}</b></p><p class="why">${why} Perfekt: ${v.aux==="sein"?"ist":"hat"} ${v.pp}.</p>`,summary:`${v.i} → er ${v.p3}`};
+ }
+ case "tense":
+  return {cols:2,task:"Which tense?",prompt:`<div class="sentence">${item.s}</div>`,options:TENSES.map((t,i)=>({label:t,cls:i===4?"span":""})),correct:TENSES.indexOf(item.a),
+   explain:`<p class="ans">${item.a}</p><p class="why">${item.why}</p>`,summary:`${item.s} (${item.a})`};
+ case "caseid":{
+  const phrase=item.s.match(/\[\[(.+?)\]\]/)[1];
+  return {cols:2,task:"Which case is the highlighted phrase?",prompt:`<div class="sentence">${item.s.replace(/\[\[(.+?)\]\]/,"<mark>$1</mark>")}</div>`,options:CASES4.map(c=>({label:caseBtn(c),cls:"case"})),correct:CASES4.indexOf(item.a),
+   explain:`<p class="ans">${phrase}: ${caseTag(item.a)}</p><p class="why">${item.why}</p>`,summary:`${item.s.replace(/\[\[|\]\]/g,"")} → ${phrase}: ${CASEDE[item.a]}`};
+ }}
+}
+
+/* ---------- Feed ---------- */
+const feed=$("#feed");let deck=[];let cur=0;let lastInsight=state.answered;
+function pendingKeys(){return new Set(deck.filter(d=>d.kind==="q"&&!d.answered).map(d=>d.item.key))}
+function append(entry){deck.push(entry);feed.appendChild(entry.el)}
+function ensureAhead(){if(scrolling)return;while(deck.length-1-cur<3)append(nextEntry())}
+function nextEntry(){
+ if(genusRulesActive)return genusRuleEntry();
+ if(warm){const w=warmNext();if(w)return w}
+ if(!state.focus&&state.answered-lastInsight>=12){lastInsight=state.answered;const ins=insightEntry();if(ins)return ins}
+ const off=offerEntry();if(off)return off;
+ const p=pick();return questionEntry(p.item,p.again,p.isNew);
+}
+/* Native snap scrolling (the original feel), with two guards:
+   1. New cards are only appended once scrolling has stopped. Changing the feed mid-swipe makes
+      Chrome re-snap to a stale target, which showed up as a jump back several cards.
+   2. When scrolling settles off a card boundary, glide to the nearest card. */
+const cardH=()=>feed.clientHeight||1;
+let settleT=null,scrolling=false;
+function settle(){
+ scrolling=false;
+ const h=cardH(),pos=feed.scrollTop,i=Math.max(0,Math.min(deck.length-1,Math.round(pos/h)));
+ cur=i;
+ const target=deck[i]?deck[i].el.offsetTop:i*h;
+ if(Math.abs(pos-target)>2){feed.scrollTo({top:target,behavior:reduced?"auto":"smooth"});return}
+ ensureAhead();
+}
+feed.addEventListener("scroll",()=>{scrolling=true;clearTimeout(settleT);settleT=setTimeout(settle,140)},{passive:true});
+if("onscrollend" in feed)feed.addEventListener("scrollend",()=>{clearTimeout(settleT);settleT=setTimeout(settle,30)});
+function goTo(i){
+ if(i<0)i=0;
+ while(i>=deck.length)append(nextEntry());
+ if(!deck[i])return;
+ cur=i;
+ feed.scrollTo({top:deck[i].el.offsetTop,behavior:reduced?"auto":"smooth"});
+}
+addEventListener("resize",()=>{clearTimeout(settleT);if(deck[cur])feed.scrollTop=deck[cur].el.offsetTop});
+function nextFrom(entry){const i=deck.indexOf(entry);ensureAhead();goTo(i+1)}
+
+const needsKey=item=>["Kasus","Adjektive"].includes(SKILLS[item.skill].g);
+function metaRow(item,w,again,isNew){
+ const tag=w?"":again?'<span class="again">Again</span>':isNew?'<span class="newtag">New</span>':"";
+ const key=needsKey(item)?'<button type="button" class="keybtn">Case key</button>':"";
+ const skip=w?'<button type="button" class="skipwarm">Skip</button>':"";
+ return `<div class="meta"><span>${w?`Warm-up · ${w.n} of ${w.total}`:GROUP_LABEL[SKILLS[item.skill].g]}</span><span class="metabtns">${tag}${key}${skip}</span></div>`;
+}
+function bindMeta(el){
+ const sk=el.querySelector(".skipwarm");if(sk)sk.addEventListener("click",skipWarm);
+ const k=el.querySelector(".keybtn");if(k)k.addEventListener("click",openKey);
+}
+/* Warm-up only: fill-the-gap Kasus cards split into two steps, the case first and then the form. */
+function guidedEntry(item,w){
+ const base=build(item),q=simplify(base,item);
+ const others={A:["D","N"],D:["A","N"],N:["A","D"],G:["D","A"]}[item.c];
+ const opts=shuffle([item.c,...others]);
+ const el=document.createElement("section");el.className="card";
+ el.innerHTML=`<div class="card-in">
+  ${metaRow(item,w)}
+  <div class="prompt"><div class="task">Step 1 of 2 · Which case does the gap need?</div>${base.prompt}<div class="steps"></div></div>
+  <div class="fb" hidden></div>
+  <div class="opts" style="--cols:1">${opts.map(c=>`<button type="button" class="opt case" data-c="${c}">${caseBtn(c)}</button>`).join("")}</div>
+ </div>`;
+ const entry={el,item,q,kind:"q",answered:false,warm:w,step1ok:null};
+ bindMeta(el);
+ const box=el.querySelector(".opts");
+ const step1=e=>{
+  const b=e.target.closest(".opt");if(!b||entry.step1ok!==null)return;
+  const ok=b.dataset.c===item.c;entry.step1ok=ok;
+  box.removeEventListener("click",step1);
+  el.querySelector(".steps").innerHTML=`<p class="stepnote ${ok?"ok":"bad"}"><b>${ok?"Right.":"Not quite."}</b> ${caseReason(item)} → ${caseTag(item.c)}.<br>${articleStep(item)}</p>`;
+  el.querySelector(".task").textContent="Step 2 of 2 · Now pick the form";
+  box.style.setProperty("--cols",q.cols);
+  box.innerHTML=q.options.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o.label}</button>`).join("");
+  box.addEventListener("click",ev=>{const bb=ev.target.closest(".opt");if(bb&&!entry.answered)answer(entry,+bb.dataset.i)});
+ };
+ box.addEventListener("click",step1);
+ return entry;
+}
+function questionEntry(item,again,isNew,w){
+ let q=build(item);
+ if(w)q=simplify(q,item);
+ const el=document.createElement("section");el.className="card";
+ el.innerHTML=`<div class="card-in">
+  ${metaRow(item,w,again,isNew)}
+  <div class="prompt"><div class="task">${q.task}</div>${q.prompt}${item.type==="case"?`<button type="button" class="hintbtn">Which case? Show me</button><p class="hintline" hidden>${caseReason(item)} → ${caseTag(item.c)}. ${articleStep(item)}</p>`:""}</div>
+  <div class="fb" hidden></div>
+  <div class="opts" style="--cols:${q.cols}">${q.options.map((o,i)=>`<button type="button" class="opt ${o.cls||""}" data-i="${i}"${o.style?` style="${o.style}"`:""}>${o.label}</button>`).join("")}</div>
+ </div>`;
+ const entry={el,item,q,kind:"q",answered:false,warm:w||null};
+ bindMeta(el);
+ const hb=el.querySelector(".hintbtn");if(hb)hb.addEventListener("click",()=>{hb.hidden=true;el.querySelector(".hintline").hidden=false});
+ el.querySelector(".opts").addEventListener("click",e=>{const b=e.target.closest(".opt");if(b&&!entry.answered)answer(entry,+b.dataset.i)});
+ return entry;
+}
+function answer(entry,i){
+ const {q,item,el}=entry;entry.answered=true;
+ const ok=i===q.correct;
+ const btns=el.querySelectorAll(".opt");
+ btns.forEach(b=>b.disabled=true);
+ btns[q.correct].classList.add("right");if(!ok)btns[i].classList.add("wrong");
+ el.querySelector(".card-in").classList.add("answered");
+ const w=entry.warm;
+ if(w){if(warm){warm.done++;if(ok&&entry.step1ok!==false)warm.right++;updateWarmScore()}}else if(!entry.ruleOnly)record(item,ok,q.summary);
+ const fb=el.querySelector(".fb");
+ const head=w&&w.curve?`<div class="verdict curve">Curveball · ${ok?"you spotted it":"this one breaks the pattern"}</div>`:`<div class="verdict ${ok?"ok":"bad"}">${ok?"Right":"Not quite"}</div>`;
+ fb.innerHTML=`${head}${q.explain}
+  <div class="fb-foot"><span class="rule-tag">${w?"Warm-up: not scored":entry.ruleOnly?"Warm-up: endings & rules":`Rule: ${SKILLS[item.skill].name}${!ok?" · coming back soon":""}`}</span><button type="button" class="next">Next ↓</button></div>`;
+ fb.hidden=false;
+ fb.querySelector(".next").addEventListener("click",()=>nextFrom(entry));
+ // put the explanation in view on short screens
+ requestAnimationFrame(()=>{const ci=el.querySelector(".card-in");if(ci.scrollHeight>ci.clientHeight)ci.scrollTo({top:fb.offsetTop-ci.offsetTop-8,behavior:reduced?"auto":"smooth"})});
+ ensureAhead();
+}
+
+function infoEntry(html,bind){
+ const el=document.createElement("section");el.className="card info";
+ el.innerHTML=`<div class="card-in">${html}</div>`;
+ const entry={el,kind:"info",answered:true};
+ if(bind)bind(el,entry);
+ return entry;
+}
+const ARROW='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>';
+function missesFor(skill,n){return state.misses.filter(m=>m.skill===skill).slice(0,n)}
+function insightEntry(){
+ const w=weakSkills()[0];if(!w)return null;
+ const s=state.skills[w];const ms=missesFor(w,3);
+ return infoEntry(`<div class="meta"><span>Pattern</span></div>
+  <div class="prompt">
+   <h2 class="big-h">${SKILLS[w].name}</h2>
+   <p class="ins-stat">${s.c} of ${s.n} right · your weakest area right now</p>
+   <p class="why">${SKILLS[w].rule}</p>
+   ${ms.length?`<div class="task">You missed</div><ul class="misslist">${ms.map(m=>`<li>${m.text}</li>`).join("")}</ul>`:""}
+  </div>
+  <div class="opts" style="--cols:1"><button type="button" class="opt primary" data-drill="${w}">Drill this · 8 cards</button><button type="button" class="opt quiet" data-skip>Keep mixing</button></div>`,
+  (el,entry)=>{el.querySelector("[data-drill]").addEventListener("click",()=>startDrill(w));el.querySelector("[data-skip]").addEventListener("click",()=>nextFrom(entry))});
+}
+/* Offer the next frequency pack once 60% of an area's current words are known. */
+let offeredAt={};
+function offerEntry(){
+ if(state.focus)return null;
+ const areas=(state.mode==="all"?["Genus","Verben"]:[state.mode]).filter(g=>MAXPACK[g]);
+ for(const g of areas){
+  if(!canUnlock(g))continue;
+  const sn=state.snooze[g];if(sn!=null&&state.answered<sn)continue;
+  if(offeredAt[g]!=null&&state.answered-offeredAt[g]<15)continue;
+  offeredAt[g]=state.answered;
+  return packCard(g);
+ }
+ return null;
+}
+function packCard(g){
+ const a=areaProgress(g);const nxt=nextPackItems(g);
+ const isG=g==="Genus";
+ const words=isG?nxt.slice(0,8).map(i=>`<span class="art-${i.g}">${ART[i.g]}</span> ${i.word}`):[...new Set(nxt.map(i=>i.v.i))].slice(0,8);
+ const count=isG?nxt.length:new Set(nxt.map(i=>i.v.i)).size;
+ const unit=isG?"words":"verbs";
+ return infoEntry(`<div class="meta"><span>${g} · Set ${a.packs+1} of ${a.max}</span></div>
+  <div class="prompt">
+   <h2 class="big-h">Ready for ${count} new ${unit}</h2>
+   <p class="lede">You know ${a.known} of your ${a.pool} ${g} questions (${Math.round(a.ratio*100)}%). The next set is the ${count} most common ${isG?"nouns":"verbs"} you haven't met yet, ordered by how often they appear in everyday German.</p>
+   <div class="task">Coming up</div>
+   <p class="preview">${words.join(" · ")} …</p>
+  </div>
+  <div class="opts" style="--cols:1"><button type="button" class="opt primary" data-add>Add ${count} ${unit}</button><button type="button" class="opt quiet" data-later>Not yet</button></div>`,
+  (el,entry)=>{
+   el.querySelector("[data-add]").addEventListener("click",()=>addPack(g));
+   el.querySelector("[data-later]").addEventListener("click",()=>{state.snooze[g]=state.answered+30;save();nextFrom(entry)});
+  });
+}
+/* ---------- Warm-up ----------
+   A short themed round per area: a reminder of the basics, the rule with worked examples,
+   then 6 easier cards (3 options) from one pattern with 2 curveballs mixed in. Not scored. */
+const G_THEMES=[
+ {name:"Nouns ending in -e",re:/e$/,g:"f",rule:"About 90% of nouns ending in -e are feminine. The curveballs are mostly male people and animals (der Junge, der Kollege), plus a short list: der Name, der Käse, das Ende, das Auge, and Ge- words like das Gebäude."},
+ {name:"-ung, -heit, -keit, -schaft",re:/(ung|heit|keit|schaft)$/,g:"f",rule:"These four endings are always feminine, without exceptions. A long word ending in -ung is a free point."},
+ {name:"-er, -ling, -ismus, -or",re:/(er|ling|ismus|or)$/,g:"m",rule:"-ling, -ismus and -or are masculine. Most -er nouns are too, especially people and machines (der Lehrer, der Computer). The curveballs: die Mutter, die Tochter, die Butter, das Fenster, das Zimmer, das Wasser."},
+ {name:"-chen, -lein and Ge-",re:/(chen|lein)$|^Ge/,g:"n",rule:"Diminutives in -chen and -lein are always das. Ge- nouns usually are too (das Gespräch, das Gefühl), but not all: der Gedanke, die Geschichte, die Gefahr."},
+ {name:"-ion, -tät, -ik, -ur, -ei, -enz",re:/(ion|tät|ik|ur|ei|enz|anz)$/,g:"f",rule:"These endings are feminine: die Nation, die Qualität, die Musik, die Kultur, die Partei, die Konkurrenz. Short or borrowed words can break it: das Abitur, das Ei."},
+ {name:"-ment, -um, -nis, -tum, -ma",re:/(ment|um|nis|tum|ma)$/,g:"n",rule:"-ment, -um, -nis, -tum and -ma lean neuter: das Dokument, das Museum, das Ergebnis, das Eigentum, das Thema. Watch for die Firma, die Kenntnis and der Reichtum."},
+ {name:"Days, months, seasons, weather",skill:"masc_semantic",g:"m",curveWords:["Frühjahr","Woche","Nacht","Zeit","Stunde","Wetter"],rule:"Days, months, seasons and weather words are der: der Montag, der Mai, der Winter, der Regen. Other time words are not covered: die Woche, die Nacht, das Jahr, das Frühjahr."},
+];
+const S_THEMES={
+ Kasus:[
+  {name:"Four cases, four jobs",main:["case_id","case_verb"],curve:[],rule:"Without a preposition, the job of the phrase decides the case. The subject is Nominativ; the direct object is Akkusativ; an indirect object is often Dativ; relationships may use Genitiv. Fixed verb and preposition rules come first. Ask the question word: wer? wen? wem? wessen?"},
+  {name:"Dative prepositions",main:["case_dat_prep"],curve:["case_acc_prep"]},
+  {name:"Accusative prepositions",main:["case_acc_prep"],curve:["case_dat_prep"]},
+  {name:"Two-way prepositions",main:["case_twoway"],curve:[]},
+  {name:"Spotting the case",main:["case_id"],curve:[]},
+  {name:"Subjects and objects",main:["case_verb"],curve:["case_dat_prep"]},
+  {name:"Genitive",main:["case_gen_prep"],curve:["case_dat_prep"]},
+ ],
+ Adjektive:[
+  {name:"After der/die/das",main:["adj_weak"],curve:["adj_mixed"]},
+  {name:"After ein/mein/kein",main:["adj_mixed"],curve:["adj_weak"]},
+  {name:"No article",main:["adj_strong"],curve:["adj_mixed"]},
+ ],
+ Verben:[
+  {name:"haben or sein",main:["aux_sein","aux_haben"],curve:[],noteCurve:true},
+  {name:"Strong and regular participles",main:["part_strong","part_weak"],curve:["part_mixed"]},
+  {name:"Participles with prefixes",main:["part_sep","part_insep"],curve:[]},
+  {name:"Präteritum forms",main:["praet"],curve:[]},
+  {name:"Naming the tense",main:["tense_id"],curve:[]},
+ ]
+};
+const REFS={
+ get Kasus(){return TABLE_HTML+HOOKS_HTML},
+ Genus:`<div class="ref3"><div><b class="art-m">der</b><span>-er, -ling, -ismus, -or, -ig, -ist</span><span>days, months, seasons, weather</span></div><div><b class="art-f">die</b><span>-e, -ung, -heit, -keit, -schaft</span><span>-ion, -tät, -ik, -ur, -ei</span></div><div><b class="art-n">das</b><span>-chen, -lein, -ment, -um, -nis</span><span>Ge-, verbs used as nouns</span></div></div><p class="why">Endings predict the gender of most nouns. Compounds take the gender of their last part.</p>`,
+ KasusOld:`<div class="tablewrap"><table class="ref"><thead><tr><th></th><th>asks</th><th class="art-m">m</th><th class="art-f">f</th><th class="art-n">n</th><th>pl</th></tr></thead><tbody>
+  <tr><th>Nom</th><td>wer?</td><td>der</td><td>die</td><td>das</td><td>die</td></tr>
+  <tr><th>Akk</th><td>wen?</td><td><b>den</b></td><td>die</td><td>das</td><td>die</td></tr>
+  <tr><th>Dat</th><td>wem?</td><td>dem</td><td>der</td><td>dem</td><td>den +n</td></tr>
+  <tr><th>Gen</th><td>wessen?</td><td>des +s</td><td>der</td><td>des +s</td><td>der</td></tr></tbody></table></div>
+  <p class="why">Nominative is the subject, accusative the direct object, dative the receiver. From nominative to accusative, only the masculine changes. mein, ein and kein take the same endings: meinen, meinem, meiner.</p>`,
+ Adjektive:`<div class="tablewrap"><table class="ref"><thead><tr><th>Before the adjective</th><th>Ending</th><th>Example</th></tr></thead><tbody>
+  <tr><td>der, die, das, dieser</td><td>-e or -en</td><td>der alte Mann</td></tr>
+  <tr><td>ein, mein, kein</td><td>-er/-es where ein has no ending</td><td>ein alter Mann</td></tr>
+  <tr><td>nothing</td><td>the article's own ending</td><td>kaltes Wasser</td></tr></tbody></table></div>
+  <p class="why">Someone has to show gender and case. If the article does it, the adjective relaxes to -e/-en. If the article can't, the adjective does.</p>`,
+ Verben:`<div class="tablewrap"><table class="ref"><thead><tr><th>Pattern</th><th>Example</th></tr></thead><tbody>
+  <tr><td>ge- … -t</td><td>machen → gemacht</td></tr>
+  <tr><td>ge- … -en (new vowel)</td><td>trinken → getrunken</td></tr>
+  <tr><td>no ge- (be-, ver-, -ieren)</td><td>besucht, studiert</td></tr>
+  <tr><td>prefix · ge · stem</td><td>an·ge·rufen</td></tr></tbody></table></div>
+  <p class="why">Perfekt = haben or sein + Partizip II. sein is for movement from A to B and changes of state, plus sein, bleiben, werden.</p>`,
+};
+let warm=null;
+function themesFor(area){return area==="Genus"?G_THEMES:S_THEMES[area]}
+function pickWarmTheme(area){
+ // Start with the theme the user is weakest on, then rotate.
+ const th=themesFor(area);
+ if(area==="Kasus"&&["case_id","case_verb"].some(s=>(mastery(s)??0)<0.8))return 0;
+ if(area!=="Genus"){
+  let best=0,bm=2;th.forEach((t,i)=>{const m=Math.min(...t.main.map(s=>mastery(s)??0.5));if(m<bm){bm=m;best=i}});return best;
+ }
+ return 0;
+}
+function warmItems(area,t){
+ const open=ITEMS.filter(unlocked);
+ let main,curve;
+ if(area==="Genus"){
+  const g=open.filter(i=>i.type==="gender");
+  if(t.skill){main=g.filter(i=>i.skill===t.skill);curve=g.filter(i=>(t.curveWords||[]).includes(i.word))}
+  else{const m=g.filter(i=>t.re.test(i.word));main=m.filter(i=>i.g===t.g);curve=m.filter(i=>i.g!==t.g)}
+  // favour shorter, earlier (more common) words for the main examples
+  main=main.sort((a,b)=>(a.pack||0)-(b.pack||0)||Math.random()-.5);
+ }else{
+  main=open.filter(i=>t.main.includes(i.skill));
+  curve=t.noteCurve?main.filter(i=>i.v&&i.v.note):open.filter(i=>t.curve.includes(i.skill));
+  if(t.noteCurve)main=main.filter(i=>!(i.v&&i.v.note));
+ }
+ const take=(arr,n)=>shuffle(arr.slice(0,Math.max(n*4,12))).slice(0,n);
+ const m=take(main,6),c=take(curve,2);
+ const qs=m.slice(0,6-c.length).map(i=>({item:i,curve:false}));
+ const examples=m.slice(6-c.length).concat(take(main.filter(i=>!m.includes(i)),3)).slice(0,3);
+ // curveballs land at positions 3 and 6, never first
+ c.forEach((i,k)=>qs.splice(k===0?2:qs.length,0,{item:i,curve:true}));
+ return {qs,examples};
+}
+function startWarm(area,withIntro,selectedTheme){
+ genusRulesActive=false;
+ const th=themesFor(area);if(!th)return;
+ const ti=Number.isInteger(selectedTheme)?selectedTheme:(warm&&warm.area===area?(warm.ti+1)%th.length:pickWarmTheme(area));
+ const t=th[ti];const {qs,examples}=warmItems(area,t);
+ warm={area,ti,right:0,done:0,total:qs.length,queue:[]};
+ if(withIntro){warm.queue.push(()=>warmIntroCard(area))}
+ warm.queue.push(()=>warmThemeCard(area,t,examples));
+ qs.forEach((q,k)=>{const w={n:k+1,total:qs.length,curve:q.curve};warm.queue.push(()=>q.item.type==="case"?guidedEntry(q.item,w):questionEntry(q.item,false,false,w))});
+ warm.queue.push(()=>warmDoneCard(area,t));
+}
+function updateWarmScore(){
+ if(!warm)return;
+ document.querySelectorAll(".warmscore").forEach(e=>e.textContent=`${warm.right} of ${warm.total} right`);
+ document.querySelectorAll(".warmverdict").forEach(e=>e.textContent=warm.done<warm.total?"":warm.right>=warm.total-1?"That pattern looks solid.":"Worth another look; the exercises will bring these back.");
+}
+function warmNext(){if(!warm||!warm.queue.length)return null;return warm.queue.shift()()}
+function skipWarm(){warm=null;resetAhead()}
+const JOBS_HTML=`<div class="jobs">
+ <div class="job"><b>Nominativ</b><i>subject · wer? was?</i><span><u>Der Hund</u> schläft. (The dog sleeps.)</span></div>
+ <div class="job"><b>Akkusativ</b><i>direct object · wen? was?</i><span>Ich sehe <u>den Hund</u>. (I see the dog.)</span></div>
+ <div class="job"><b>Dativ</b><i>indirect object, or required by verb/preposition · wem?</i><span>Ich gebe <u>dem Hund</u> einen Knochen. (I give the dog a bone.)</span></div>
+ <div class="job"><b>Genitiv</b><i>relationship/possession, or required by preposition · wessen?</i><span>der Ball <u>des Hundes</u>; trotz <u>des Regens</u></span></div>
+ </div><p class="why"><b>Compare:</b> Er gibt seiner Freundin einen Ring. <b>Er</b> = subject (Nom); <b>einen Ring</b> = what he gives (Akk); <b>seiner Freundin</b> = who he gives it to (Dat). Not every dative receives something: <b>helfen</b> requires dative. <b>Trotz</b> requires genitive even when nobody owns anything.</p>`;
+const HOOKS_HTML=`<ul class="hooks">
+  <li><b>Akkusativ:</b> only der changes, to <b>den</b>. die, das and plural stay the same.</li>
+  <li><b>Dativ</b> is the <b>-m</b> case: dem, einem, meinem (like English him). Feminine goes to der, plural to den.</li>
+  <li><b>mein, ein, kein</b> copy the article's ending: dem → mein<b>em</b>, den → mein<b>en</b>, der → mein<b>er</b>. No ending where the article is der (Nominativ) or das: mein Mann, mein Kind.</li>
+ </ul>`;
+const TABLE_HTML=`<div class="tablewrap"><table class="ref"><thead><tr><th></th><th class="art-m">masc.</th><th class="art-f">fem.</th><th class="art-n">neut.</th><th>plural</th></tr></thead><tbody>
+  <tr><th>Nom<small>subject</small></th><td>der</td><td>die</td><td>das</td><td>die</td></tr>
+  <tr><th>Akk<small>direct object</small></th><td><b>den</b></td><td>die</td><td>das</td><td>die</td></tr>
+  <tr><th>Dat<small>indirect / fixed</small></th><td><b>dem</b></td><td><b>der</b></td><td><b>dem</b></td><td><b>den</b> +n</td></tr>
+  <tr><th>Gen<small>relation / fixed</small></th><td>des +s</td><td>der</td><td>des +s</td><td>der</td></tr></tbody></table></div>`;
+const FIND_HTML=`<ol class="chain find">
+ <li><b>1. Check prepositions first.</b> mit, bei, von, zu → Dat; für, durch, ohne → Akk; trotz, wegen, während → Gen.</li>
+ <li><b>2. Check verbs with fixed cases.</b> helfen, danken, gefallen, gehören → Dat. Don't guess from who is affected.</li>
+ <li><b>3. Otherwise identify the role.</b> Subject → Nom; direct object (what is given/seen?) → Akk; indirect object (to whom?) → Dat; possession/relationship → often Gen.</li>
+ <li><b>4. With two-way prepositions</b> in, auf, an etc., destination (wohin?) → Akk; location (wo?) → Dat. Movement alone is NOT the rule.</li>
+ <li><b>5. Only now choose the ending.</b> Identify noun gender and number, then look up the article or possessive form.</li>
+ </ol>`;
+function kasusJobsCard(){
+ return infoEntry(`<div class="meta"><span>Kasus · Warm-up</span><span class="metabtns"><button type="button" class="skipwarm">Skip</button></span></div>
+  <div class="prompt"><h2 class="big-h">Four cases, four jobs</h2>${JOBS_HTML}</div>
+  <div class="hint">${ARROW} Swipe up: how der changes</div>`,el=>bindMeta(el));
+}
+function openKey(){
+ sheet.innerHTML=`<div class="sheet-in">
+  <div class="sheet-top"><h2>Case key</h2><button type="button" class="close" id="closeKey">Back to the card</button></div>
+  <section><h3 class="grp-h">The jobs</h3>${JOBS_HTML}</section>
+  <section><h3 class="grp-h">How the article changes</h3>${TABLE_HTML}${HOOKS_HTML}</section>
+  <section><h3 class="grp-h">How to find the case</h3>${FIND_HTML}</section>
+ </div>`;
+ sheet.hidden=false;sheet.scrollTop=0;
+ $("#closeKey").addEventListener("click",closeSheet);$("#closeKey").focus();
+}
+function openWarmMenu(){
+ const area=state.mode;
+ if(!themesFor(area))return;
+ const themes=themesFor(area);
+ sheet.innerHTML=`<div class="sheet-in"><div class="sheet-top"><h2>${area} warm-ups</h2><button type="button" class="close" id="closeWarmMenu">Close</button></div>
+ <p class="summary">Choose any of the ${themes.length} patterns. Each has a short explanation and a practice round. You can return here at any time.</p>
+ <div class="sets">${area==="Genus"?`<button type="button" class="opt case" id="ruleWarmup" style="text-align:left"><small>Warm-up type · Endings & rules</small>Guess der / die / das from one ending or rule at a time</button>`:""}${themes.map((t,i)=>`<button type="button" class="opt case" data-warm-theme="${i}" style="text-align:left"><small>Pattern ${i+1} of ${themes.length}</small>${t.name}</button>`).join("")}</div>
+ <button type="button" class="opt primary" id="warmExercises">Go to exercises</button></div>`;
+ sheet.hidden=false;sheet.scrollTop=0;
+ sheet.querySelector("#closeWarmMenu").addEventListener("click",closeSheet);
+ if(area==="Genus")sheet.querySelector("#ruleWarmup").addEventListener("click",startGenusRules);
+ sheet.querySelectorAll("[data-warm-theme]").forEach(b=>b.addEventListener("click",()=>{
+  closeSheet();startWarm(area,false,Number(b.dataset.warmTheme));resetAhead();
+ }));
+ sheet.querySelector("#warmExercises").addEventListener("click",()=>{closeSheet();goToExercises(area)});
+}
+/* Genus rule-only exercise: one cue per card, never a bundled suffix list. */
+const GENUS_RULE_CARDS=[
+ ["Words ending in -e","f","die Lampe · die Straße","Most nouns ending in -e are feminine; there are exceptions."],
+ ["Words ending in -ung","f","die Zeitung · die Wohnung","-ung nouns are feminine."],
+ ["Words ending in -heit","f","die Freiheit · die Gesundheit","-heit nouns are feminine."],
+ ["Words ending in -keit","f","die Möglichkeit · die Schwierigkeit","-keit nouns are feminine."],
+ ["Words ending in -schaft","f","die Freundschaft · die Mannschaft","-schaft nouns are feminine."],
+ ["Words ending in -ion","f","die Nation · die Information","-ion nouns are feminine."],
+ ["Words ending in -tät","f","die Universität · die Qualität","-tät nouns are feminine."],
+ ["Words ending in -ik","f","die Musik · die Politik","-ik nouns are feminine."],
+ ["Words ending in -ur","f","die Kultur · die Natur","-ur nouns are feminine."],
+ ["Words ending in -ei","f","die Partei · die Bäckerei","-ei nouns are feminine."],
+ ["Words ending in -enz","f","die Frequenz · die Differenz","-enz nouns are feminine."],
+ ["Words ending in -anz","f","die Toleranz · die Distanz","-anz nouns are feminine."],
+ ["Words ending in -chen","n","das Mädchen · das Brötchen","Diminutives ending in -chen are neuter."],
+ ["Words ending in -lein","n","das Fräulein · das Häuslein","Diminutives ending in -lein are neuter."],
+ ["Words ending in -ment","n","das Dokument · das Instrument","-ment nouns are generally neuter."],
+ ["Words ending in -um","n","das Museum · das Zentrum","-um nouns are generally neuter."],
+ ["Words ending in -nis","n","das Ergebnis · das Zeugnis","-nis nouns are often neuter, with exceptions."],
+ ["Words ending in -tum","n","das Eigentum · das Christentum","-tum nouns are often neuter, with exceptions."],
+ ["Words ending in -ma","n","das Klima · das Thema","Many nouns ending in -ma are neuter."],
+ ["Words beginning with Ge-","n","das Gebäude · das Gespräch","Many Ge- nouns are neuter; this is a tendency, not an absolute rule."],
+ ["Words ending in -ling","m","der Schmetterling · der Lehrling","-ling nouns are masculine."],
+ ["Words ending in -ismus","m","der Tourismus · der Optimismus","-ismus nouns are masculine."],
+ ["Words ending in -or","m","der Motor · der Professor","-or nouns are generally masculine."],
+ ["Words ending in -er","m","der Lehrer · der Computer","Many -er nouns are masculine, but there are exceptions."],
+ ["Days of the week","m","der Montag · der Freitag","Days of the week are masculine."],
+ ["Months of the year","m","der Januar · der August","Months are masculine."],
+ ["Seasons","m","der Sommer · der Herbst","Seasons are masculine."],
+ ["Weather phenomena","m","der Regen · der Schnee","Weather terms are generally masculine."],
+ ["Compass directions","m","der Norden · der Süden","Compass directions are masculine."],
+ ["Infinitives used as nouns","n","das Essen · das Leben","Nominalized infinitives are neuter."],
+ ["Colours used as nouns","n","das Blau · das Grün","Colours used as nouns are neuter."],
+ ["Metals","n","das Gold · das Eisen","Metals are generally neuter."],
+ ["Loanwords ending in -o","n","das Kino · das Auto","Many loanwords ending in -o are neuter."],
+ ["Compound nouns","f","die Haustür · die Handtasche","A compound takes the gender of its last component. These examples end in feminine nouns."],
+ ["Male people ending in -e","m","der Junge · der Kunde","Male-person nouns are exceptions to the usual feminine -e pattern."],
+];
+let genusRulesActive=false, genusRulesDeck=[], genusRulesIndex=0;
+function startGenusRules(){
+ closeSheet();warm=null;genusRulesActive=true;
+ genusRulesDeck=shuffle(GENUS_RULE_CARDS.slice());genusRulesIndex=0;resetAhead();
+}
+function stopGenusRules(){genusRulesActive=false;genusRulesDeck=[];genusRulesIndex=0;startWarm("Genus",true);resetAhead()}
+function genusRuleEntry(){
+ if(genusRulesIndex>=genusRulesDeck.length){genusRulesDeck=shuffle(GENUS_RULE_CARDS.slice());genusRulesIndex=0}
+ const [cue,g,examples,explanation]=genusRulesDeck[genusRulesIndex++];
+ const q={cols:3,task:"Which article usually goes with this rule?",prompt:`<div class="noun sm">${cue}</div><div class="gloss">Examples: ${examples.replace(/\b(?:der|die|das) /g,"")}</div>`,options:["m","f","n"].map(k=>({label:ART[k],cls:"g",style:`--gc:var(--${ART[k]})`})),correct:["m","f","n"].indexOf(g),explain:`<p class="ans"><b class="art-${g}">${ART[g]}</b> — ${cue}</p><p class="why">${explanation}</p><p class="why">Examples: ${examples}</p>`,summary:`${cue} → ${ART[g]}`};
+ const el=document.createElement("section");el.className="card";
+ el.innerHTML=`<div class="card-in"><div class="meta"><span>Genus · Warm-up: endings & rules</span><button type="button" class="skipwarm">Exit warm-up</button></div><div class="prompt"><div class="task">${q.task}</div>${q.prompt}</div><div class="fb" hidden></div><div class="opts" style="--cols:3">${q.options.map((o,i)=>`<button type="button" class="opt ${o.cls}" data-i="${i}" style="${o.style}">${o.label}</button>`).join("")}</div></div>`;
+ const entry={el,item:{type:"gender",skill:"arbitrary",key:"rule:"+cue},q,kind:"q",answered:false,ruleOnly:true};
+ el.querySelector(".skipwarm").addEventListener("click",stopGenusRules);
+ el.querySelector(".opts").addEventListener("click",e=>{const b=e.target.closest(".opt");if(b&&!entry.answered)answer(entry,+b.dataset.i)});
+ return entry;
+}
+function goToExercises(area){closeSheet();genusRulesActive=false;skipWarm()}
+function warmIntroCard(area){
+ return infoEntry(`<div class="meta"><span>${GROUP_LABEL[area]} · Practice menu</span></div>
+  <div class="prompt"><h2 class="big-h">${area}</h2><p class="lede">How would you like to practise?</p></div>
+  <div class="opts" style="--cols:1"><button type="button" class="opt primary" data-random>Start a random warm up</button><button type="button" class="opt" data-choose>Choose a warm up</button><button type="button" class="opt quiet" data-skip>Go to exercises</button></div>`,
+  el=>{
+   el.querySelector("[data-random]").addEventListener("click",()=>{startWarm(area,false,Math.floor(Math.random()*themesFor(area).length));resetAhead()});
+   el.querySelector("[data-skip]").addEventListener("click",()=>goToExercises(area));
+   el.querySelector("[data-choose]").addEventListener("click",openWarmMenu);
+  });
+}
+function warmThemeCard(area,t,examples){
+ const ex=examples.map(i=>`<li>${i.type==="gender"?`<b class="art-${i.g}">${ART[i.g]}</b> ${i.word}`:build(i).summary}</li>`).join("");
+ const rule=t.rule||SKILLS[t.main[0]].rule;
+ return infoEntry(`<div class="meta"><span>Warm-up · Pattern</span><button type="button" class="skipwarm">Skip warm-up</button></div>
+  <div class="prompt"><h2 class="big-h">${t.name}</h2><p class="why">${rule}</p>${ex?`<div class="task">For example</div><ul class="misslist">${ex}</ul>`:""}
+  <p class="note">Next: ${warm?warm.total:6} easy cards in this pattern, with a couple of curveballs.</p></div>
+  <div class="hint">${ARROW} Swipe up to try it</div>`,
+  el=>el.querySelector(".skipwarm").addEventListener("click",()=>goToExercises(area)));
+}
+function warmDoneCard(area,t){
+ const th=themesFor(area);const nt=th[(warm.ti+1)%th.length];
+ const w=warm;
+ return infoEntry(`<div class="meta"><span>Warm-up done</span></div>
+  <div class="prompt"><h2 class="big-h warmscore"></h2>
+  <p class="lede"><span class="warmverdict"></span> Keep warming up with <b>${nt.name}</b>, or start the real exercises.</p></div>
+  <div class="opts" style="--cols:1"><button type="button" class="opt" data-more>Another round: ${nt.name}</button><button type="button" class="opt primary" data-go>Start exercises</button><button type="button" class="opt quiet" data-choose>Choose a different pattern</button></div>`,
+  el=>{
+   setTimeout(updateWarmScore,0);
+   el.querySelector("[data-more]").addEventListener("click",()=>{startWarm(area,false);resetAhead()});
+   el.querySelector("[data-go]").addEventListener("click",()=>goToExercises(area));el.querySelector("[data-choose]").addEventListener("click",openWarmMenu);
+  });
+}
+/* Fewer, closer options for warm-up cards: the right answer plus the most confusable ones. */
+function simplify(q,item){
+ const n=q.options.length;if(n<=3)return q;
+ const labels=q.options.map(o=>o.label);const right=labels[q.correct];
+ let pref=[];
+ if(item.type==="case"){const stem=item.s.match(/\{(\w+)\}/)[1];const other={A:"D",D:"A",N:"A",G:"D"}[item.c];pref=[stem+EIN[item.g][other]]}
+ else if(item.type==="adj"){pref=labels.filter(l=>/e$|en$/.test(l))}
+ else if(item.type==="tense"){pref=[{"Perfekt":"Präteritum","Präteritum":"Perfekt","Plusquamperfekt":"Perfekt","Futur I":"Präsens","Präsens":"Futur I"}[right]]}
+ else if(item.type==="caseid"){pref=[caseBtn({N:"A",A:"D",D:"A",G:"D"}[item.a])]}
+ const wrong=[...new Set(pref.filter(l=>l&&l!==right&&labels.includes(l)).concat(shuffle(labels.filter(l=>l!==right))))].slice(0,2);
+ const keep=q.options.filter(o=>o.label===right||wrong.includes(o.label)).map(o=>({...o,cls:(o.cls||"").replace("span","")}));
+ const long=keep.some(o=>strip(o.label).length>11);
+ return {...q,options:keep,correct:keep.findIndex(o=>o.label===right),cols:long?1:3};
+}
+function openingEntry(){
+ if(!state.seen){
+  state.seen=true;save();
+  return infoEntry(`<div class="meta"><span>Start here</span></div>
+   <div class="prompt">
+    <h2 class="big-h">German grammar, one card at a time.</h2>
+    <p class="lede">Articles, cases, adjective endings and verb forms. Every answer is filed under the rule behind it, and Endung serves more of the rules you miss.</p>
+    <div class="legend"><span class="art-m">der</span><span class="art-f">die</span><span class="art-n">das</span></div>
+    <p class="note">You start with a beginner set. Once you know 60% of the nouns or verbs, you can add the next 50 most common nouns (or 20 verbs), up to about 1,500 nouns in total. Missed cards come back a few cards later, and <b>Weak spots</b> shows the full map.</p>
+   </div>
+   <div class="hint">${ARROW} Swipe up to start</div>`);
+ }
+ const ws=weakSkills().slice(0,3);
+ const total=Object.values(state.skills).reduce((a,s)=>a+s.n,0),right=Object.values(state.skills).reduce((a,s)=>a+s.c,0);
+ return infoEntry(`<div class="meta"><span>Willkommen zurück</span></div>
+  <div class="prompt">
+   <h2 class="big-h">${ws.length?"Where you slip":"No weak spot yet"}</h2>
+   <p class="lede">${total} answers so far, ${total?Math.round(right/total*100):0}% right.${ws.length?" These rules trip you up most:":" Keep going: after a few answers per rule, weak spots show up here."}</p>
+  </div>
+  ${ws.length?`<div class="opts" style="--cols:1">${ws.map(w=>`<button type="button" class="opt" data-drill="${w}">Drill: ${SKILLS[w].name}</button>`).join("")}</div>`:""}
+  <div class="hint">${ARROW} Or swipe up for a mix</div>`,
+  el=>el.querySelectorAll("[data-drill]").forEach(b=>b.addEventListener("click",()=>startDrill(b.dataset.drill))));
+}
+
+function resetAhead(){
+ const keep=[];
+ deck.forEach((d,i)=>{const drop=(i>=cur&&d.kind==="q"&&!d.answered)||(i>cur&&d.kind==="info");if(drop){d.el.remove()}else keep.push(d)});
+ deck=keep;const target=deck.length;cur=Math.max(0,deck.length-1);
+ ensureAhead();goTo(target);
+}
+function startDrill(skill){warm=null;state.focus={skill,left:8};save();updateFocusBar();closeSheet();resetAhead()}
+function setMode(m){genusRulesActive=false;state.mode=m;state.focus=null;save();updateChips();updateFocusBar();warm=null;if(m!=="all")startWarm(m,true);resetAhead()}
+
+/* ---------- Header ---------- */
+function updateChips(){document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.mode===state.mode)));$("#warmNav").hidden=state.mode==="all";if(state.mode!=="all")$("#warmMenu").textContent=`Choose ${state.mode} warm-up · ${themesFor(state.mode).length} patterns`}
+function updateFocusBar(){const b=$("#focusBar");if(state.focus){b.hidden=false;$("#focusText").textContent=`Drilling: ${SKILLS[state.focus.skill].name}`}else b.hidden=true}
+function updateWeakBtn(){const n=weakSkills().length;$("#weakBtn").innerHTML=`Weak spots${n?` <b>${n}</b>`:""}`}
+$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c)setMode(c.dataset.mode)});
+$("#warmMenu").addEventListener("click",openWarmMenu);
+$("#focusStop").addEventListener("click",()=>{state.focus=null;save();updateFocusBar();resetAhead()});
+
+/* ---------- Weak spots sheet ---------- */
+const sheet=$("#sheet");
+function openSheet(){
+ const groups=["Genus","Kasus","Adjektive","Verben"];
+ const total=Object.values(state.skills).reduce((a,s)=>a+s.n,0),right=Object.values(state.skills).reduce((a,s)=>a+s.c,0);
+ const ws=weakSkills();
+ const row=id=>{const s=state.skills[id]||{n:0,c:0};const [st,lab]=status(id);const m=mastery(id);
+  return `<button type="button" class="srow" data-skill="${id}"><span class="sname">${SKILLS[id].name}</span><span class="sstate st-${st}">${lab}</span><span class="bar"><i class="st-${st}" style="width:${m==null?0:Math.round(m*100)}%"></i></span><span class="scount">${s.c}/${s.n}</span></button>`};
+ sheet.innerHTML=`<div class="sheet-in">
+  <div class="sheet-top"><h2>Weak spots</h2><button type="button" class="close" id="closeSheet">Close</button></div>
+  <p class="summary">${total?`${total} answers, ${Math.round(right/total*100)}% right. `:"Nothing answered yet. "}${ws.length?`Weakest: <b>${ws.slice(0,3).map(w=>SKILLS[w].name).join(", ")}</b>.`:total?"No rule is below 60% yet.":"Each rule shows a bar once you have answered it a few times."}</p>
+  <section><h3 class="grp-h">Word sets</h3><div class="sets">${["Genus","Verben"].map(setRow).join("")}</div></section>
+  ${groups.map(g=>`<section><h3 class="grp-h">${g}</h3><div class="srows">${Object.keys(SKILLS).filter(id=>SKILLS[id].g===g).map(row).join("")}</div></section>`).join("")}
+  <p class="note">Tap a rule to drill it for 8 cards. The score weights recent answers more, so it rises as you improve.</p>
+  ${state.misses.length?`<section><h3 class="grp-h">Recent misses</h3><ul class="misslist">${state.misses.slice(0,10).map(m=>`<li>${m.text}<br><span class="rule-tag">${SKILLS[m.skill].name}</span></li>`).join("")}</ul></section>`:""}
+  <button type="button" class="reset" id="resetBtn">Reset progress</button>
+ </div>`;
+ sheet.hidden=false;
+ $("#closeSheet").addEventListener("click",closeSheet);
+ sheet.querySelectorAll(".srow").forEach(b=>b.addEventListener("click",()=>startDrill(b.dataset.skill)));
+ sheet.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addPack(b.dataset.add)));
+ const rb=$("#resetBtn");let armed=false,t;
+ rb.addEventListener("click",()=>{
+  if(!armed){armed=true;rb.classList.add("armed");rb.textContent="Tap again to erase all progress";t=setTimeout(()=>{armed=false;rb.classList.remove("armed");rb.textContent="Reset progress"},4000);return}
+  clearTimeout(t);const mode=state.mode;state=fresh();state.mode=mode;state.seen=true;save();lastInsight=0;updateWeakBtn();updateFocusBar();openSheet();
+ });
+ $("#closeSheet").focus();
+}
+function setRow(g){
+ const a=areaProgress(g);const isG=g==="Genus";
+ const base=isG?NOUNS.length:VERBS.length;const total=base+(isG?NOUNS_X.length:VERBS_X.length);
+ const have=base+Math.min(isG?NOUNS_X.length:VERBS_X.length,a.packs*PACK_SIZE[g]);
+ const unit=isG?"nouns":"verbs";
+ const done=a.packs>=a.max;
+ const note=done?`All ${total} ${unit} unlocked.`:canUnlock(g)?`Next set ready: the ${isG?PACK_SIZE.Genus:PACK_SIZE.Verben} next most common ${unit}.`:`The next set unlocks when the bar passes the 60% mark.`;
+ return `<div class="set"><span class="set-name">${g}: ${have} of ${total} ${unit}</span><span class="set-meta">${Math.round(a.ratio*100)}% known</span>
+  <span class="set-bar" role="img" aria-label="${Math.round(a.ratio*100)}% known, 60% needed"><i style="width:${Math.round(a.ratio*100)}%"></i><b></b></span>
+  <p class="set-note">${note}</p>${!done&&canUnlock(g)?`<button type="button" class="add" data-add="${g}">Add next set</button>`:""}</div>`;
+}
+function closeSheet(){sheet.hidden=true}
+$("#weakBtn").addEventListener("click",openSheet);
+
+/* ---------- Keyboard ---------- */
+document.addEventListener("keydown",e=>{
+ if(!sheet.hidden){if(e.key==="Escape")closeSheet();return}
+ const d=deck[cur];
+ if(/^[1-6]$/.test(e.key)&&d&&d.kind==="q"&&!d.answered){const b=d.el.querySelectorAll(".opt")[+e.key-1];if(b){b.click();e.preventDefault()}}
+ else if(e.key==="ArrowDown"||e.key==="j"||(e.key===" "&&e.target===document.body)){e.preventDefault();ensureAhead();goTo(cur+1)}
+ else if(e.key==="ArrowUp"||e.key==="k"){e.preventDefault();goTo(cur-1)}
+});
+
+/* ---------- Boot ---------- */
+updateChips();updateFocusBar();updateWeakBtn();
+if(state.mode!=="all")startWarm(state.mode,true);
+append(openingEntry());ensureAhead();
+</script>
+
+</body></html>
