@@ -30,7 +30,7 @@ html{height:100%;box-sizing:border-box}
 *,*::before,*::after{box-sizing:border-box}
 body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-ui);overflow:hidden;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit}
-.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;grid-template-columns:minmax(0,1fr)}
 
 header{padding-block:10px 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column;gap:10px}
 .brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -195,6 +195,7 @@ table.ref td{font-family:var(--f-text);font-size:17px}
       <button class="chip" type="button" data-mode="Kasus">Kasus</button>
       <button class="chip" type="button" data-mode="Adjektive">Adjektive</button>
       <button class="chip" type="button" data-mode="Verben">Verben</button>
+      <button class="chip" type="button" data-mode="Fehler">Fehler</button>
     </div>
     <div class="exrow" id="exRow"><span class="exlabel">Exception hints <span class="exkey"><span class="exmark" aria-hidden="true">!</span>breaks rule <span class="exmark none" aria-hidden="true">∅</span>no rule</span></span><button type="button" class="switch" id="exToggle" role="switch" aria-checked="false" aria-label="Exception hints"><i></i></button></div>
     <div id="warmNav" hidden><button type="button" class="weak-btn" id="warmMenu" style="width:100%;justify-content:center"></button></div>
@@ -240,9 +241,22 @@ const SKILLS={
  part_insep:{g:"Verben",name:"Participles without ge-",rule:"No ge- after an inseparable prefix (be-, ver-, ent-, er-, ge-, zer-, emp-, miss-) and none on -ieren verbs: verstanden, besucht, bekommen, studiert, passiert."},
  part_sep:{g:"Verben",name:"Separable verbs",rule:"With a separable prefix (an, auf, aus, ein, mit, um, zu …), ge- goes between prefix and stem: an·ge·rufen, auf·ge·standen, ein·ge·kauft."},
  praet:{g:"Verben",name:"Präteritum forms",rule:"Strong verbs change the vowel and take no ending in the er/sie/es form: er ging, sie las, es kam. Mixed verbs change the vowel and add -te: dachte, brachte, wusste. Separable prefixes go to the end: er stand früh auf."},
+ mix_time:{g:"Fehler",name:"seit, vor or für",rule:"seit = it started in the past and is still going (German uses the present tense: Ich wohne seit drei Jahren hier). vor = ago, finished. für = a planned length of time. Trap: English 'for' is seit when it's still going on, and für only when it's planned.",short:"seit = still going. vor = ago. für = planned length."},
+ mix_clock:{g:"Fehler",name:"um, am or im",rule:"um + clock times (um acht Uhr). am + days, dates and parts of the day (am Montag, am 3. Mai, am Abend, but in der Nacht). im + months, seasons and years with 'Jahr' (im Mai, im Sommer, im Jahr 2020).",short:"um + clock time. am + day or date. im + month or season."},
+ mix_wenn:{g:"Fehler",name:"als, wenn, ob or wann",rule:"als = one time in the past (Als ich Kind war…). wenn = if, or whenever: repeated, present or future. ob = whether, a yes/no question. wann = when, asking about the time.",short:"als = once, in the past. wenn = if / whenever. ob = whether. wann = at what time?"},
+ mix_wissen:{g:"Fehler",name:"wissen, kennen or können",rule:"kennen + a person, place or thing you're familiar with. wissen + a fact, usually followed by wo, wie, ob, dass… können = can, and also for languages and skills: Ich kann Deutsch.",short:"kennen = be familiar with. wissen = know a fact. können = be able to."},
+ mix_where:{g:"Fehler",name:"nach, zu, in or bei",rule:"nach + cities, countries without an article, and nach Hause (going home). zu Hause = at home. zu + people and places you go to visit (zum Arzt, zu meiner Oma). bei = at someone's place (bei meiner Oma, beim Arzt). in + countries with an article and into buildings or rooms (in die Schweiz, ins Kino).",short:"nach = to a city or country. zu = to a person or place. bei = at someone's. in = into, and countries with an article."},
+ mix_link:{g:"Fehler",name:"aber, sondern, denn or dann",rule:"sondern only after nicht or kein, to replace what you just denied: not X, but Y. aber = but / however, without replacing anything. denn = because. dann = then, the next step.",short:"sondern replaces something after nicht/kein. aber just adds a contrast. denn = because, dann = then."},
+ mix_put:{g:"Fehler",name:"legen or liegen, stellen or stehen",rule:"legen, stellen, setzen = putting something somewhere: an action, with an object, place in Akkusativ (auf den Tisch). liegen, stehen, sitzen = being somewhere: a state, place in Dativ (auf dem Tisch).",short:"Putting = legen/stellen/setzen. Being there = liegen/stehen/sitzen."},
+ mix_erst:{g:"Fehler",name:"nur or erst",rule:"nur = only, as in a small amount and nothing more. erst = only in time: later than expected, or 'not until'. Er kommt erst morgen = he's not coming until tomorrow.",short:"nur = only (amount). erst = not until (time)."},
+ mix_false:{g:"Fehler",name:"False friends",rule:"Words that look like English but aren't: bekommen = get (not become: that's werden). will = want (the future is werden). also = so (too is auch). Chef = boss. muss nicht = don't have to (mustn't is darf nicht). sehr = very, viel = much / a lot.",short:"Looks like English, means something else."},
+ mix_go:{g:"Fehler",name:"gehen or fahren",rule:"gehen = on foot, or going to an event or activity (ins Kino gehen, ins Bett gehen, einkaufen gehen). fahren = travelling by car, bus, train or bike. A trip to another city is fahren (or fliegen).",short:"gehen = walk, or go to an activity. fahren = by vehicle."},
+ mix_nachdem:{g:"Fehler",name:"nach or nachdem, vor or bevor",rule:"nach and vor go with a noun: nach dem Essen. nachdem and bevor start a whole clause with its own verb, which goes to the end: nachdem wir gegessen haben.",short:"nach/vor + a noun. nachdem/bevor + a clause with a verb."},
  tense_id:{g:"Verben",name:"Naming the tense",rule:"Find the conjugated verb. Present haben/sein + participle = Perfekt. hatte/war + participle = Plusquamperfekt. werden + infinitive = Futur I. werden on its own is a full verb (become), and werden + participle is the passive."},
 };
-const GROUP_LABEL={Genus:"Genus",Kasus:"Kasus",Adjektive:"Adjektivendung",Verben:"Verben"};
+const GROUP_LABEL={Genus:"Genus",Kasus:"Kasus",Adjektive:"Adjektivendung",Verben:"Verben",Fehler:"Common mistakes"};
+// Common mistakes: [sentence with ___, English meaning, [correct, ...wrong], why, skill]
+const MIX=[["Ich lerne ___ drei Wochen Deutsch.", "I've been learning German for three weeks.", ["seit", "vor", "für"], "Still learning now → seit.", "mix_time"], ["Ich war ___ drei Wochen in Spanien.", "I was in Spain three weeks ago.", ["vor", "seit", "für"], "'Ago', and it's over → vor.", "mix_time"], ["Wir fahren ___ zwei Wochen nach Italien.", "We're going to Italy for two weeks.", ["für", "seit", "vor"], "A planned length of time → für.", "mix_time"], ["Er wohnt ___ zwei Wochen bei uns.", "He has been staying with us for two weeks.", ["seit", "für", "vor"], "Started two weeks ago, still staying → seit.", "mix_time"], ["Sie hat ___ zehn Minuten angerufen.", "She called ten minutes ago.", ["vor", "seit", "für"], "'Ago' → vor.", "mix_time"], ["Ich warte schon ___ zwanzig Minuten auf den Bus.", "I've been waiting for the bus for twenty minutes.", ["seit", "für", "vor"], "Still waiting → seit.", "mix_time"], ["Ich miete das Auto ___ zwei Wochen.", "I'm renting the car for two weeks.", ["für", "seit", "vor"], "A planned length of time → für.", "mix_time"], ["Das Konzert hat ___ einer Stunde angefangen.", "The concert started an hour ago.", ["vor", "seit", "für"], "'Ago' → vor.", "mix_time"], ["___ einer Stunde regnet es.", "It has been raining for an hour.", ["Seit", "Vor", "Für"], "Still raining → seit, with the present tense.", "mix_time"], ["Ich habe ihn ___ Jahren nicht gesehen.", "I haven't seen him for years.", ["seit", "vor", "für"], "The not-seeing is still going on → seit.", "mix_time"], ["Kannst du das Fenster ___ fünf Minuten aufmachen?", "Can you open the window for five minutes?", ["für", "seit", "vor"], "A planned length of time → für.", "mix_time"], ["Ich bin ___ zwei Stunden aufgestanden.", "I got up two hours ago.", ["vor", "seit", "für"], "'Ago' → vor.", "mix_time"], ["Der Film beginnt ___ acht Uhr.", "The film starts at eight o'clock.", ["um", "am", "im"], "Clock time → um.", "mix_clock"], ["Wir treffen uns ___ Montag.", "We're meeting on Monday.", ["am", "um", "im"], "A day → am.", "mix_clock"], ["Ich habe ___ Mai Geburtstag.", "My birthday is in May.", ["im", "am", "um"], "A month → im.", "mix_clock"], ["___ Wochenende fahren wir weg.", "We're going away at the weekend.", ["Am", "Im", "Um"], "The weekend counts as days → am.", "mix_clock"], ["___ Sommer ist es hier sehr heiß.", "It's very hot here in summer.", ["Im", "Am", "Um"], "A season → im.", "mix_clock"], ["Ich stehe ___ halb sieben auf.", "I get up at half past six.", ["um", "am", "im"], "Clock time → um.", "mix_clock"], ["___ Abend gehe ich ins Kino.", "In the evening I'm going to the cinema.", ["Am", "Im", "Um"], "Part of the day → am (but in der Nacht).", "mix_clock"], ["Er ist ___ 3. Oktober geboren.", "He was born on 3 October.", ["am", "im", "um"], "A date → am.", "mix_clock"], ["___ Winter fahren wir Ski.", "We go skiing in winter.", ["Im", "Am", "Um"], "A season → im.", "mix_clock"], ["Ich rufe dich ___ Nachmittag an.", "I'll call you in the afternoon.", ["am", "im", "um"], "Part of the day → am.", "mix_clock"], ["Das Geschäft öffnet ___ neun.", "The shop opens at nine.", ["um", "am", "im"], "Clock time → um.", "mix_clock"], ["Ich bin ___ Jahr 1990 geboren.", "I was born in 1990.", ["im", "am", "um"], "With 'Jahr' → im. Without it, no preposition: Ich bin 1990 geboren.", "mix_clock"], ["___ ich ein Kind war, wohnten wir in München.", "When I was a child, we lived in Munich.", ["Als", "Wenn", "Ob", "Wann"], "One period in the past → als.", "mix_wenn"], ["___ ich Zeit habe, rufe ich dich an.", "When I have time, I'll call you.", ["Wenn", "Als", "Ob", "Wann"], "Future → wenn.", "mix_wenn"], ["Ich weiß nicht, ___ er kommt.", "I don't know if he's coming.", ["ob", "wenn", "wann", "als"], "'If' meaning 'whether' → ob.", "mix_wenn"], ["Weißt du, ___ der Zug abfährt?", "Do you know when the train leaves?", ["wann", "wenn", "ob", "als"], "Asking about the time → wann.", "mix_wenn"], ["Immer ___ es regnet, bleibe ich zu Hause.", "Whenever it rains, I stay at home.", ["wenn", "als", "ob", "wann"], "Whenever, repeated → wenn.", "mix_wenn"], ["___ wir in Berlin ankamen, war es schon dunkel.", "When we arrived in Berlin, it was already dark.", ["Als", "Wenn", "Wann", "Ob"], "One time in the past → als.", "mix_wenn"], ["___ kommst du nach Hause?", "When are you coming home?", ["Wann", "Wenn", "Als", "Ob"], "A question about the time → wann.", "mix_wenn"], ["Kannst du mir sagen, ___ das richtig ist?", "Can you tell me whether this is right?", ["ob", "wenn", "wann", "als"], "Whether → ob.", "mix_wenn"], ["Jedes Mal, ___ ich ihn sehe, lacht er.", "Every time I see him, he laughs.", ["wenn", "als", "ob", "wann"], "Every time, repeated → wenn.", "mix_wenn"], ["___ ich gestern nach Hause kam, war niemand da.", "When I came home yesterday, nobody was there.", ["Als", "Wenn", "Wann", "Ob"], "One time in the past → als.", "mix_wenn"], ["___ du willst, können wir morgen gehen.", "If you want, we can go tomorrow.", ["Wenn", "Ob", "Als", "Wann"], "'If' as a condition → wenn.", "mix_wenn"], ["Ich frage mich, ___ sie anruft.", "I wonder when she'll call.", ["wann", "wenn", "ob", "als"], "At what time → wann.", "mix_wenn"], ["Ich ___ ihn seit Jahren.", "I've known him for years.", ["kenne", "weiß", "kann"], "A person → kennen.", "mix_wissen"], ["___ du, wo der Bahnhof ist?", "Do you know where the station is?", ["Weißt", "Kennst", "Kannst"], "A fact (where…) → wissen.", "mix_wissen"], ["Ich ___ Berlin sehr gut.", "I know Berlin very well.", ["kenne", "weiß", "kann"], "A place → kennen.", "mix_wissen"], ["Er ___ nicht, wie spät es ist.", "He doesn't know what time it is.", ["weiß", "kennt", "kann"], "A fact (how late…) → wissen.", "mix_wissen"], ["Sie ___ gut schwimmen.", "She can swim well.", ["kann", "weiß", "kennt"], "A skill → können.", "mix_wissen"], ["___ du meine Schwester?", "Do you know my sister?", ["Kennst", "Weißt", "Kannst"], "A person → kennen.", "mix_wissen"], ["Ich ___ nicht, warum er geht.", "I don't know why he's leaving.", ["weiß", "kenne", "kann"], "A fact (why…) → wissen.", "mix_wissen"], ["Wir ___ das Restaurant noch nicht.", "We don't know the restaurant yet.", ["kennen", "wissen", "können"], "A place → kennen.", "mix_wissen"], ["___ ihr, wann der Film anfängt?", "Do you know when the film starts?", ["Wisst", "Kennt", "Könnt"], "A fact (when…) → wissen.", "mix_wissen"], ["Ich ___ ein bisschen Deutsch.", "I speak a little German.", ["kann", "weiß", "kenne"], "A language → können: Ich kann Deutsch.", "mix_wissen"], ["Ich bin heute Abend ___ Hause.", "I'm at home this evening.", ["zu", "nach"], "At home → zu Hause.", "mix_where"], ["Wann gehst du ___ Hause?", "When are you going home?", ["nach", "zu"], "Going home → nach Hause.", "mix_where"], ["Wir fliegen morgen ___ Spanien.", "We're flying to Spain tomorrow.", ["nach", "in die", "zu"], "A country without an article → nach.", "mix_where"], ["Im Sommer fahren wir ___ Schweiz.", "In summer we're going to Switzerland.", ["in die", "nach", "zur"], "die Schweiz has an article → in die.", "mix_where"], ["Ich muss ___ Arzt.", "I have to go to the doctor.", ["zum", "nach", "in den"], "Going to see someone → zu (zum Arzt).", "mix_where"], ["Er fährt ___ Hamburg.", "He's going to Hamburg.", ["nach", "in", "zu"], "A city → nach.", "mix_where"], ["Wir fahren ___ USA.", "We're going to the USA.", ["in die", "nach", "zu den"], "die USA has an article → in die.", "mix_where"], ["Ich gehe ___ meiner Oma.", "I'm going to my grandma's.", ["zu", "nach", "bei"], "Going to a person → zu.", "mix_where"], ["Ich wohne ___ meiner Oma.", "I live at my grandma's.", ["bei", "zu", "mit"], "At someone's place → bei.", "mix_where"], ["Ich war gestern ___ Arzt.", "I was at the doctor's yesterday.", ["beim", "zum", "nach"], "Being at someone's → bei (beim Arzt). Going there → zum Arzt.", "mix_where"], ["Ich gehe jetzt ___ Bett.", "I'm going to bed now.", ["ins", "nach", "zum"], "Into a place → in (ins Bett).", "mix_where"], ["Er ist nicht dumm, ___ faul.", "He isn't stupid, but lazy.", ["sondern", "aber"], "After nicht, replacing 'stupid' with 'lazy' → sondern.", "mix_link"], ["Er ist klug, ___ faul.", "He's clever but lazy.", ["aber", "sondern"], "No nicht, just a contrast → aber.", "mix_link"], ["Ich trinke keinen Kaffee, ___ Tee.", "I don't drink coffee, but tea.", ["sondern", "aber"], "After kein, replacing coffee with tea → sondern.", "mix_link"], ["Das Essen war teuer, ___ sehr gut.", "The food was expensive but very good.", ["aber", "sondern"], "Just a contrast → aber.", "mix_link"], ["Wir fahren nicht mit dem Auto, ___ mit dem Zug.", "We're not going by car, but by train.", ["sondern", "aber"], "After nicht, replacing → sondern.", "mix_link"], ["Ich möchte kommen, ___ ich habe keine Zeit.", "I'd like to come, but I don't have time.", ["aber", "sondern"], "A contrast, nothing replaced → aber.", "mix_link"], ["Das ist nicht mein Handy, ___ deins.", "That's not my phone, it's yours.", ["sondern", "aber"], "After nicht, replacing → sondern.", "mix_link"], ["Ich bleibe zu Hause, ___ ich bin krank.", "I'm staying at home because I'm ill.", ["denn", "dann"], "Because → denn.", "mix_link"], ["Zuerst essen wir, ___ gehen wir ins Kino.", "First we'll eat, then we'll go to the cinema.", ["dann", "denn"], "The next step → dann.", "mix_link"], ["Er lernt viel, ___ er hat morgen eine Prüfung.", "He's studying a lot because he has an exam tomorrow.", ["denn", "dann"], "Because → denn.", "mix_link"], ["Mach deine Hausaufgaben, ___ kannst du spielen.", "Do your homework, then you can play.", ["dann", "denn"], "Then → dann (and the verb comes straight after).", "mix_link"], ["Ich nehme einen Schirm mit, ___ es regnet.", "I'm taking an umbrella because it's raining.", ["denn", "dann"], "Because → denn.", "mix_link"], ["Das Buch ___ auf dem Tisch.", "The book is lying on the table.", ["liegt", "legt"], "Being there → liegen (auf dem Tisch, Dativ).", "mix_put"], ["Ich ___ das Buch auf den Tisch.", "I'm putting the book on the table.", ["lege", "liege"], "Putting it there → legen (auf den Tisch, Akkusativ).", "mix_put"], ["Die Flasche ___ im Kühlschrank.", "The bottle is in the fridge.", ["steht", "stellt"], "Being there, upright → stehen.", "mix_put"], ["Er ___ die Flasche in den Kühlschrank.", "He puts the bottle in the fridge.", ["stellt", "steht"], "Putting it there → stellen.", "mix_put"], ["Sie ___ auf dem Sofa.", "She's sitting on the sofa.", ["sitzt", "setzt"], "Being there → sitzen.", "mix_put"], ["Er ___ sich auf das Sofa.", "He sits down on the sofa.", ["setzt", "sitzt"], "The action of sitting down → sich setzen.", "mix_put"], ["Wo ___ meine Schlüssel?", "Where are my keys?", ["liegen", "legen"], "Being somewhere → liegen.", "mix_put"], ["___ die Teller bitte auf den Tisch.", "Please put the plates on the table.", ["Stell", "Steh"], "Putting → stellen.", "mix_put"], ["Das Kind ___ schon im Bett.", "The child is already in bed.", ["liegt", "legt"], "Being there → liegen.", "mix_put"], ["Ich ___ das Baby ins Bett.", "I'm putting the baby to bed.", ["lege", "liege"], "Putting → legen (ins Bett, Akkusativ).", "mix_put"], ["Es ist ___ acht Uhr, wir haben noch Zeit.", "It's only eight o'clock, we still have time.", ["erst", "nur"], "Earlier than you'd think → erst.", "mix_erst"], ["Ich habe ___ zehn Euro dabei.", "I only have ten euros on me.", ["nur", "erst"], "A small amount → nur.", "mix_erst"], ["Er kommt ___ morgen.", "He's not coming until tomorrow.", ["erst", "nur"], "Not until → erst.", "mix_erst"], ["Ich trinke ___ Wasser.", "I only drink water.", ["nur", "erst"], "Nothing else → nur.", "mix_erst"], ["Der Zug fährt ___ um zehn.", "The train doesn't leave until ten.", ["erst", "nur"], "Not until → erst.", "mix_erst"], ["Wir haben ___ ein Kind.", "We only have one child.", ["nur", "erst"], "A small amount → nur.", "mix_erst"], ["Ich bin ___ gestern angekommen.", "I only arrived yesterday.", ["erst", "nur"], "Later than you'd think → erst.", "mix_erst"], ["Ich ___ morgen ein Paket.", "I'm getting a parcel tomorrow.", ["bekomme", "werde"], "bekommen = get. Become is werden.", "mix_false"], ["Er will Arzt ___.", "He wants to become a doctor.", ["werden", "bekommen"], "Become → werden.", "mix_false"], ["Morgen ___ es regnen.", "It will rain tomorrow.", ["wird", "will"], "The future → werden. will = wants.", "mix_false"], ["Ich ___ nach Hause gehen.", "I want to go home.", ["will", "werde"], "Want → wollen (ich will).", "mix_false"], ["Du ___ heute nicht arbeiten, es ist Sonntag!", "You don't have to work today, it's Sunday!", ["musst", "darfst"], "Don't have to → muss nicht.", "mix_false"], ["Hier ___ man nicht rauchen.", "You mustn't smoke here.", ["darf", "muss"], "Mustn't → darf nicht.", "mix_false"], ["Es ist kalt, ___ ziehe ich eine Jacke an.", "It's cold, so I'm putting on a jacket.", ["also", "auch"], "also = so. Too is auch.", "mix_false"], ["Ich komme ___ mit.", "I'm coming too.", ["auch", "also"], "Too → auch.", "mix_false"], ["Sie ___ Medizin an der Uni.", "She studies medicine at university.", ["studiert", "lernt"], "At university → studieren.", "mix_false"], ["Ich ___ jeden Abend Vokabeln.", "I learn vocabulary every evening.", ["lerne", "studiere"], "Learning or revising → lernen.", "mix_false"], ["Mein ___ ist sehr nett.", "My boss is very nice.", ["Chef", "Koch"], "Chef = boss. A chef is Koch.", "mix_false"], ["Das Essen war ___ gut.", "The food was very good.", ["sehr", "viel"], "Very → sehr.", "mix_false"], ["Ich habe ___ Zeit.", "I have a lot of time.", ["viel", "sehr"], "A lot of → viel.", "mix_false"], ["Ich ___ morgen nach Paris.", "I'm going to Paris tomorrow.", ["fahre", "gehe"], "A trip to another city → fahren.", "mix_go"], ["Wir ___ zu Fuß zur Schule.", "We walk to school.", ["gehen", "fahren"], "On foot → gehen.", "mix_go"], ["Er ___ mit dem Bus zur Arbeit.", "He goes to work by bus.", ["fährt", "geht"], "By bus → fahren.", "mix_go"], ["Ich ___ jetzt ins Bett.", "I'm going to bed now.", ["gehe", "fahre"], "An activity → gehen.", "mix_go"], ["Im Sommer ___ wir nach Italien.", "In summer we're going to Italy.", ["fahren", "gehen"], "A trip → fahren.", "mix_go"], ["___ wir heute Abend ins Kino?", "Shall we go to the cinema tonight?", ["Gehen", "Fahren"], "ins Kino gehen is fixed, even if you drive there.", "mix_go"], ["Sie ___ mit dem Fahrrad zur Uni.", "She cycles to university.", ["fährt", "geht"], "By bike → fahren.", "mix_go"], ["___ dem Essen gehen wir spazieren.", "After the meal we'll go for a walk.", ["Nach", "Nachdem"], "A noun (dem Essen) → nach.", "mix_nachdem"], ["___ wir gegessen haben, gehen wir spazieren.", "After we've eaten, we'll go for a walk.", ["Nachdem", "Nach"], "A clause with a verb → nachdem.", "mix_nachdem"], ["___ dem Frühstück dusche ich.", "I shower before breakfast.", ["Vor", "Bevor"], "A noun → vor.", "mix_nachdem"], ["___ ich frühstücke, dusche ich.", "Before I have breakfast, I shower.", ["Bevor", "Vor"], "A clause with a verb → bevor.", "mix_nachdem"], ["___ der Arbeit treffe ich Freunde.", "After work I'm meeting friends.", ["Nach", "Nachdem"], "A noun → nach.", "mix_nachdem"], ["___ er angerufen hatte, ging er los.", "After he had called, he set off.", ["Nachdem", "Nach"], "A clause with a verb → nachdem.", "mix_nachdem"], ["Ruf mich an, ___ du losfährst.", "Call me before you leave.", ["bevor", "vor"], "A clause with a verb → bevor.", "mix_nachdem"]];
 
 /* ---------- Content ---------- */
 const NOUNS=[
@@ -512,6 +526,7 @@ VERBS.forEach((v,i)=>{
  if(v.dr) ITEMS.push({key:"r"+i,type:"praet",skill:"praet",v});
 });
 TENSE_ITEMS.forEach((t,i)=>ITEMS.push({key:"t"+i,type:"tense",skill:"tense_id",s:t[0],a:t[1],why:t[2]}));
+MIX.forEach((m,i)=>ITEMS.push({key:"x"+i,type:"mix",skill:m[4],s:m[0],en:m[1],opts:m[2],why:m[3]}));
 CASEID.forEach((t,i)=>ITEMS.push({key:"i"+i,type:"caseid",skill:"case_id",s:t[0],a:t[1],why:t[2]}));
 // Expansion packs: frequency order is preserved through `ord` (lower = more common).
 const PACK_SIZE={Genus:50,Verben:20};
@@ -709,6 +724,15 @@ function build(item){
  case "tense":
   return {cols:2,task:"Which tense?",prompt:`<div class="sentence">${item.s}</div>`,options:TENSES.map((t,i)=>({label:t,cls:i===4?"span":""})),correct:TENSES.indexOf(item.a),
    explain:`<p class="ans">${item.a}</p><p class="why">${item.why}</p>`,summary:`${item.s} (${item.a})`};
+ case "mix":{
+  const opts=shuffle(item.opts),ans=item.opts[0],full=item.s.replace("___",ans);
+  const gap=`<span class="gap"><span class="blank">___</span></span>`;
+  const ansS=`<p class="ans">${item.s.replace("___","<b>"+ans+"</b>")}</p>`;
+  return {cols:opts.length===4?2:opts.length,task:"Fill the gap",prompt:`<div class="sentence">${item.s.replace("___",gap)}</div><div class="gloss">${item.en}</div>`,
+   options:opts.map(o=>({label:o})),correct:opts.indexOf(ans),
+   explain:`${ansS}<p class="endnote">${item.why}</p>`,
+   explainWrong:`${ansS}<p class="why wrongwhy">${item.why} ${SKILLS[item.skill].short}</p>`,summary:full};
+ }
  case "caseid":{
   const phrase=item.s.match(/\[\[(.+?)\]\]/)[1];
   return {cols:2,task:"Which case is the highlighted phrase?",prompt:`<div class="sentence">${item.s.replace(/\[\[(.+?)\]\]/,"<mark>$1</mark>")}</div>`,options:CASES4.map(c=>({label:caseBtn(c)})),correct:CASES4.indexOf(item.a),
@@ -870,7 +894,8 @@ function infoEntry(html,bind){
 const ARROW='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>';
 function missesFor(skill,n){return state.misses.filter(m=>m.skill===skill).slice(0,n)}
 function insightEntry(){
- const w=weakSkills()[0];if(!w)return null;
+ // Only rules from the tab you're in (any rule in "All")
+ const w=weakSkills().find(id=>state.mode==="all"||SKILLS[id].g===state.mode);if(!w)return null;
  const s=state.skills[w];const ms=missesFor(w,3);
  return infoEntry(`<div class="meta"><span>Pattern</span></div>
   <div class="prompt">
@@ -941,6 +966,19 @@ const S_THEMES={
   {name:"After der/die/das",main:["adj_weak"],curve:["adj_mixed"]},
   {name:"After ein/mein/kein",main:["adj_mixed"],curve:["adj_weak"]},
   {name:"No article",main:["adj_strong"],curve:["adj_mixed"]},
+ ],
+ Fehler:[
+  {name:"seit, vor or für",main:["mix_time"],curve:[]},
+  {name:"um, am or im",main:["mix_clock"],curve:[]},
+  {name:"als, wenn, ob or wann",main:["mix_wenn"],curve:[]},
+  {name:"wissen, kennen or können",main:["mix_wissen"],curve:[]},
+  {name:"nach, zu, in or bei",main:["mix_where"],curve:[]},
+  {name:"aber, sondern, denn or dann",main:["mix_link"],curve:[]},
+  {name:"legen or liegen",main:["mix_put"],curve:[]},
+  {name:"nur or erst",main:["mix_erst"],curve:[]},
+  {name:"False friends",main:["mix_false"],curve:[]},
+  {name:"gehen or fahren",main:["mix_go"],curve:[]},
+  {name:"nach or nachdem",main:["mix_nachdem"],curve:[]},
  ],
  Verben:[
   {name:"haben or sein",main:["aux_sein","aux_haben"],curve:[],noteCurve:true},
@@ -1080,30 +1118,30 @@ function openWarmMenu(){
 }
 /* Genus rule-only exercise: one cue per card, never a bundled suffix list. */
 const GENUS_RULE_CARDS=[
- ["Words ending in -e","f","die Lampe · die Straße","Most nouns ending in -e are feminine; there are exceptions."],
- ["Words ending in -ung","f","die Zeitung · die Wohnung","-ung nouns are feminine."],
- ["Words ending in -heit","f","die Freiheit · die Gesundheit","-heit nouns are feminine."],
- ["Words ending in -keit","f","die Möglichkeit · die Schwierigkeit","-keit nouns are feminine."],
- ["Words ending in -schaft","f","die Freundschaft · die Mannschaft","-schaft nouns are feminine."],
- ["Words ending in -ion","f","die Nation · die Information","-ion nouns are feminine."],
- ["Words ending in -tät","f","die Universität · die Qualität","-tät nouns are feminine."],
- ["Words ending in -ik","f","die Musik · die Politik","-ik nouns are feminine."],
- ["Words ending in -ur","f","die Kultur · die Natur","-ur nouns are feminine."],
- ["Words ending in -ei","f","die Partei · die Bäckerei","-ei nouns are feminine."],
- ["Words ending in -enz","f","die Frequenz · die Differenz","-enz nouns are feminine."],
- ["Words ending in -anz","f","die Toleranz · die Distanz","-anz nouns are feminine."],
- ["Words ending in -chen","n","das Mädchen · das Brötchen","Diminutives ending in -chen are neuter."],
- ["Words ending in -lein","n","das Fräulein · das Häuslein","Diminutives ending in -lein are neuter."],
- ["Words ending in -ment","n","das Dokument · das Instrument","-ment nouns are generally neuter."],
- ["Words ending in -um","n","das Museum · das Zentrum","-um nouns are generally neuter."],
- ["Words ending in -nis","n","das Ergebnis · das Zeugnis","-nis nouns are often neuter, with exceptions."],
- ["Words ending in -tum","n","das Eigentum · das Christentum","-tum nouns are often neuter, with exceptions."],
- ["Words ending in -ma","n","das Klima · das Thema","Many nouns ending in -ma are neuter."],
- ["Words beginning with Ge-","n","das Gebäude · das Gespräch","Many Ge- nouns are neuter; this is a tendency, not an absolute rule."],
- ["Words ending in -ling","m","der Schmetterling · der Lehrling","-ling nouns are masculine."],
- ["Words ending in -ismus","m","der Tourismus · der Optimismus","-ismus nouns are masculine."],
- ["Words ending in -or","m","der Motor · der Professor","-or nouns are generally masculine."],
- ["Words ending in -er","m","der Lehrer · der Computer","Many -er nouns are masculine, but there are exceptions."],
+ ["Words ending in -e","f","die Lampe · die Straße","87% of nouns ending in -e are feminine."],
+ ["Words ending in -ung","f","die Zeitung · die Wohnung","99% of -ung nouns are feminine."],
+ ["Words ending in -heit","f","die Freiheit · die Gesundheit","98% of -heit nouns are feminine."],
+ ["Words ending in -keit","f","die Möglichkeit · die Schwierigkeit","Nearly 100% of -keit nouns are feminine."],
+ ["Words ending in -schaft","f","die Freundschaft · die Mannschaft","98% of -schaft nouns are feminine."],
+ ["Words ending in -ion","f","die Nation · die Information","96% of -ion nouns are feminine."],
+ ["Words ending in -tät","f","die Universität · die Qualität","Nearly 100% of -tät nouns are feminine."],
+ ["Words ending in -ik","f","die Musik · die Politik","95% of -ik nouns are feminine."],
+ ["Words ending in -ur","f","die Kultur · die Natur","70% of -ur nouns are feminine (but der Regisseur, das Abitur)."],
+ ["Words ending in -ei","f","die Partei · die Bäckerei","84% of -ei nouns are feminine (but das Ei)."],
+ ["Words ending in -enz","f","die Frequenz · die Differenz","99% of -enz nouns are feminine."],
+ ["Words ending in -anz","f","die Toleranz · die Distanz","89% of longer -anz nouns are feminine (but der Tanz)."],
+ ["Words ending in -chen","n","das Mädchen · das Brötchen","Diminutives in -chen are always neuter (der Kuchen isn't a diminutive)."],
+ ["Words ending in -lein","n","das Fräulein · das Häuslein","-lein nouns are 100% neuter."],
+ ["Words ending in -ment","n","das Dokument · das Instrument","96% of -ment nouns are neuter."],
+ ["Words ending in -um","n","das Museum · das Zentrum","94% of -um nouns are neuter (but der Baum, der Raum)."],
+ ["Words ending in -nis","n","das Ergebnis · das Zeugnis","77% of -nis nouns are neuter (but die Kenntnis, die Erlaubnis)."],
+ ["Words ending in -tum","n","das Eigentum · das Christentum","91% of -tum nouns are neuter (but der Irrtum, der Reichtum)."],
+ ["Words ending in -ma","n","das Klima · das Thema","70% of -ma nouns are neuter (but die Firma)."],
+ ["Words beginning with Ge-","n","das Gebäude · das Gespräch","About 75% of Ge- nouns are neuter (but die Gefahr, der Gedanke)."],
+ ["Words ending in -ling","m","der Schmetterling · der Lehrling","92% of -ling nouns are masculine."],
+ ["Words ending in -ismus","m","der Tourismus · der Optimismus","100% of -ismus nouns are masculine."],
+ ["Words ending in -or","m","der Motor · der Professor","90% of -or nouns are masculine."],
+ ["Words ending in -er","m","der Lehrer · der Computer","78% of -er nouns are masculine (but das Fenster, die Butter)."],
  ["Days of the week","m","der Montag · der Freitag","Days of the week are masculine."],
  ["Months of the year","m","der Januar · der August","Months are masculine."],
  ["Seasons","m","der Sommer · der Herbst","Seasons are masculine."],
@@ -1112,8 +1150,13 @@ const GENUS_RULE_CARDS=[
  ["Infinitives used as nouns","n","das Essen · das Leben","Nominalized infinitives are neuter."],
  ["Colours used as nouns","n","das Blau · das Grün","Colours used as nouns are neuter."],
  ["Metals","n","das Gold · das Eisen","Metals are generally neuter."],
- ["Loanwords ending in -o","n","das Kino · das Auto","Many loanwords ending in -o are neuter."],
- ["Compound nouns","f","die Haustür · die Handtasche","A compound takes the gender of its last component. These examples end in feminine nouns."],
+ ["Words ending in -o","n","das Kino · das Auto","57% of -o nouns are neuter and 34% masculine (der Zoo, der Euro)."],
+ ["Compounds ending in -haus","n","das Krankenhaus · das Rathaus","A compound takes the gender of its last part: das Haus → das Krankenhaus."],
+ ["Compounds ending in -zimmer","n","das Schlafzimmer · das Wohnzimmer","A compound takes the gender of its last part: das Zimmer → das Wohnzimmer."],
+ ["Compounds ending in -stadt","f","die Hauptstadt · die Altstadt","A compound takes the gender of its last part: die Stadt → die Hauptstadt."],
+ ["Compounds ending in -zeit","f","die Freizeit · die Hochzeit","A compound takes the gender of its last part: die Zeit → die Freizeit."],
+ ["Compounds ending in -tag","m","der Geburtstag · der Alltag","A compound takes the gender of its last part: der Tag → der Geburtstag."],
+ ["Compounds ending in -punkt","m","der Zeitpunkt · der Höhepunkt","A compound takes the gender of its last part: der Punkt → der Zeitpunkt."],
  ["Male people ending in -e","m","der Junge · der Kunde","Male-person nouns are exceptions to the usual feminine -e pattern."],
 ];
 let genusRulesActive=false, genusRulesDeck=[], genusRulesIndex=0;
@@ -1226,7 +1269,7 @@ $("#focusStop").addEventListener("click",()=>{state.focus=null;save();updateFocu
 /* ---------- Weak spots sheet ---------- */
 const sheet=$("#sheet");
 function openSheet(){
- const groups=["Genus","Kasus","Adjektive","Verben"];
+ const groups=["Genus","Kasus","Adjektive","Verben","Fehler"];
  const total=Object.values(state.skills).reduce((a,s)=>a+s.n,0),right=Object.values(state.skills).reduce((a,s)=>a+s.c,0);
  const ws=weakSkills();
  const row=id=>{const s=state.skills[id]||{n:0,c:0};const [st,lab]=status(id);const m=mastery(id);
