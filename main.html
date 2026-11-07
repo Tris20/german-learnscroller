@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Endung</title>
-<meta name="version" content="0.0.2">
+<meta name="version" content="0.0.3">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -191,7 +191,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="app">
   <header>
     <div class="brand-row">
-      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.2</span></div>
+      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.3</span></div>
       <button class="weak-btn" id="weakBtn" type="button">Weak spots</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Practice area">
@@ -211,7 +211,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="sheet" id="sheet" hidden></div>
 
 <script>
-const APP_VERSION="0.0.2";
+const APP_VERSION="0.0.3";
 /* ---------- Rules ---------- */
 const SKILLS={
  fem_suffix:{g:"Genus",name:"Feminine endings",rule:"-ung, -heit, -keit, -schaft, -ion, -tät, -enz and -kunft are die 96–100% of the time: die Zeitung, die Freiheit, die Nation. -ik (95%), -anz (89%), -ei (84%) and -ur (70%) are die too, in longer words: die Musik, die Distanz, die Partei, die Kultur. But not das Abitur or das Ei."},
@@ -442,7 +442,7 @@ const CASE_CUE={
  A:["direct object","Who or what the action is done to. Also after für, durch, ohne, gegen, um"],
  D:["indirect object","Who receives something, or who it's for. Also after mit, bei, von, zu… and helfen, danken"],
  G:["owner","Whose is it? Also after trotz, wegen, während, statt"]};
-const CASE_Q={N:"wer? was?",A:"wen? was?",D:"wem?",G:"wessen?"};
+const CASE_Q={N:"he · she · we · they",A:"him · her · us · them",D:"to him · her · us · them",G:"his · her(s) · our(s) · their(s)"};
 function caseBtn(c){return `${CASEDE[c]}<small>${CASE_Q[c]}</small>`;}
 /* Hint: a nudge that points where to look, never the answer. Shown only on request, below the options. */
 function caseNudge(item){
@@ -1154,7 +1154,13 @@ const JOBS_HTML=`<div class="jobs">
  </div>`;
 const ENGLISH_HTML=`<p class="why" style="margin:0 0 6px"><b>English</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>I</th><th>you</th><th>he</th><th>she</th><th>it</th><th>we</th><th>they</th><th>the</th></tr></thead><tbody><tr><th>Nom</th><td>I</td><td>you</td><td>he</td><td>she</td><td>it</td><td>we</td><td>they</td><td>the</td></tr><tr><th>Akk</th><td>me</td><td>you</td><td><b>him</b></td><td>her</td><td>it</td><td><b>us</b></td><td><b>them</b></td><td>the</td></tr><tr><th>Dat</th><td>to me</td><td>to you</td><td>to him</td><td>to her</td><td>to it</td><td>to us</td><td>to them</td><td>to the</td></tr><tr><th>Gen</th><td>my</td><td>your</td><td>his</td><td>her</td><td>its</td><td>our</td><td>their</td><td>of the</td></tr></tbody></table></div>
 <p class="why" style="margin:12px 0 6px"><b>German</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>ich</th><th>du</th><th>er</th><th>sie</th><th>es</th><th>wir</th><th>sie (pl)</th><th>der (m)</th></tr></thead><tbody><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>es</td><td>wir</td><td>sie</td><td>der</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td><b>ihn</b></td><td>sie</td><td>es</td><td>uns</td><td>sie</td><td><b>den</b></td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>ihm</td><td>uns</td><td>ihnen</td><td>dem</td></tr><tr><th>Gen</th><td>mein</td><td>dein</td><td>sein</td><td>ihr</td><td>sein</td><td>unser</td><td>ihr</td><td>des</td></tr></tbody></table></div>
-<p class="why" style="margin:12px 0 0"><b>Nom or Akk?</b> <i>you</i>, <i>it</i>, <i>the</i> and nouns never change in English, so swap them for <b>he/him</b> or <b>they/them</b> and listen. “The dog saw you” → “<b>He</b> saw <b>them</b>” → der Hund (Nom), dich (Akk). After <i>is, becomes, stays</i> both sides are Nom.</p>`;
+<ul class="hooks" style="margin-top:12px">
+  <li><b>Nom</b> = he / she / we / they</li>
+  <li><b>Akk</b> = a bare him / her / us / them, with nothing in front</li>
+  <li><b>Dat</b> = to him, from him, with him…</li>
+  <li><b>Gen</b> = his / her / our / their, of him</li>
+ </ul>
+<p class="why" style="margin:8px 0 0"><i>you, it, the</i> and nouns never change, so swap in he/him or they/them and listen. Two traps where a bare “him” is still Dat: a hidden “to” (“give <b>him</b> a bone” = give a bone <b>to him</b> → ihm), and helfen-type verbs (helfen, danken, folgen, gefallen, gehören). After <i>is, becomes, stays</i> both sides are Nom.</p>`;
 const HOOKS_HTML=`<ul class="hooks">
   <li><b>Akkusativ:</b> only der changes, to <b>den</b>. die, das and plural stay the same.</li>
   <li><b>Dativ</b> is the <b>-m</b> case: dem, einem, meinem (like English him). Feminine goes to der, plural to den.</li>
