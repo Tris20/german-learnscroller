@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Endung</title>
+<meta name="version" content="0.0.2">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,6 +147,10 @@ table.ref td{font-family:var(--f-text);font-size:17px}
 .sheet h2{font-weight:800;font-size:28px;letter-spacing:-.025em;margin:0}
 .close{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13px;cursor:pointer}
 .summary{font-family:var(--f-text);font-size:18px;line-height:1.45;margin:0}
+.ver{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px;letter-spacing:.02em}
+.ref u{text-decoration:none;background:var(--mark);padding:0 3px;border-radius:3px}
+table.ref.compact th,table.ref.compact td{padding:6px 3px;font-size:13px;white-space:nowrap}
+table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:none}
 .grp-h{font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .srows{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .srow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name state" "bar count";gap:6px 12px;padding:11px 2px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer}
@@ -186,7 +191,7 @@ table.ref td{font-family:var(--f-text);font-size:17px}
 <div class="app">
   <header>
     <div class="brand-row">
-      <div class="brand"><i aria-hidden="true"></i>Endung</div>
+      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.2</span></div>
       <button class="weak-btn" id="weakBtn" type="button">Weak spots</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Practice area">
@@ -206,6 +211,7 @@ table.ref td{font-family:var(--f-text);font-size:17px}
 <div class="sheet" id="sheet" hidden></div>
 
 <script>
+const APP_VERSION="0.0.2";
 /* ---------- Rules ---------- */
 const SKILLS={
  fem_suffix:{g:"Genus",name:"Feminine endings",rule:"-ung, -heit, -keit, -schaft, -ion, -tät, -enz and -kunft are die 96–100% of the time: die Zeitung, die Freiheit, die Nation. -ik (95%), -anz (89%), -ei (84%) and -ur (70%) are die too, in longer words: die Musik, die Distanz, die Partei, die Kultur. But not das Abitur or das Ei."},
@@ -1145,7 +1151,10 @@ const JOBS_HTML=`<div class="jobs">
  <div class="job"><b>Akkusativ</b><i>direct object · wen? was?</i><span>Ich sehe <u>den Hund</u>. (I see the dog.)</span></div>
  <div class="job"><b>Dativ</b><i>indirect object, or required by verb/preposition · wem?</i><span>Ich gebe <u>dem Hund</u> einen Knochen. (I give the dog a bone.)</span></div>
  <div class="job"><b>Genitiv</b><i>relationship/possession, or required by preposition · wessen?</i><span>der Ball <u>des Hundes</u>; trotz <u>des Regens</u></span></div>
- </div><p class="why"><b>Compare:</b> Er gibt seiner Freundin einen Ring. <b>Er</b> = subject (Nom); <b>einen Ring</b> = what he gives (Akk); <b>seiner Freundin</b> = who he gives it to (Dat). Not every dative receives something: <b>helfen</b> requires dative. <b>Trotz</b> requires genitive even when nobody owns anything.</p>`;
+ </div>`;
+const ENGLISH_HTML=`<p class="why" style="margin:0 0 6px"><b>English</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>I</th><th>you</th><th>he</th><th>she</th><th>it</th><th>we</th><th>they</th><th>the</th></tr></thead><tbody><tr><th>Nom</th><td>I</td><td>you</td><td>he</td><td>she</td><td>it</td><td>we</td><td>they</td><td>the</td></tr><tr><th>Akk</th><td>me</td><td>you</td><td><b>him</b></td><td>her</td><td>it</td><td><b>us</b></td><td><b>them</b></td><td>the</td></tr><tr><th>Dat</th><td>to me</td><td>to you</td><td>to him</td><td>to her</td><td>to it</td><td>to us</td><td>to them</td><td>to the</td></tr><tr><th>Gen</th><td>my</td><td>your</td><td>his</td><td>her</td><td>its</td><td>our</td><td>their</td><td>of the</td></tr></tbody></table></div>
+<p class="why" style="margin:12px 0 6px"><b>German</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>ich</th><th>du</th><th>er</th><th>sie</th><th>es</th><th>wir</th><th>sie (pl)</th><th>der (m)</th></tr></thead><tbody><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>es</td><td>wir</td><td>sie</td><td>der</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td><b>ihn</b></td><td>sie</td><td>es</td><td>uns</td><td>sie</td><td><b>den</b></td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>ihm</td><td>uns</td><td>ihnen</td><td>dem</td></tr><tr><th>Gen</th><td>mein</td><td>dein</td><td>sein</td><td>ihr</td><td>sein</td><td>unser</td><td>ihr</td><td>des</td></tr></tbody></table></div>
+<p class="why" style="margin:12px 0 0"><b>Nom or Akk?</b> <i>you</i>, <i>it</i>, <i>the</i> and nouns never change in English, so swap them for <b>he/him</b> or <b>they/them</b> and listen. “The dog saw you” → “<b>He</b> saw <b>them</b>” → der Hund (Nom), dich (Akk). After <i>is, becomes, stays</i> both sides are Nom.</p>`;
 const HOOKS_HTML=`<ul class="hooks">
   <li><b>Akkusativ:</b> only der changes, to <b>den</b>. die, das and plural stay the same.</li>
   <li><b>Dativ</b> is the <b>-m</b> case: dem, einem, meinem (like English him). Feminine goes to der, plural to den.</li>
@@ -1171,6 +1180,7 @@ function kasusJobsCard(){
 function openKey(){
  sheet.innerHTML=`<div class="sheet-in">
   <div class="sheet-top"><h2>Case key</h2><button type="button" class="close" id="closeKey">Back to the card</button></div>
+  <section><h3 class="grp-h">English vs German</h3>${ENGLISH_HTML}</section>
   <section><h3 class="grp-h">The jobs</h3>${JOBS_HTML}</section>
   <section><h3 class="grp-h">How the article changes</h3>${TABLE_HTML}${HOOKS_HTML}</section>
   <section><h3 class="grp-h">How to find the case</h3>${FIND_HTML}</section>
