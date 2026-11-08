@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Endung</title>
-<meta name="version" content="0.0.3">
+<meta name="version" content="0.0.34">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,6 +107,13 @@ mark{background:var(--mark);color:inherit;padding:0 4px;border-radius:3px;box-de
 .hintbtn{align-self:flex-start;border:1px dashed var(--muted);background:transparent;border-radius:999px;padding:5px 12px;font:600 13px var(--f-ui);color:var(--muted);cursor:pointer}
 .hintline,.stepnote{font-family:var(--f-text);font-size:17px;line-height:1.45;margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
 .stepnote.ok{border:1.5px solid var(--ok);background:var(--ok-bg)} .stepnote.bad{border:1.5px solid var(--bad);background:var(--bad-bg)}
+.stepq{font-family:var(--f-ui);font-size:19px;font-weight:600;margin:18px 0 0;line-height:1.35}
+.stepq .exmark{width:18px;height:18px;font-size:12px;margin-left:4px;vertical-align:middle}
+.stepnext{display:flex;justify-content:flex-end;margin:0 0 10px}
+.stepnext .next{font-size:16px;padding:10px 20px}
+.stepfact{font-family:var(--f-ui);font-weight:700;color:var(--ok,#2e7d4f);font-size:18px;margin:10px 0 0}
+.verdict .vok{color:var(--ok)} .verdict .vbad{color:var(--bad)}
+.stepsum{font-family:var(--f-text);font-size:20px;margin:10px 0 0;text-align:left}
 .stepnote .verdict{display:block;margin-bottom:4px}
 .chain{margin:0;padding-left:1.3em;font-family:var(--f-text);font-size:16.5px;line-height:1.5;display:flex;flex-direction:column;gap:4px}
 .chain.find{font-size:16px}
@@ -149,7 +156,17 @@ table.ref td{font-family:var(--f-text);font-size:17px}
 .summary{font-family:var(--f-text);font-size:18px;line-height:1.45;margin:0}
 .ver{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px;letter-spacing:.02em}
 .ref u{text-decoration:none;background:var(--mark);padding:0 3px;border-radius:3px}
-table.ref.compact th,table.ref.compact td{padding:6px 3px;font-size:13px;white-space:nowrap}
+table.ref.compact th,table.ref.compact td{padding:6px 3px;font-size:13px;white-space:nowrap;line-height:1.25}
+table.ref.compact.rules td{white-space:normal}
+table.ref.place{width:100%}
+table.ref.place th:first-child{text-align:left;font-family:var(--f-text);font-weight:600}
+table.ref.compact.rules{width:100%}
+table.ref.rules th{width:1%;padding-right:12px;text-align:left;vertical-align:top;white-space:nowrap}
+table.ref.rules td{font-size:14px;line-height:1.35}
+table.ref .sub{font-size:12px;color:var(--muted)}
+.keynote2{font-size:14px;margin:10px 0 0;line-height:1.4}
+.keynote{font-size:13px;color:var(--muted);margin:10px 0 0;display:flex;align-items:center;gap:6px}
+.keynote .exmark{width:18px;height:18px;font-size:12px;margin:0}
 table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:none}
 .grp-h{font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .srows{display:flex;flex-direction:column;border-top:1px solid var(--line)}
@@ -166,7 +183,10 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 .exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:var(--muted)}
 .exlabel{display:flex;align-items:center;gap:8px}
 .exmark{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--reclam);color:#1a1a1a;font:800 13px var(--f-ui);letter-spacing:0;vertical-align:super;margin-left:6px;flex:none}
-:root:not(.exon) .noun .exmark{display:none}
+:root:not(.exon) .noun .exmark,:root:not(.exon) .stepq .exmark,:root:not(.exon) .sentence .exmark,:root:not(.exon) .task .exmark{display:none}
+.task .exmark{width:18px;height:18px;font-size:12px;margin-left:4px;vertical-align:middle}
+.opt.g.pl{font-size:18px}
+.sentence .exmark{cursor:pointer;width:22px;height:22px;font-size:14px;margin-left:6px;vertical-align:middle}
 .noun .exmark{width:26px;height:26px;font-size:17px;margin-left:8px;vertical-align:top}
 .exlabel .exmark{margin:0;vertical-align:middle;width:18px;height:18px;font-size:12px}
 .exmark.none{background:transparent;color:var(--muted);font-weight:500;line-height:1}
@@ -191,7 +211,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="app">
   <header>
     <div class="brand-row">
-      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.3</span></div>
+      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.34</span></div>
       <button class="weak-btn" id="weakBtn" type="button">Weak spots</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Practice area">
@@ -211,7 +231,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="sheet" id="sheet" hidden></div>
 
 <script>
-const APP_VERSION="0.0.3";
+const APP_VERSION="0.0.34";
 /* ---------- Rules ---------- */
 const SKILLS={
  fem_suffix:{g:"Genus",name:"Feminine endings",rule:"-ung, -heit, -keit, -schaft, -ion, -tät, -enz and -kunft are die 96–100% of the time: die Zeitung, die Freiheit, die Nation. -ik (95%), -anz (89%), -ei (84%) and -ur (70%) are die too, in longer words: die Musik, die Distanz, die Partei, die Kultur. But not das Abitur or das Ei."},
@@ -310,7 +330,7 @@ const CASES=[
 ["Er stellt das Rad hinter {sein} Haus.","n","A","hinter + movement to a place (wohin?)","case_twoway"],
 ["Das Rad steht hinter {sein} Haus.","n","D","hinter + fixed location (wo?)","case_twoway"],
 ["Wegen {mein} Erkältung bleibe ich zu Hause.","f","G","wegen takes the genitive","case_gen_prep"],
-["Trotz {ein} Regens gingen wir spazieren.","m","G","trotz takes the genitive","case_gen_prep"],
+["Trotz {sein} Alters ist er sehr fit.","n","G","trotz takes the genitive","case_gen_prep"],
 ["Während {unser} Urlaubs hat es nur geregnet.","m","G","während takes the genitive","case_gen_prep"],
 ["Statt {ein} Briefes schrieb sie eine E-Mail.","m","G","statt takes the genitive","case_gen_prep"],
 ["Das ist das Auto {mein} Schwester.","f","G","possession (whose car?) takes the genitive","case_gen_prep"],
@@ -448,22 +468,25 @@ function caseBtn(c){return `${CASEDE[c]}<small>${CASE_Q[c]}</small>`;}
 function caseNudge(item){
  const s=item.s,idx=s.search(/\[\[|\{/),before=s.slice(0,idx).trim(),words=before.split(/\s+/).filter(Boolean),prevO=words[words.length-1]||"",prev=prevO.toLowerCase(),low=s.toLowerCase(),b=w=>`<b>${w}</b>`;
  const ph=item.type==="caseid"?s.match(/\[\[(.+?)\]\]/)[1]:(nounAfterGap(s,item.c,item.g)||"it");
- if(/warte\w* auf/.test(low))return `${b("warten auf")} is a fixed pair. Which case goes with it?`;
- if(P_GEN.includes(prev)||P_DAT.includes(prev)||P_ACC.includes(prev))return `Look at the word just before it: ${b(prev)}. That word decides the case on its own.`;
- if(P_TWO.includes(prev))return `${b(prev)} can go two ways. Is something going there, or is it already there?`;
- if(/gibt es|es gibt/.test(low))return `${b("es gibt")} (there is) is a fixed phrase. Which case does it always use?`;
- if(idx===0){const rest=item.type==="caseid"?s.split("]]")[1]:s.split("}")[1].trim().split(/\s+/).slice(1).join(" ");const v=rest.trim().split(/\s+/)[0].replace(/[.?!]/g,"");return `Ask: who or what ${b(v)}?`}
- if(P_SEIN.includes(prev))return `${b(prevO)} works like an equals sign: ${words[0]} = ${ph}. Which case is ${words[0]}?`;
+ if(/warte\w* auf/.test(low))return `Here ${b("auf")} doesn't mean "on". ${b("warten auf")} = wait ${b("for")}, so treat it like ${b("für")}. Find für in the Prepositions table in the Case key.`;
+ if(P_GEN.includes(prev)||P_DAT.includes(prev)||P_ACC.includes(prev))return `${b(prev)} is a preposition right before it, so it decides the case. Find ${b(prev)} in the Prepositions table in the Case key.`;
+ if(P_TWO.includes(prev))return `${b(prev)} is a place word. Is something going there (into/onto → Akk), or is it already there (in/on → Dat)? Check Place words in the Case key.`;
+ if(/gibt es|es gibt/.test(low))return `${b("es gibt")} means "there is". It's in the Verbs table in the Case key.`;
+ if(idx===0){const rest=item.type==="caseid"?s.split("]]")[1]:s.split("}")[1].trim().split(/\s+/).slice(1).join(" ");const v=rest.trim().split(/\s+/)[0].replace(/[.?!]/g,"");return `Ask: who or what ${b(v)}? If you can swap it for "he" or "they", it's the one doing it. Check the Pronouns table.`}
+ if(P_SEIN.includes(prev))return `${b(prevO)} is in the Verbs table: it works like an equals sign (${words[0]} = ${ph}), so both sides take the same case.`;
  const give=/\b(gebe|gibt|schenkt|kaufe)\b/.test(low),dets=(s.match(/\{|\b(der|die|das|den|dem|des|eine?\w*|kein\w*|mein\w*|dein\w*|sein\w*|ihr\w*|unser\w*)\b/gi)||[]).length,tail=s.slice(s.search(/\]\]|\}/)).replace(/^\]\]|^\}\s*[A-Za-zÄÖÜäöüß]+/,"").replace(/[.?!\s]/g,"");
- if(give&&(dets>=2||tail))return `Two things here: what's being handed over, and who gets it. Which one is ${b(ph)}?`;
- if(!give&&words.length>1&&/^[A-ZÄÖÜ]/.test(prevO))return `Ask: whose ${prevO}?`;
+ if(give&&(dets>=2||tail))return `Two things here: what's handed over, and who gets it. In English, can you put "to" in front of ${b(ph)}? (give the ball <b>to</b> the man)`;
+ if(!give&&words.length>1&&/^[A-ZÄÖÜ]/.test(prevO))return `Ask: whose ${prevO}? If English would say "of" or "'s" here, look at the Gen row of the Pronouns table.`;
  const dv=low.match(/\b(hilft|helfe|danke|gehört|gefällt)\b/);
- if(dv)return `${b(dv[1])} is one of a few verbs that always use the same case for the person. Check the Case key if unsure.`;
+ if(dv)return `${b(dv[1])} is in the Verbs table in the Case key. That list decides the case for the person, whatever English says.`;
  const doer=(before.match(/\b(ich|du|er|sie|wir|ihr)\b/i)||[words[0]])[0];
- return `The one doing it is ${b(doer)}. What part does ${b(ph)} play?`;
+ return `${b(doer)} is doing it. Swap ${b(ph)} for a pronoun in English: does a bare "him/them" fit? Check the Pronouns table.`;
 }
 const hintHtml=item=>`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>${caseNudge(item)}</p>`;
-function bindHint(el){const hb=el.querySelector(".hintbtn");if(hb)hb.addEventListener("click",()=>{hb.hidden=true;el.querySelector(".hintline").hidden=false})}
+function bindHint(el){const hb=el.querySelector(".hintbtn");if(hb)hb.addEventListener("click",()=>{hb.hidden=true;el.querySelector(".hintline").hidden=false});
+ const m=el.querySelector(".sentence .exmark");if(m&&!m.dataset.bound){m.dataset.bound=1;m.setAttribute("role","button");m.tabIndex=0;
+  const show=()=>{const b=el.querySelector(".hintbtn"),l=el.querySelector(".hintline");if(b&&l){b.hidden=true;l.hidden=false;l.scrollIntoView({block:"nearest",behavior:"smooth"})}};
+  m.addEventListener("click",show);m.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}})}}
 function dropHint(el){el.querySelectorAll(".hintbtn,.hintline").forEach(x=>x.remove())}
 /* After answering: plain explanation without repeating the arrow, plus the doer/receiver note where it helps. */
 function caseWhy(item){
@@ -479,17 +502,33 @@ const caseTag=c=>`<b>${CASEDE[c]}</b>`;
 /* A clue that points at what decides the case in THIS sentence and names the rule.
    Warm-ups show it up front (teach); scored cards hide it behind a button (test). */
 const P_ACC=["für","durch","ohne","gegen","um"],P_DAT=["aus","bei","mit","nach","seit","von","zu","gegenüber"],P_GEN=["trotz","wegen","während","statt"],P_TWO=["in","an","auf","über","unter","vor","hinter","neben","zwischen"],P_SEIN=["ist","bin","sind","war","bist"];
+/* Kasus "!" : places where the English he/him + to/from/with test gives the wrong answer. */
+function caseExc(item){
+ const s=item.s,ans=item.c||item.a,idx=s.search(/\[\[|\{/),words=s.slice(0,idx).trim().split(/\s+/).filter(Boolean),prev=(words[words.length-1]||"").toLowerCase(),low=s.toLowerCase();
+ if(/warte\w* auf/.test(low))return true;
+ if(P_GEN.includes(prev)||P_DAT.includes(prev))return false;
+ if(P_ACC.includes(prev))return true;
+ if(P_TWO.includes(prev))return ans==="A";
+ if(/gibt es|es gibt/.test(low))return true;
+ if(idx===0)return false;
+ if(P_SEIN.includes(prev))return true;
+ if(/\b(hilft|helfe|danke|gehört|gefällt|folgt)\b/.test(low)&&ans==="D")return true;
+ if(/\b(gebe|gibt|schenkt|kaufe)\b/.test(low)&&ans==="D")return true;
+ return false;
+}
+const CASEX='<span class="exmark kx" title="The English he/him test misleads here" aria-label="exception">!</span>';
 function caseClue(item){
  const s=item.s,ans=item.c||item.a,idx=s.search(/\[\[|\{/),before=s.slice(0,idx).trim(),words=before.split(/\s+/).filter(Boolean),prevO=words[words.length-1]||"",prev=prevO.toLowerCase(),low=s.toLowerCase();
  const b=w=>`<b>${w}</b>`,to=` → ${b(CASEDE[ans])}.`,others=l=>{const o=l.filter(x=>x!==prev);return o.slice(0,-1).join(", ")+" and "+o[o.length-1]};
  const ph=item.type==="caseid"?s.match(/\[\[(.+?)\]\]/)[1]:(nounAfterGap(s,ans,item.g)||"this phrase");
- if(/warte\w* auf/.test(low))return `${b("warten auf")} (to wait for) is a fixed pair. The thing you wait for always takes the same case${to}`;
- if(P_GEN.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_GEN)}, it always forces the same case, whatever the meaning${to}`;
- if(P_DAT.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_DAT.slice(0,7))}, it always forces the same case${to}`;
- if(P_ACC.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_ACC)}, it always forces the same case${to}`;
+ if(/warte\w* auf/.test(low))return `${b("warten auf")} (to wait for) is a fixed pair. The thing you wait for always takes the ${CASEDE[ans]}${to}`;
+ if(P_GEN.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_GEN)}, it always takes the ${CASEDE[ans]}, whatever the meaning${to}`;
+ if(P_DAT.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_DAT.slice(0,7))}, it always takes the ${CASEDE[ans]}${to}`;
+ if(P_ACC.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_ACC)}, it always takes the ${CASEDE[ans]}${to}`;
  if(P_TWO.includes(prev)){const mv=/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre)\b/.test(low);
-  return `${b(prev)} can go either way. Ask: is something going there, or already there? Here it's ${mv?"going or being put there (wohin?)":"already there (wo?)"}${to}`}
- if(/gibt es|es gibt/.test(low))return `${b("es gibt")} means "there is". The thing that exists always takes the same case${to}`;
+  const vb=(s.match(/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre|liegt|essen|hängt|schläft|sitzt|steht|wohnen|wohne)\b/i)||[,"the verb"])[1];
+  return `${b(prev)} can go either way, so look at the verb. Moving into or onto a place → Akk. Being or doing something there → Dat. ${b(vb)} ${mv?"is moving into or onto it":"is something done there, and nothing moves into it"}${to}`}
+ if(/gibt es|es gibt/.test(low))return `${b("es gibt")} means "there is". The thing that exists always takes the ${CASEDE[ans]}${to}`;
  if(idx===0)return `${b(ph)} is the one doing the action. It's who the sentence is about${to}`;
  if(P_SEIN.includes(prev))return `${b(prevO)} (sein) works like an equals sign: ${words[0]} = ${ph}, so ${b(ph)} gets the same case as ${words[0]}${to}`;
  const give=/\b(gebe|gibt|schenkt|kaufe)\b/.test(low),dets=(s.match(/\{|\b(der|die|das|den|dem|des|eine?\w*|kein\w*|mein\w*|dein\w*|sein\w*|ihr\w*|unser\w*)\b/gi)||[]).length;
@@ -497,7 +536,7 @@ function caseClue(item){
  if(give&&(dets>=2||tail))return `Someone is giving or buying a thing for a person. ${b(ph)} is ${ans==="D"?"the person who receives it":"the thing being handed over"}${to}`;
  if(!give&&words.length>1&&/^[A-ZÄÖÜ]/.test(prevO))return `It's attached to ${b(prevO)}: whose ${prevO}? ${b(ph)} is the owner${to}`;
  const dv=low.match(/\b(hilft|helfe|danke|gehört|gefällt)\b/);
- if(dv)return `${b(dv[1])} is one of a few verbs (helfen, danken, gehören, gefallen) that always take the same case for the person involved${to}`;
+ if(dv)return `${b(dv[1])} is one of a few verbs (helfen, danken, gehören, gefallen) that always take the Dativ for the person, even though English says "thank her", not "thank to her"${to}`;
  return `${b(ph)} is ${/sehe/.test(low)?"who or what is being seen":/kaufe/.test(low)?"what is being bought":/habe|hast/.test(low)?"what someone has":"what the action is done to"}${to}`;
 }
 function nounAfterGap(s,c,g){const m=s.match(/\{\w+\}\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)/);if(!m)return null;return c==="G"&&(g==="m"||g==="n")?m[1].replace(/e?s$/,""):m[1]}
@@ -505,7 +544,7 @@ function nounAfterGap(s,c,g){const m=s.match(/\{\w+\}\s+([A-ZÄÖÜ][A-Za-zÄÖ�
 function articleStep(item){
  const noun=nounAfterGap(item.s,item.c,item.g),a=DEF[item.g][item.c],base=DEF[item.g].N;
  const who=noun?`${noun} is ${GENW[item.g]}`:`The noun is ${GENW[item.g]}`;
- return a===base?`${who}. Step 2: in ${CASEDE[item.c]}, the definite article is <b>${a}</b> (same as nominative).`:`${who}. Step 2: in ${CASEDE[item.c]}, the definite article changes <b>${base} → ${a}</b>.`;
+ return a===base?`${who}. In ${CASEDE[item.c]}, the definite article is <b>${a}</b> (same as nominative).`:`${who}. In ${CASEDE[item.c]}, the definite article changes <b>${base} → ${a}</b>.`;
 }
 function caseReason(item){
  if(item.s.includes("gibt {sein} Freundin"))return "What is given? <b>einen Ring</b> (direct object → Akkusativ). To whom? <b>Freundin</b> (indirect object → Dativ). The person receiving the ring is NOT the direct object";
@@ -738,7 +777,7 @@ function build(item){
   const m=item.s.match(/\{(\w+)\}/);const stem=m[1];
   const forms=["","e","en","em","er","es"].map(e=>stem+e);const ans=stem+EIN[item.g][item.c];
   const full=item.s.replace(m[0],ans);
-  return {cols:3,task:"Fill the gap",prompt:`<div class="sentence">${item.s.replace(/\{(\w+)\}(\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)?/,(_,st,n)=>`<mark><span class="gap">${st}<span class="blank">___</span></span>${n||""}</mark>`)}</div>`,
+  return {cols:3,task:"Fill the gap",prompt:`<div class="sentence">${item.s.replace(/\{(\w+)\}(\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)?/,(_,st,n)=>`<mark><span class="gap">${st}<span class="blank">___</span></span>${n||""}</mark>${caseExc(item)?CASEX:""}`)}</div>`,
    options:forms.map(f=>({label:f})),correct:forms.indexOf(ans),
    explain:`<p class="ans">${item.s.replace(m[0],"<b>"+ans+"</b>")}</p>${caseChain(item)}`,summary:full};
  }
@@ -781,7 +820,7 @@ function build(item){
  }
  case "caseid":{
   const phrase=item.s.match(/\[\[(.+?)\]\]/)[1];
-  return {cols:2,task:"Which case is the highlighted phrase?",prompt:`<div class="sentence">${item.s.replace(/\[\[(.+?)\]\]/,"<mark>$1</mark>")}</div>`,options:CASES4.map(c=>({label:caseBtn(c)})),correct:CASES4.indexOf(item.a),
+  return {cols:2,task:"Which case is the highlighted phrase?",prompt:`<div class="sentence">${item.s.replace(/\[\[(.+?)\]\]/,"<mark>$1</mark>"+(caseExc(item)?CASEX:""))}</div>`,options:CASES4.map(c=>({label:caseBtn(c)})),correct:CASES4.indexOf(item.a),
    explain:`<p class="ans">${phrase}: ${caseTag(item.a)}</p><p class="why">${caseWhy(item)}</p>`,summary:`${item.s.replace(/\[\[|\]\]/g,"")} → ${phrase}: ${CASEDE[item.a]}`};
  }}
 }
@@ -828,48 +867,101 @@ function nextFrom(entry){const i=deck.indexOf(entry);ensureAhead();goTo(i+1)}
 const needsKey=item=>["Kasus","Adjektive"].includes(SKILLS[item.skill].g);
 function metaRow(item,w,again,isNew){
  const tag=w?"":again?`<span class="again">${typeof again==="string"?again:"Again"}</span>`:isNew?'<span class="newtag">New</span>':"";
- const key=needsKey(item)?'<button type="button" class="keybtn">Case key</button>':"";
+ const key=(needsKey(item)?'<button type="button" class="keybtn">Case key</button>':"")+(item.type==="case"?'<button type="button" class="keybtn endbtn">Endings</button>':"");
  const skip=w?'<button type="button" class="skipwarm">Skip</button>':"";
  return `<div class="meta"><span>${w?`Warm-up · ${w.n} of ${w.total}`:GROUP_LABEL[SKILLS[item.skill].g]}</span><span class="metabtns">${tag}${key}${skip}</span></div>`;
 }
 function bindMeta(el){
  const sk=el.querySelector(".skipwarm");if(sk)sk.addEventListener("click",skipWarm);
- const k=el.querySelector(".keybtn");if(k)k.addEventListener("click",openKey);
+ const k=el.querySelector(".keybtn:not(.endbtn)");if(k)k.addEventListener("click",openKey);
+ const e=el.querySelector(".endbtn");if(e)e.addEventListener("click",openEndings);
 }
-/* Warm-up only: fill-the-gap Kasus cards split into two steps, the case first and then the form. */
-function guidedEntry(item,w){
- const base=build(item),q=simplify(base,item);
- const opts=CASES4;
+/* Fill-the-gap Kasus cards in three steps: the case, then the noun's gender, then the form. */
+function caseNounItem(item){
+ const word=nounAfterGap(item.s,item.c,item.g);if(!word)return null;
+ if(item.g==="p")return {word,g:"p"};
+ const real=ITEMS.find(i=>i.type==="gender"&&i.word===word);if(real)return real;
+ const c=canon(word),skill=c&&c.g===item.g?{f:"fem_suffix",n:"neut_suffix",m:"masc_suffix"}[item.g]:"arbitrary";
+ return {type:"gender",word,g:item.g,skill,en:""};
+}
+const GOPTS=["m","f","n","p"],GLABEL={m:"der",f:"die",n:"das",p:"Plural"};
+function genderWhy(n,ok){
+ if(n.g==="p")return `<b>${n.word}</b> means more than one, so use the plural column.`;
+ return ok?(endingNote(n)||SKILLS[n.skill].rule):wrongNote(n);
+}
+function guidedEntry(item,w,again,isNew){
+ const base=build(item),q=w?simplify(base,item):base,noun=caseNounItem(item);
+ const total=noun?4:2,stem=(item.s.match(/\{(.+?)\}/)||[,""])[1],gBase=noun&&(noun.g==="p"?"Plural":GLABEL[noun.g]),gArt=noun&&(noun.g==="p"?"die (plural)":GLABEL[noun.g]),art=noun&&DEF[noun.g][item.c];
  const el=document.createElement("section");el.className="card";
  el.innerHTML=`<div class="card-in">
-  ${metaRow(item,w)}
-  <div class="prompt"><div class="task">Step 1 of 2 · Which case is the highlighted part in?</div>${base.prompt}<div class="steps"></div></div>
+  ${metaRow(item,w,again,isNew)}
+  <div class="prompt"><div class="task">Step 1 of ${total} · Which case is the highlighted part in?</div>${base.prompt}<div class="steps"></div><p class="stepq" hidden></p></div>
   <div class="fb" hidden></div>
-  <div class="opts" style="--cols:2">${opts.map(c=>`<button type="button" class="opt" data-c="${c}">${caseBtn(c)}</button>`).join("")}</div>${hintHtml(item)}
+  <div class="opts" style="--cols:2">${CASES4.map(c=>`<button type="button" class="opt" data-c="${c}">${caseBtn(c)}</button>`).join("")}</div>${hintHtml(item)}
  </div>`;
- const entry={el,item,q,kind:"q",answered:false,warm:w,step1ok:null};
+ const entry={el,item,q,kind:"q",answered:false,warm:w||null,step1ok:null,step2ok:null,step3ok:null,guided:true};
  bindMeta(el);bindHint(el);
- const box=el.querySelector(".opts");
+ const box=el.querySelector(".opts"),ci=el.querySelector(".card-in"),task=el.querySelector(".task"),steps=el.querySelector(".steps"),stepq=el.querySelector(".stepq");
+ const ask=h=>{stepq.innerHTML=h;stepq.hidden=false};
+ const mark=(attr,val)=>box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(x.dataset[attr]===val)x.classList.add("right")});
+ const note=(ok,head,body)=>{stepq.hidden=true;steps.innerHTML=`<p class="stepnote ${ok?"ok":"bad"}"><span class="verdict ${ok?"ok":"bad"}">${ok?"✓ Right":"✗ Not quite"} · ${head}</span>${body}</p>`};
+ const later=(fn,n)=>{const bt=document.createElement("div");bt.className="stepnext";bt.innerHTML=`<button type="button" class="next">Step ${n} →</button>`;
+  box.before(bt);bt.querySelector("button").addEventListener("click",()=>{bt.remove();ci.classList.remove("answered");steps.innerHTML=n===2?`<p class="stepfact">${CASEDE[item.c]}</p>`:n===3?`<p class="stepfact">${CASEDE[item.c]} + ${gBase}</p>`:"";fn()});bt.querySelector("button").focus({preventScroll:true})};
+ const gName=noun&&(noun.g==="p"?"plural":`${GLABEL[noun.g]} (${GENW[noun.g]})`);
+ const formStep=()=>{
+  task.textContent=`Step ${total} of ${total}`;ask(`What ending should <b>${stem}___</b> have?`);
+  if(noun)steps.insertAdjacentHTML("beforeend",`<p class="stepfact">${CASEDE[item.c]} + ${gBase} = ${art}</p>`);
+  box.style.setProperty("--cols",q.cols);
+  box.innerHTML=q.options.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o.label}</button>`).join("");
+  if(noun){const h=document.createElement("div");h.innerHTML=`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>ein, mein, dein… copy the end of the article: dem → mein<b>em</b>, den → mein<b>en</b>, der → mein<b>er</b>, die → mein<b>e</b>, des → mein<b>es</b>. No ending for masc. Nominativ and neut. Nom/Akk (mein Bruder, mein Kind).</p>`;
+   while(h.firstChild)ci.appendChild(h.firstChild);bindHint(el)}
+  box.addEventListener("click",ev=>{const bb=ev.target.closest(".opt");if(bb&&!entry.answered)answer(entry,+bb.dataset.i)});
+ };
+ const genderStep=()=>{
+  task.textContent="Step 2 of 4";ask(`Is <b>${noun.word}</b>${noun.g!=="p"&&isException(noun)?EXMARK[exKind(noun)]:""} der, die, das or plural?`);
+  box.style.setProperty("--cols",4);
+  box.innerHTML=GOPTS.map(g=>`<button type="button" class="opt g${g==="p"?" pl":""}" data-g="${g}"${g!=="p"?` style="--gc:var(--${GLABEL[g]})"`:""}${g==="p"?' data-pl':""}>${GLABEL[g]}</button>`).join("");
+  const step2=e=>{
+   const b=e.target.closest(".opt");if(!b||entry.step2ok!==null)return;
+   const ok=b.dataset.g===noun.g;entry.step2ok=ok;box.removeEventListener("click",step2);
+   mark("g",noun.g);if(!ok)b.classList.add("wrong");ci.classList.add("answered");
+   note(ok,noun.g==="p"?`plural`:`${GLABEL[noun.g]} ${noun.word}`,genderWhy(noun,ok));
+   if(!w&&noun.key&&unlocked(noun))record(noun,ok,`${GLABEL[noun.g]} ${noun.word}`);
+   later(artStep,3);
+  };
+  box.addEventListener("click",step2);
+ };
+ const artStep=()=>{
+  task.textContent="Step 3 of 4";ask(`So which article does <b>${noun.word}</b> take here?`);
+  let opts=["der","die","das","den","dem","des"];
+  if(w){const others=opts.filter(x=>x!==art).sort(()=>Math.random()-.5).slice(0,3);opts=opts.filter(x=>x===art||others.includes(x))}
+  box.style.setProperty("--cols",opts.length>4?3:4);
+  box.innerHTML=opts.map(a=>`<button type="button" class="opt" data-a="${a}">${a}</button>`).join("");
+  const h=document.createElement("div");h.innerHTML=`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>Open <b>Endings</b>, first table (der · die · das): <b>${CASEDE[item.c]}</b> row, <b>${noun.g==="p"?"plural":{m:"masc.",f:"fem.",n:"neut."}[noun.g]}</b> column.</p>`;
+  while(h.firstChild)ci.appendChild(h.firstChild);bindHint(el);
+  const step3=e=>{
+   const b=e.target.closest(".opt");if(!b||entry.step3ok!==null)return;
+   const ok=b.dataset.a===art;entry.step3ok=ok;box.removeEventListener("click",step3);dropHint(el);
+   mark("a",art);if(!ok)b.classList.add("wrong");ci.classList.add("answered");
+   const base=noun.g==="p"?"die":GLABEL[noun.g];
+   note(ok,`${CASEDE[item.c]} + ${gBase} = ${art}`,base===art?`<b>${base}</b> doesn't change in ${CASEDE[item.c]}.`:`In ${CASEDE[item.c]}, <b>${base}</b> becomes <b>${art}</b>.`);
+   later(formStep,4);
+  };
+  box.addEventListener("click",step3);
+ };
  const step1=e=>{
   const b=e.target.closest(".opt");if(!b||entry.step1ok!==null)return;
   const ok=b.dataset.c===item.c;entry.step1ok=ok;
   box.removeEventListener("click",step1);dropHint(el);
-  // Show the result on the buttons first, so right/wrong is instant
-  box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(x.dataset.c===item.c)x.classList.add("right")});
-  if(!ok)b.classList.add("wrong");
-  el.querySelector(".card-in").classList.add("answered");
-  el.querySelector(".steps").innerHTML=`<p class="stepnote ${ok?"ok":"bad"}"><span class="verdict ${ok?"ok":"bad"}">${ok?"✓ Right":"✗ Not quite"} · ${CASEDE[item.c]}</span>${caseWhy(item)}</p>`;
-  setTimeout(()=>{el.querySelector(".card-in").classList.remove("answered");
-  el.querySelector(".task").textContent="Step 2 of 2 · Now pick the form";
-  box.style.setProperty("--cols",q.cols);
-  box.innerHTML=q.options.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o.label}</button>`).join("");
-  box.addEventListener("click",ev=>{const bb=ev.target.closest(".opt");if(bb&&!entry.answered)answer(entry,+bb.dataset.i)});
-  },reduced?0:900);
+  mark("c",item.c);if(!ok)b.classList.add("wrong");ci.classList.add("answered");
+  note(ok,CASEDE[item.c],caseWhy(item));
+  later(noun?genderStep:formStep,2);
  };
  box.addEventListener("click",step1);
  return entry;
 }
 function questionEntry(item,again,isNew,w){
+ if(item.type==="case")return guidedEntry(item,w,again,isNew);
  let q=build(item);
  if(w&&item.type!=="caseid")q=simplify(q,item);
  const el=document.createElement("section");el.className="card";
@@ -949,16 +1041,17 @@ function answer(entry,i){
  btns[q.correct].classList.add("right");if(!ok)btns[i].classList.add("wrong");
  el.querySelector(".card-in").classList.add("answered");
  const w=entry.warm;
- if(w){if(warm){warm.done++;if(ok&&entry.step1ok!==false)warm.right++;updateWarmScore()}}else if(!entry.ruleOnly){record(item,ok,q.summary);
+ const allOk=ok&&entry.step1ok!==false&&entry.step2ok!==false&&entry.step3ok!==false;
+ if(w){if(warm){warm.done++;if(allOk)warm.right++;updateWarmScore()}}else if(!entry.ruleOnly){record(item,entry.guided?ok&&entry.step1ok!==false:ok,q.summary);
   if(item.type==="gender"&&!state.focus){
    const c=entry.contrast;
    if(c&&c.tag!=="Exception"){if(ok&&c.onRight)c.onRight()}   // inside a sequence: don't start another
    else if(!ok)queueContrast(item);
   }}
  const fb=el.querySelector(".fb");
- if(entry.step1ok!==undefined&&entry.step1ok!==null){const st=el.querySelector(".steps");if(st)st.remove()}
+ if(entry.step1ok!==undefined&&entry.step1ok!==null){el.querySelectorAll(".steps,.stepq,.stepnext").forEach(x=>x.remove())}
  const two=entry.step1ok!==undefined&&entry.step1ok!==null;
- const head=two?`<div class="verdict ${ok&&entry.step1ok?"ok":"bad"}">Case ${entry.step1ok?"✓":"✗"} · Form ${ok?"✓":"✗"}</div>`:w&&w.curve?`<div class="verdict curve">Curveball · ${ok?"you spotted it":"this one breaks the pattern"}</div>`:`<div class="verdict ${ok?"ok":"bad"}">${ok?"Right":"Not quite"}</div>`;
+ const vp=(n,o)=>`<span class="${o?"vok":"vbad"}">${n} ${o?"✓":"✗"}</span>`,head=two?`<div class="verdict">${[vp("Case",entry.step1ok),entry.step2ok!==null&&vp("Gender",entry.step2ok),entry.step3ok!==null&&vp("Article",entry.step3ok),vp("Form",ok)].filter(Boolean).join(" · ")}</div>`:w&&w.curve?`<div class="verdict curve">Curveball · ${ok?"you spotted it":"this one breaks the pattern"}</div>`:`<div class="verdict ${ok?"ok":"bad"}">${ok?"Right":"Not quite"}</div>`;
  fb.innerHTML=`${head}${!ok&&q.explainWrong?q.explainWrong:q.explain}
   <div class="fb-foot"><span class="rule-tag">${w?"Warm-up: not scored":entry.ruleOnly?"Warm-up: endings & rules":`Rule: ${ruleName(item)}${!ok?" · coming back soon":""}`}</span><button type="button" class="next">Next ↓</button></div>`;
  fb.hidden=false;dropHint(el);
@@ -1152,15 +1245,8 @@ const JOBS_HTML=`<div class="jobs">
  <div class="job"><b>Dativ</b><i>indirect object, or required by verb/preposition · wem?</i><span>Ich gebe <u>dem Hund</u> einen Knochen. (I give the dog a bone.)</span></div>
  <div class="job"><b>Genitiv</b><i>relationship/possession, or required by preposition · wessen?</i><span>der Ball <u>des Hundes</u>; trotz <u>des Regens</u></span></div>
  </div>`;
-const ENGLISH_HTML=`<p class="why" style="margin:0 0 6px"><b>English</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>I</th><th>you</th><th>he</th><th>she</th><th>it</th><th>we</th><th>they</th><th>the</th></tr></thead><tbody><tr><th>Nom</th><td>I</td><td>you</td><td>he</td><td>she</td><td>it</td><td>we</td><td>they</td><td>the</td></tr><tr><th>Akk</th><td>me</td><td>you</td><td><b>him</b></td><td>her</td><td>it</td><td><b>us</b></td><td><b>them</b></td><td>the</td></tr><tr><th>Dat</th><td>to me</td><td>to you</td><td>to him</td><td>to her</td><td>to it</td><td>to us</td><td>to them</td><td>to the</td></tr><tr><th>Gen</th><td>my</td><td>your</td><td>his</td><td>her</td><td>its</td><td>our</td><td>their</td><td>of the</td></tr></tbody></table></div>
-<p class="why" style="margin:12px 0 6px"><b>German</b></p><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>ich</th><th>du</th><th>er</th><th>sie</th><th>es</th><th>wir</th><th>sie (pl)</th><th>der (m)</th></tr></thead><tbody><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>es</td><td>wir</td><td>sie</td><td>der</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td><b>ihn</b></td><td>sie</td><td>es</td><td>uns</td><td>sie</td><td><b>den</b></td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>ihm</td><td>uns</td><td>ihnen</td><td>dem</td></tr><tr><th>Gen</th><td>mein</td><td>dein</td><td>sein</td><td>ihr</td><td>sein</td><td>unser</td><td>ihr</td><td>des</td></tr></tbody></table></div>
-<ul class="hooks" style="margin-top:12px">
-  <li><b>Nom</b> = he / she / we / they</li>
-  <li><b>Akk</b> = a bare him / her / us / them, with nothing in front</li>
-  <li><b>Dat</b> = to him, from him, with him…</li>
-  <li><b>Gen</b> = his / her / our / their, of him</li>
- </ul>
-<p class="why" style="margin:8px 0 0"><i>you, it, the</i> and nouns never change, so swap in he/him or they/them and listen. Two traps where a bare “him” is still Dat: a hidden “to” (“give <b>him</b> a bone” = give a bone <b>to him</b> → ihm), and helfen-type verbs (helfen, danken, folgen, gefallen, gehören). After <i>is, becomes, stays</i> both sides are Nom.</p>`;
+const ENGLISH_HTML=`<div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>I</th><th>you</th><th>he</th><th>she</th><th>it</th><th>we</th><th>they</th><th>the</th></tr></thead><tbody><tr><th>Nom</th><td>I</td><td>you</td><td>he</td><td>she</td><td>it</td><td>we</td><td>they</td><td>the</td></tr><tr><th>Akk</th><td>me</td><td>you</td><td><b>him</b></td><td>her</td><td>it</td><td><b>us</b></td><td><b>them</b></td><td>the</td></tr><tr><th>Dat</th><td>to me</td><td>to you</td><td>to him</td><td>to her</td><td>to it</td><td>to us</td><td>to them</td><td>to the</td></tr><tr><th>Gen</th><td>my</td><td>your</td><td>his</td><td>her</td><td>its</td><td>our</td><td>their</td><td>of the</td></tr></tbody></table></div>
+<div style="height:12px"></div><div class="tablewrap"><table class="ref compact"><thead><tr><th></th><th>ich</th><th>du</th><th>er</th><th>sie</th><th>es</th><th>wir</th><th>sie (pl)</th><th>der (m)</th></tr></thead><tbody><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>es</td><td>wir</td><td>sie</td><td>der</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td><b>ihn</b></td><td>sie</td><td>es</td><td>uns</td><td>sie</td><td><b>den</b></td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>ihm</td><td>uns</td><td>ihnen</td><td>dem</td></tr><tr><th>Gen</th><td>mein</td><td>dein</td><td>sein</td><td>ihr</td><td>sein</td><td>unser</td><td>ihr</td><td>des</td></tr></tbody></table></div>`;
 const HOOKS_HTML=`<ul class="hooks">
   <li><b>Akkusativ:</b> only der changes, to <b>den</b>. die, das and plural stay the same.</li>
   <li><b>Dativ</b> is the <b>-m</b> case: dem, einem, meinem (like English him). Feminine goes to der, plural to den.</li>
@@ -1171,13 +1257,19 @@ const TABLE_HTML=`<div class="tablewrap"><table class="ref"><thead><tr><th></th>
   <tr><th>Akk<small>direct object</small></th><td><b>den</b></td><td>die</td><td>das</td><td>die</td></tr>
   <tr><th>Dat<small>indirect / fixed</small></th><td><b>dem</b></td><td><b>der</b></td><td><b>dem</b></td><td><b>den</b> +n</td></tr>
   <tr><th>Gen<small>relation / fixed</small></th><td>des +s</td><td>der</td><td>des +s</td><td>der</td></tr></tbody></table></div>`;
-const FIND_HTML=`<ol class="chain find">
- <li><b>1. Check prepositions first.</b> mit, bei, von, zu → Dat; für, durch, ohne → Akk; trotz, wegen, während → Gen.</li>
- <li><b>2. Check verbs with fixed cases.</b> helfen, danken, gefallen, gehören → Dat. Don't guess from who is affected.</li>
- <li><b>3. Otherwise identify the role.</b> Subject → Nom; direct object (what is given/seen?) → Akk; indirect object (to whom?) → Dat; possession/relationship → often Gen.</li>
- <li><b>4. With two-way prepositions</b> in, auf, an etc., destination (wohin?) → Akk; location (wo?) → Dat. Movement alone is NOT the rule.</li>
- <li><b>5. Only now choose the ending.</b> Identify noun gender and number, then look up the article or possessive form.</li>
- </ol>`;
+const PREP_HTML=`<div class="tablewrap"><table class="ref compact rules"><tbody>
+  <tr><th>Nom</th><td>–</td></tr>
+  <tr><th>Akk</th><td>für, durch, ohne, gegen, um</td></tr>
+  <tr><th>Dat</th><td>aus, bei, mit, nach, seit, von, zu, gegenüber</td></tr>
+  <tr><th>Gen</th><td>wegen, trotz, während, statt</td></tr>
+ </tbody></table></div>`;
+const PLACE_HTML=`<div class="tablewrap"><table class="ref compact place"><thead><tr><th></th><th>Akk · going there</th><th>Dat · already there</th></tr></thead><tbody><tr><th>in</th><td>→ into</td><td>in</td></tr><tr><th>an</th><td>→ to</td><td>at</td></tr><tr><th>auf</th><td>→ onto</td><td>on</td></tr><tr><th>über</th><td>→ over, across</td><td>above</td></tr><tr><th>unter</th><td>→ under</td><td>under</td></tr><tr><th>vor</th><td>→ in front of</td><td>in front of</td></tr><tr><th>hinter</th><td>→ behind</td><td>behind</td></tr><tr><th>neben</th><td>→ next to</td><td>next to</td></tr><tr><th>zwischen</th><td>→ between</td><td>between</td></tr></tbody></table></div>`;
+const VERB_HTML=`<div class="tablewrap"><table class="ref compact rules"><tbody>
+  <tr><th>Nom</th><td>sein, werden, bleiben, heißen</td></tr>
+  <tr><th>Akk</th><td>es gibt</td></tr>
+  <tr><th>Dat</th><td>helfen, danken, gehören, gefallen, folgen, antworten, gratulieren</td></tr>
+  <tr><th>Gen</th><td>–</td></tr>
+ </tbody></table></div>`;
 function kasusJobsCard(){
  return infoEntry(`<div class="meta"><span>Kasus · Warm-up</span><span class="metabtns"><button type="button" class="skipwarm">Skip</button></span></div>
   <div class="prompt"><h2 class="big-h">Four cases, four jobs</h2>${JOBS_HTML}</div>
@@ -1186,13 +1278,27 @@ function kasusJobsCard(){
 function openKey(){
  sheet.innerHTML=`<div class="sheet-in">
   <div class="sheet-top"><h2>Case key</h2><button type="button" class="close" id="closeKey">Back to the card</button></div>
-  <section><h3 class="grp-h">English vs German</h3>${ENGLISH_HTML}</section>
-  <section><h3 class="grp-h">The jobs</h3>${JOBS_HTML}</section>
-  <section><h3 class="grp-h">How the article changes</h3>${TABLE_HTML}${HOOKS_HTML}</section>
-  <section><h3 class="grp-h">How to find the case</h3>${FIND_HTML}</section>
+  <section><h3 class="grp-h">Prepositions</h3>${PREP_HTML}</section>
+  <section><h3 class="grp-h">Verbs</h3>${VERB_HTML}</section>
+  <section><h3 class="grp-h">Pronouns</h3>${ENGLISH_HTML}</section>
+  <section><h3 class="grp-h">Place words</h3>${PLACE_HTML}</section>
  </div>`;
  sheet.hidden=false;sheet.scrollTop=0;
  $("#closeKey").addEventListener("click",closeSheet);$("#closeKey").focus();
+}
+function openEndings(){
+ const row=(c,cells)=>`<tr><th>${c}</th>${cells.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+ const head=`<thead><tr><th></th><th class="art-m">masc.</th><th class="art-f">fem.</th><th class="art-n">neut.</th><th>plural</th></tr></thead>`;
+ const der=["m","f","n","p"],tbl=f=>`<div class="tablewrap"><table class="ref compact">${head}<tbody>${CASES4.map(c=>row(c==="N"?"Nom":c==="A"?"Akk":c==="D"?"Dat":"Gen",der.map(g=>f(g,c)))).join("")}</tbody></table></div>`;
+ const mark=(base,x)=>x===base?x:`<b>${x}</b>`;
+ sheet.innerHTML=`<div class="sheet-in">
+  <div class="sheet-top"><h2>Endings</h2><button type="button" class="close" id="closeEnd">Back to the card</button></div>
+  <section><h3 class="grp-h">der · die · das</h3>${tbl((g,c)=>mark(DEF[g].N,DEF[g][c]))}</section>
+  <section><h3 class="grp-h">ein · kein · mein · dein · sein · ihr · unser</h3>${tbl((g,c)=>mark("mein"+EIN[g].N,"mein"+EIN[g][c]))}
+  <p class="why" style="margin:8px 0 0">Bold = changed from the Nominativ. ein has no plural (use keine, meine…). Dativ plural nouns add <b>-n</b> (den Kinder<b>n</b>); masculine and neuter Genitiv nouns add <b>-s</b> (des Vater<b>s</b>).</p></section>
+ </div>`;
+ sheet.hidden=false;sheet.scrollTop=0;
+ $("#closeEnd").addEventListener("click",closeSheet);$("#closeEnd").focus();
 }
 function openWarmMenu(){
  const area=state.mode;
@@ -1352,7 +1458,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#exToggle")){state.ex
 function setMode(m){genusRulesActive=false;state.mode=m;state.focus=null;save();updateChips();updateFocusBar();warm=null;if(m!=="all")startWarm(m,true);resetAhead()}
 
 /* ---------- Header ---------- */
-function updateExToggle(){const b=$("#exToggle");b.setAttribute("aria-checked",String(!!state.exHints));document.documentElement.classList.toggle("exon",!!state.exHints);$("#exRow").hidden=!["all","Genus"].includes(state.mode)}
+function updateExToggle(){const b=$("#exToggle");b.setAttribute("aria-checked",String(!!state.exHints));document.documentElement.classList.toggle("exon",!!state.exHints);$("#exRow").hidden=!["all","Genus","Kasus"].includes(state.mode)}
 function updateChips(){updateExToggle();document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.mode===state.mode)));$("#warmNav").hidden=state.mode==="all";if(state.mode!=="all")$("#warmMenu").textContent=`Choose ${state.mode} warm-up · ${themesFor(state.mode).length} patterns`}
 function updateFocusBar(){const b=$("#focusBar");if(state.focus){b.hidden=false;$("#focusText").textContent=`Drilling: ${SKILLS[state.focus.skill].name}`}else b.hidden=true}
 function updateWeakBtn(){const n=weakSkills().length;$("#weakBtn").innerHTML=`Weak spots${n?` <b>${n}</b>`:""}`}
@@ -1399,7 +1505,11 @@ function setRow(g){
   <span class="set-bar" role="img" aria-label="${Math.round(a.ratio*100)}% known, 60% needed"><i style="width:${Math.round(a.ratio*100)}%"></i><b></b></span>
   <p class="set-note">${note}</p>${!done&&canUnlock(g)?`<button type="button" class="add" data-add="${g}">Add next set</button>`:""}</div>`;
 }
-function closeSheet(){sheet.hidden=true}
+/* Phone back button closes an open sheet instead of leaving the app. */
+let sheetPushed=false,skipPop=false;
+new MutationObserver(()=>{if(!sheet.hidden&&!sheetPushed){try{history.pushState({sheet:1},"");sheetPushed=true}catch(e){}}}).observe(sheet,{attributes:true,attributeFilter:["hidden"]});
+addEventListener("popstate",()=>{if(skipPop){skipPop=false;return}if(sheetPushed){sheetPushed=false;sheet.hidden=true}});
+function closeSheet(){sheet.hidden=true;if(sheetPushed){sheetPushed=false;skipPop=true;history.back()}}
 $("#weakBtn").addEventListener("click",openSheet);
 
 /* ---------- Keyboard ---------- */
