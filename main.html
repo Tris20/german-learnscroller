@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Endung</title>
-<meta name="version" content="0.0.34">
+<meta name="version" content="0.0.42">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -211,7 +211,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="app">
   <header>
     <div class="brand-row">
-      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.34</span></div>
+      <div class="brand"><i aria-hidden="true"></i>Endung<span class="ver" id="appVer">v0.0.42</span></div>
       <button class="weak-btn" id="weakBtn" type="button">Weak spots</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Practice area">
@@ -231,7 +231,7 @@ table.ref.compact thead th{font-size:10px;letter-spacing:.04em;text-transform:no
 <div class="sheet" id="sheet" hidden></div>
 
 <script>
-const APP_VERSION="0.0.34";
+const APP_VERSION="0.0.42";
 /* ---------- Rules ---------- */
 const SKILLS={
  fem_suffix:{g:"Genus",name:"Feminine endings",rule:"-ung, -heit, -keit, -schaft, -ion, -tät, -enz and -kunft are die 96–100% of the time: die Zeitung, die Freiheit, die Nation. -ik (95%), -anz (89%), -ei (84%) and -ur (70%) are die too, in longer words: die Musik, die Distanz, die Partei, die Kultur. But not das Abitur or das Ei."},
@@ -255,6 +255,9 @@ const SKILLS={
  case_twoway:{g:"Kasus",name:"Two-way prepositions",rule:"in, an, auf, über, unter, vor, hinter, neben, zwischen. Destination/change of location (wohin?) takes accusative; location (wo?) takes dative. Movement by itself does not decide. Compare legen/stellen/setzen (put) with liegen/stehen/sitzen (be)."},
  case_gen_prep:{g:"Kasus",name:"Genitive",rule:"wegen, trotz, während and statt take the genitive even without ownership; possession also often uses genitive (das Auto meiner Schwester). Masculine and neuter nouns also add -s or -es: des Regens, eines Briefes."},
  case_verb:{g:"Kasus",name:"Subjects and objects",rule:"The subject is nominative. The direct object is accusative (ich sehe meinen Vater). The indirect object (person given something) is dative (ich gebe meiner Schwester …). Some verbs always take the dative: helfen, danken, gehören, gefallen."},
+ case_prep_rule:{g:"Kasus",name:"Prepositions",rule:"Some prepositions always take the same case, whatever the sentence means. Learn them as three short lists. Akk: für, durch, ohne, gegen, um. Dat: aus, bei, mit, nach, seit, von, zu, gegenüber. Gen: wegen, trotz, während, statt."},
+ case_verb_rule:{g:"Kasus",name:"Verbs",rule:"A few verbs decide the case themselves. sein, werden, bleiben and heißen work like an equals sign, so both sides are Nominativ. es gibt always takes the Akkusativ. helfen, danken, gehören, gefallen, folgen, antworten and gratulieren take the Dativ for the person."},
+ case_article:{g:"Kasus",name:"Just the article",rule:"Before endings on mein and ein, get the plain article right: der, die, das, den, dem, des. Work out the case, then the noun's gender, then look up the article. Watch the look-alikes: der can be masculine Nominativ, but also feminine Dativ or Genitiv."},
  case_id:{g:"Kasus",name:"Spotting the case",rule:"First check a preposition or a verb requiring a fixed case. Otherwise ask: wer? (nominative), wen or was? (accusative), wem? (dative), wessen? (genitive). Prepositions and certain verbs override the question, so check those first."},
  adj_weak:{g:"Adjektive",name:"After der/die/das",rule:"After der, die, das, dieser, jeder, the article already shows gender and case, so the adjective only needs -e or -en. It is -e in the nominative singular and in feminine and neuter accusative. Everywhere else, -en."},
  adj_mixed:{g:"Adjektive",name:"After ein/mein/kein",rule:"ein, mein and kein have no ending in the masculine nominative and the neuter nominative and accusative. In those three slots the adjective shows the gender instead: ein alter Mann, ein kaltes Bier. Everywhere else it works like after der."},
@@ -464,18 +467,20 @@ const CASE_CUE={
  G:["owner","Whose is it? Also after trotz, wegen, während, statt"]};
 const CASE_Q={N:"he · she · we · they",A:"him · her · us · them",D:"to him · her · us · them",G:"his · her(s) · our(s) · their(s)"};
 function caseBtn(c){return `${CASEDE[c]}<small>${CASE_Q[c]}</small>`;}
+const PREP_Q={N:"",A:"where through · where to",D:"from where · where at · with what",G:"because of · instead of · … of"};
+const PREP_EXC={zu:"<b>zu</b> means \"to\", which sounds like a target (Akk), but it's on the Dativ list. Learn it as an exception.",nach:"<b>nach</b> means \"to\" or \"after\", which sounds like a target (Akk), but it's on the Dativ list. Learn it as an exception.",ohne:"<b>ohne</b> (without) doesn't fit path or target, but it's on the Akkusativ list. Learn it as an exception."};
 /* Hint: a nudge that points where to look, never the answer. Shown only on request, below the options. */
 function caseNudge(item){
  const s=item.s,idx=s.search(/\[\[|\{/),before=s.slice(0,idx).trim(),words=before.split(/\s+/).filter(Boolean),prevO=words[words.length-1]||"",prev=prevO.toLowerCase(),low=s.toLowerCase(),b=w=>`<b>${w}</b>`;
  const ph=item.type==="caseid"?s.match(/\[\[(.+?)\]\]/)[1]:(nounAfterGap(s,item.c,item.g)||"it");
  if(/warte\w* auf/.test(low))return `Here ${b("auf")} doesn't mean "on". ${b("warten auf")} = wait ${b("for")}, so treat it like ${b("für")}. Find für in the Prepositions table in the Case key.`;
  if(P_GEN.includes(prev)||P_DAT.includes(prev)||P_ACC.includes(prev))return `${b(prev)} is a preposition right before it, so it decides the case. Find ${b(prev)} in the Prepositions table in the Case key.`;
- if(P_TWO.includes(prev))return `${b(prev)} is a place word. Is something going there (into/onto → Akk), or is it already there (in/on → Dat)? Check Place words in the Case key.`;
+ if(P_TWO.includes(prev))return `${b(prev)} is a place word. Try "into / onto" with this verb: <i>${twQ(s)}</i> If that makes sense → Akk. If only "in / on" works → Dat.`;
  if(/gibt es|es gibt/.test(low))return `${b("es gibt")} means "there is". It's in the Verbs table in the Case key.`;
  if(idx===0){const rest=item.type==="caseid"?s.split("]]")[1]:s.split("}")[1].trim().split(/\s+/).slice(1).join(" ");const v=rest.trim().split(/\s+/)[0].replace(/[.?!]/g,"");return `Ask: who or what ${b(v)}? If you can swap it for "he" or "they", it's the one doing it. Check the Pronouns table.`}
  if(P_SEIN.includes(prev))return `${b(prevO)} is in the Verbs table: it works like an equals sign (${words[0]} = ${ph}), so both sides take the same case.`;
  const give=/\b(gebe|gibt|schenkt|kaufe)\b/.test(low),dets=(s.match(/\{|\b(der|die|das|den|dem|des|eine?\w*|kein\w*|mein\w*|dein\w*|sein\w*|ihr\w*|unser\w*)\b/gi)||[]).length,tail=s.slice(s.search(/\]\]|\}/)).replace(/^\]\]|^\}\s*[A-Za-zÄÖÜäöüß]+/,"").replace(/[.?!\s]/g,"");
- if(give&&(dets>=2||tail))return `Two things here: what's handed over, and who gets it. In English, can you put "to" in front of ${b(ph)}? (give the ball <b>to</b> the man)`;
+ if(give&&(dets>=2||tail))return `Two things here: what's handed over, and who gets it. In English, can you put "${/kaufe/.test(low)?"for":"to"}" in front of ${b(ph)}? (give the ball <b>to</b> the man, buy an ice cream <b>for</b> the kids)`;
  if(!give&&words.length>1&&/^[A-ZÄÖÜ]/.test(prevO))return `Ask: whose ${prevO}? If English would say "of" or "'s" here, look at the Gen row of the Pronouns table.`;
  const dv=low.match(/\b(hilft|helfe|danke|gehört|gefällt)\b/);
  if(dv)return `${b(dv[1])} is in the Verbs table in the Case key. That list decides the case for the person, whatever English says.`;
@@ -491,7 +496,6 @@ function dropHint(el){el.querySelectorAll(".hintbtn,.hintline").forEach(x=>x.rem
 /* After answering: plain explanation without repeating the arrow, plus the doer/receiver note where it helps. */
 function caseWhy(item){
  let t=caseClue(item).replace(/ → <b>\w+<\/b>\.$/,".");
- if(/^(Ich|Er|Sie|Wir) (kaufe|gebe|gibt|schenkt)/.test(item.s))t+=` The doer (${item.s.split(" ")[0]}) is always Nominativ, even if they end up with something. Dativ is someone else, who gets it from the doer.`;
  return t;
 }
 
@@ -517,6 +521,10 @@ function caseExc(item){
  return false;
 }
 const CASEX='<span class="exmark kx" title="The English he/him test misleads here" aria-label="exception">!</span>';
+const TW_MOVE=/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre)\b/i,TW_VERB=/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre|liegt|essen|hängt|schläft|sitzt|steht|wohnen|wohne)\b/i;
+const twVerb=s=>(s.match(TW_VERB)||[,"the verb"])[1];
+const TW_Q={lege:"I put the book onto the table?",liegt:"The book lies onto the table?",gehen:"We're going into a restaurant?",essen:"We're eating into a restaurant?",hänge:"I hang the picture onto the wall?",hängt:"The picture hangs onto the wall?",kriecht:"The cat crawls into the space under the bed?",schläft:"The cat sleeps into the space under the bed?",setzt:"She sits down into the seat next to her friend?",sitzt:"She sits into the seat next to her friend?",stellt:"He puts the bike into the spot behind the house?",steht:"The bike stands into the spot behind the house?",wohnen:"We live into the city?",wohne:"I live into the city?",fahren:"We're driving into the city?",fahre:"I'm driving into the city?"};
+const twQ=s=>TW_Q[twVerb(s).toLowerCase()]||"… into / onto …?";
 function caseClue(item){
  const s=item.s,ans=item.c||item.a,idx=s.search(/\[\[|\{/),before=s.slice(0,idx).trim(),words=before.split(/\s+/).filter(Boolean),prevO=words[words.length-1]||"",prev=prevO.toLowerCase(),low=s.toLowerCase();
  const b=w=>`<b>${w}</b>`,to=` → ${b(CASEDE[ans])}.`,others=l=>{const o=l.filter(x=>x!==prev);return o.slice(0,-1).join(", ")+" and "+o[o.length-1]};
@@ -525,19 +533,19 @@ function caseClue(item){
  if(P_GEN.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_GEN)}, it always takes the ${CASEDE[ans]}, whatever the meaning${to}`;
  if(P_DAT.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_DAT.slice(0,7))}, it always takes the ${CASEDE[ans]}${to}`;
  if(P_ACC.includes(prev))return `Look at the little word just before it: ${b(prev)}. Like ${others(P_ACC)}, it always takes the ${CASEDE[ans]}${to}`;
- if(P_TWO.includes(prev)){const mv=/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre)\b/.test(low);
-  const vb=(s.match(/\b(lege|gehen|fahren|kriecht|setzt|stellt|hänge|fahre|liegt|essen|hängt|schläft|sitzt|steht|wohnen|wohne)\b/i)||[,"the verb"])[1];
-  return `${b(prev)} can go either way, so look at the verb. Moving into or onto a place → Akk. Being or doing something there → Dat. ${b(vb)} ${mv?"is moving into or onto it":"is something done there, and nothing moves into it"}${to}`}
+ if(P_TWO.includes(prev)){const mv=TW_MOVE.test(low),vb=twVerb(s);
+  return `${b(prev)} can go either way. Try "into / onto": <i>${twQ(s)}</i> ${mv?"That makes sense, so the place is a destination":"That sounds wrong, so the place is just where it happens"}${to}`}
  if(/gibt es|es gibt/.test(low))return `${b("es gibt")} means "there is". The thing that exists always takes the ${CASEDE[ans]}${to}`;
- if(idx===0)return `${b(ph)} is the one doing the action. It's who the sentence is about${to}`;
+ if(idx===0)return `${b(ph)} is the one doing the action. You could swap it for "he" or "they"${to}`;
  if(P_SEIN.includes(prev))return `${b(prevO)} (sein) works like an equals sign: ${words[0]} = ${ph}, so ${b(ph)} gets the same case as ${words[0]}${to}`;
  const give=/\b(gebe|gibt|schenkt|kaufe)\b/.test(low),dets=(s.match(/\{|\b(der|die|das|den|dem|des|eine?\w*|kein\w*|mein\w*|dein\w*|sein\w*|ihr\w*|unser\w*)\b/gi)||[]).length;
  const tail=s.slice(s.search(/\]\]|\}/)).replace(/^\]\]|^\}\s*[A-Za-zÄÖÜäöüß]+/,"").replace(/[.?!\s]/g,"");
- if(give&&(dets>=2||tail))return `Someone is giving or buying a thing for a person. ${b(ph)} is ${ans==="D"?"the person who receives it":"the thing being handed over"}${to}`;
+ if(give&&(dets>=2||tail)){const tf=/kaufe/.test(low)?"for":"to";return ans==="D"?`Two things follow the verb: the thing, and the person who gets it. ${b(ph)} is the person: in English you could say "… ${/kaufe/.test(low)?"buy it for them":/schenkt/.test(low)?"give it to them":"give it to them"}"${to}`:`Two things follow the verb: the thing, and the person who gets it. ${b(ph)} is the thing: no "to" fits in front of it${to}`}
  if(!give&&words.length>1&&/^[A-ZÄÖÜ]/.test(prevO))return `It's attached to ${b(prevO)}: whose ${prevO}? ${b(ph)} is the owner${to}`;
  const dv=low.match(/\b(hilft|helfe|danke|gehört|gefällt)\b/);
- if(dv)return `${b(dv[1])} is one of a few verbs (helfen, danken, gehören, gefallen) that always take the Dativ for the person, even though English says "thank her", not "thank to her"${to}`;
- return `${b(ph)} is ${/sehe/.test(low)?"who or what is being seen":/kaufe/.test(low)?"what is being bought":/habe|hast/.test(low)?"what someone has":"what the action is done to"}${to}`;
+ if(dv){const en={hilft:'"she helps her"',helfe:'"I help her"',danke:'"I thank her"',gehört:'"belongs to him"',gefällt:'"pleases him"'}[dv[1]];
+  return dv[1]==="gehört"?`${b(dv[1])} is on the Dativ verb list (helfen, danken, gehören, gefallen…). English "belongs to him" even has the "to"${to}`:`${b(dv[1])} is on the Dativ verb list (helfen, danken, gehören, gefallen…). It takes the Dativ for the person, even though English says ${en} with a bare him/her${to}`}
+ return `${b(ph)} is ${/sehe/.test(low)?"who or what is being seen":/kaufe/.test(low)?"what is being bought":/habe|hast/.test(low)?"what someone has":"what the action is done to"}. Swap in "them": ${/sehe/.test(low)?'"I see them"':/kaufe/.test(low)?'"I buy them"':/hast/.test(low)?'"do you have them?"':/habe/.test(low)?'"I have them"':'"… them"'}, a bare them${to}`;
 }
 function nounAfterGap(s,c,g){const m=s.match(/\{\w+\}\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)/);if(!m)return null;return c==="G"&&(g==="m"||g==="n")?m[1].replace(/e?s$/,""):m[1]}
 // mein/ein/kein copy the article's ending, except where the article is der (masc. Nom) or das.
@@ -574,6 +582,31 @@ VERBS.forEach((v,i)=>{
 TENSE_ITEMS.forEach((t,i)=>ITEMS.push({key:"t"+i,type:"tense",skill:"tense_id",s:t[0],a:t[1],why:t[2]}));
 MIX.forEach((m,i)=>ITEMS.push({key:"x"+i,type:"mix",skill:m[4],s:m[0],en:m[1],opts:m[2],why:m[3]}));
 CASEID.forEach((t,i)=>ITEMS.push({key:"i"+i,type:"caseid",skill:"case_id",s:t[0],a:t[1],why:t[2]}));
+// "Just the article": the same sentences with der/die/das… instead of mein/ein. Skip ones where German would
+// contract (zum, im, ins, vom, beim, am) or where "the" changes the meaning (seit einer Woche).
+const CONTRACT={zu:["dem","der"],in:["dem","das"],von:["dem"],bei:["dem"],an:["dem","das"]};
+const artOf=it=>DEF[it.g][it.c];
+CASES.forEach((c,i)=>{
+ const it={s:c[0],g:c[1],c:c[2]},a=artOf(it),prev=(c[0].slice(0,c[0].indexOf("{")).trim().split(/\s+/).pop()||"").toLowerCase();
+ if((CONTRACT[prev]||[]).includes(a)||/^Seit \{ein\}/.test(c[0]))return;
+ ITEMS.push({key:"ka"+i,type:"art",skill:"case_article",s:c[0],g:c[1],c:c[2],r:c[3]});
+ ITEMS.push({key:"kr"+i,type:"artid",skill:"case_article",s:c[0],g:c[1],c:c[2],r:c[3]});
+});
+const RULE_CARDS=[
+ ["für","for","A","für den Hund"],["durch","through","A","durch den Wald"],["ohne","without","A","ohne den Schlüssel"],["gegen","against","A","gegen den Baum"],["um","around","A","um den Tisch"],
+ ["aus","out of, from","D","aus dem Haus"],["bei","at, near","D","bei der Oma"],["mit","with","D","mit dem Bus"],["nach","after","D","nach dem Essen"],["seit","since","D","seit dem Sommer"],["von","from, of","D","von der Arbeit"],["zu","to","D","zu meinem Freund"],["gegenüber","opposite","D","gegenüber dem Bahnhof"],
+ ["wegen","because of","G","wegen des Wetters"],["trotz","despite","G","trotz des Regens"],["während","during","G","während des Films"],["statt","instead of","G","statt des Autos"],
+];
+const VERB_CARDS=[
+ ["sein","to be","N","Er ist <b>der</b> Chef. Both sides are Nominativ."],["werden","to become","N","Er wird <b>ein</b> Arzt. Both sides are Nominativ."],["bleiben","to stay","N","Er bleibt <b>ein</b> Freund. Both sides are Nominativ."],["heißen","to be called","N","Der Hund heißt Max. Both sides are Nominativ."],
+ ["es gibt","there is","A","Es gibt <b>einen</b> Park."],
+ ["helfen","to help","D","Ich helfe <b>dem</b> Mann."],["danken","to thank","D","Ich danke <b>der</b> Frau."],["gehören","to belong to","D","Das gehört <b>dem</b> Kind."],["gefallen","to please (I like)","D","Das gefällt <b>dem</b> Vater."],["folgen","to follow","D","Wir folgen <b>dem</b> Weg."],["antworten","to answer","D","Sie antwortet <b>dem</b> Lehrer."],["gratulieren","to congratulate","D","Wir gratulieren <b>der</b> Mutter."],
+];
+RULE_CARDS.forEach((r,i)=>ITEMS.push({key:"pr"+i,type:"rulecase",skill:"case_prep_rule",word:r[0],en:r[1],c:r[2],ex:r[3],kind:"prep"}));
+VERB_CARDS.forEach((r,i)=>ITEMS.push({key:"vr"+i,type:"rulecase",skill:"case_verb_rule",word:r[0],en:r[1],c:r[2],ex:r[3],kind:"verb"}));
+const ARTREAD={der:"masc. Nominativ, fem. Dativ or fem./plural Genitiv",die:"fem. or plural, Nominativ or Akkusativ",das:"neut. Nominativ or Akkusativ",den:"masc. Akkusativ or plural Dativ",dem:"masc. or neut. Dativ",des:"masc. or neut. Genitiv"};
+const ARTS=["der","die","das","den","dem","des"];
+const capAt=(w,s)=>/^\{/.test(s)?w[0].toUpperCase()+w.slice(1):w;
 // Expansion packs: frequency order is preserved through `ord` (lower = more common).
 const PACK_SIZE={Genus:50,Verben:20};
 NOUNS_X.forEach((n,i)=>n&&ITEMS.push({key:"gx"+i,type:"gender",skill:n[3],word:n[0],g:n[1],en:n[2],part:n[4],pack:1+Math.floor(i/PACK_SIZE.Genus),ord:i}));
@@ -818,6 +851,27 @@ function build(item){
    explain:`${ansS}<p class="endnote">${item.why}</p>`,
    explainWrong:`${ansS}<p class="why wrongwhy">${item.why} ${SKILLS[item.skill].short}</p>`,summary:full};
  }
+ case "rulecase":{
+  const exl=item.kind==="prep"?`<b>${item.word}</b> always takes the ${CASEDE[item.c]}: ${item.ex.replace(/^(\S+) (\S+)/,"$1 <b>$2</b>")}.`:`${item.ex}`;
+  const exc=item.kind==="prep"&&PREP_EXC[item.word];
+  return {cols:2,task:item.kind==="prep"?"Which case does this preposition take?":"Which case does this verb decide?",prompt:`<div class="noun sm">${item.word}${exc?EXMARK.break:""}</div><div class="gloss">${item.en}</div>`,
+   options:CASES4.map(c=>({label:item.kind==="prep"&&PREP_Q[c]?`${CASEDE[c]}<small>${PREP_Q[c]}</small>`:CASEDE[c]})),correct:CASES4.indexOf(item.c),
+   explain:`<p class="ans">${item.word} → ${caseTag(item.c)}</p><p class="why">${exc?exc+" ":""}${exl}</p>`,summary:`${item.word} → ${CASEDE[item.c]}`};
+ }
+ case "art":{
+  const m=item.s.match(/\{(\w+)\}/),ans=capAt(artOf(item),item.s),opts=ARTS.map(a=>capAt(a,item.s));
+  const full=item.s.replace(m[0],ans);
+  return {cols:3,task:"Which article?",prompt:`<div class="sentence">${item.s.replace(/\{(\w+)\}(\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)?/,(_,st,n)=>`<mark><span class="gap"><span class="blank">___</span></span>${n||""}</mark>${caseExc(item)?CASEX:""}`)}</div>`,
+   options:opts.map(f=>({label:f})),correct:opts.indexOf(ans),
+   explain:`<p class="ans">${item.s.replace(m[0],"<b>"+ans+"</b>")}</p><ol class="chain"><li>${caseWhy(item)} So: <b>${CASEDE[item.c]}</b>.</li><li>${articleStep(item)}</li></ol>`,summary:full};
+ }
+ case "artid":{
+  const m=item.s.match(/\{(\w+)\}/),a=artOf(item),ans=capAt(a,item.s),noun=nounAfterGap(item.s,item.c,item.g)||"";
+  const full=item.s.replace(m[0],ans),gw=item.g==="p"?"plural":GENW[item.g];
+  return {cols:2,task:"Which case is the bold article in?",prompt:`<div class="sentence">${item.s.replace(/\{(\w+)\}(\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]*)?/,(_,st,n)=>`<mark><b>${ans}</b>${n||""}</mark>${caseExc(item)?CASEX:""}`)}</div>`,
+   options:CASES4.map(c=>({label:caseBtn(c)})),correct:CASES4.indexOf(item.c),
+   explain:`<p class="ans">${ans}${noun?" "+noun:""}: ${caseTag(item.c)}</p><p class="why"><b>${a}</b> on its own could be ${ARTREAD[a]}. ${(()=>{const ok=CASES4.filter(c=>DEF[item.g][c]===a).map(c=>CASEDE[c]);return noun?(ok.length===1?`With ${gw} <b>${noun}</b>, it can only be <b>${ok[0]}</b>.`:`With ${gw} <b>${noun}</b>, it can be ${ok.join(" or ")}. The sentence decides:`):""})()} ${caseWhy(item)}</p>`,summary:`${full} → ${a}: ${CASEDE[item.c]}`};
+ }
  case "caseid":{
   const phrase=item.s.match(/\[\[(.+?)\]\]/)[1];
   return {cols:2,task:"Which case is the highlighted phrase?",prompt:`<div class="sentence">${item.s.replace(/\[\[(.+?)\]\]/,"<mark>$1</mark>"+(caseExc(item)?CASEX:""))}</div>`,options:CASES4.map(c=>({label:caseBtn(c)})),correct:CASES4.indexOf(item.a),
@@ -867,7 +921,7 @@ function nextFrom(entry){const i=deck.indexOf(entry);ensureAhead();goTo(i+1)}
 const needsKey=item=>["Kasus","Adjektive"].includes(SKILLS[item.skill].g);
 function metaRow(item,w,again,isNew){
  const tag=w?"":again?`<span class="again">${typeof again==="string"?again:"Again"}</span>`:isNew?'<span class="newtag">New</span>':"";
- const key=(needsKey(item)?'<button type="button" class="keybtn">Case key</button>':"")+(item.type==="case"?'<button type="button" class="keybtn endbtn">Endings</button>':"");
+ const key=(needsKey(item)?'<button type="button" class="keybtn">Case key</button>':"")+(["case","art","artid"].includes(item.type)?'<button type="button" class="keybtn endbtn">Endings</button>':"");
  const skip=w?'<button type="button" class="skipwarm">Skip</button>':"";
  return `<div class="meta"><span>${w?`Warm-up · ${w.n} of ${w.total}`:GROUP_LABEL[SKILLS[item.skill].g]}</span><span class="metabtns">${tag}${key}${skip}</span></div>`;
 }
@@ -891,7 +945,7 @@ function genderWhy(n,ok){
 }
 function guidedEntry(item,w,again,isNew){
  const base=build(item),q=w?simplify(base,item):base,noun=caseNounItem(item);
- const total=noun?4:2,stem=(item.s.match(/\{(.+?)\}/)||[,""])[1],gBase=noun&&(noun.g==="p"?"Plural":GLABEL[noun.g]),gArt=noun&&(noun.g==="p"?"die (plural)":GLABEL[noun.g]),art=noun&&DEF[noun.g][item.c];
+ const isArt=item.type==="art",total=isArt?3:noun?4:2,stem=(item.s.match(/\{(.+?)\}/)||[,""])[1],gBase=noun&&(noun.g==="p"?"Plural":GLABEL[noun.g]),gArt=noun&&(noun.g==="p"?"die (plural)":GLABEL[noun.g]),art=noun&&DEF[noun.g][item.c];
  const el=document.createElement("section");el.className="card";
  el.innerHTML=`<div class="card-in">
   ${metaRow(item,w,again,isNew)}
@@ -906,19 +960,19 @@ function guidedEntry(item,w,again,isNew){
  const mark=(attr,val)=>box.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(x.dataset[attr]===val)x.classList.add("right")});
  const note=(ok,head,body)=>{stepq.hidden=true;steps.innerHTML=`<p class="stepnote ${ok?"ok":"bad"}"><span class="verdict ${ok?"ok":"bad"}">${ok?"✓ Right":"✗ Not quite"} · ${head}</span>${body}</p>`};
  const later=(fn,n)=>{const bt=document.createElement("div");bt.className="stepnext";bt.innerHTML=`<button type="button" class="next">Step ${n} →</button>`;
-  box.before(bt);bt.querySelector("button").addEventListener("click",()=>{bt.remove();ci.classList.remove("answered");steps.innerHTML=n===2?`<p class="stepfact">${CASEDE[item.c]}</p>`:n===3?`<p class="stepfact">${CASEDE[item.c]} + ${gBase}</p>`:"";fn()});bt.querySelector("button").focus({preventScroll:true})};
+  box.before(bt);bt.querySelector("button").addEventListener("click",()=>{bt.remove();ci.classList.remove("answered");steps.innerHTML=n===2?`<p class="stepfact">${CASEDE[item.c]}</p>`:n===3&&!isArt?`<p class="stepfact">${CASEDE[item.c]} + ${gBase}</p>`:"";fn()});bt.querySelector("button").focus({preventScroll:true})};
  const gName=noun&&(noun.g==="p"?"plural":`${GLABEL[noun.g]} (${GENW[noun.g]})`);
  const formStep=()=>{
-  task.textContent=`Step ${total} of ${total}`;ask(`What ending should <b>${stem}___</b> have?`);
-  if(noun)steps.insertAdjacentHTML("beforeend",`<p class="stepfact">${CASEDE[item.c]} + ${gBase} = ${art}</p>`);
+  task.textContent=`Step ${total} of ${total}`;ask(isArt?`So which article goes in the gap?`:`What ending should <b>${stem}___</b> have?`);
+  if(noun)steps.insertAdjacentHTML("beforeend",isArt?`<p class="stepfact">${CASEDE[item.c]} + ${gBase}</p>`:`<p class="stepfact">${CASEDE[item.c]} + ${gBase} = ${art}</p>`);
   box.style.setProperty("--cols",q.cols);
   box.innerHTML=q.options.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o.label}</button>`).join("");
-  if(noun){const h=document.createElement("div");h.innerHTML=`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>ein, mein, dein… copy the end of the article: dem → mein<b>em</b>, den → mein<b>en</b>, der → mein<b>er</b>, die → mein<b>e</b>, des → mein<b>es</b>. No ending for masc. Nominativ and neut. Nom/Akk (mein Bruder, mein Kind).</p>`;
+  if(noun){const h=document.createElement("div");h.innerHTML=isArt?`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>Open <b>Endings</b>, first table (der · die · das): <b>${CASEDE[item.c]}</b> row, <b>${noun.g==="p"?"plural":{m:"masc.",f:"fem.",n:"neut."}[noun.g]}</b> column.</p>`:`<button type="button" class="hintbtn">Hint</button><p class="hintline" hidden>ein, mein, dein… copy the end of the article: dem → mein<b>em</b>, den → mein<b>en</b>, der → mein<b>er</b>, die → mein<b>e</b>, des → mein<b>es</b>. No ending for masc. Nominativ and neut. Nom/Akk (mein Bruder, mein Kind).</p>`;
    while(h.firstChild)ci.appendChild(h.firstChild);bindHint(el)}
   box.addEventListener("click",ev=>{const bb=ev.target.closest(".opt");if(bb&&!entry.answered)answer(entry,+bb.dataset.i)});
  };
  const genderStep=()=>{
-  task.textContent="Step 2 of 4";ask(`Is <b>${noun.word}</b>${noun.g!=="p"&&isException(noun)?EXMARK[exKind(noun)]:""} der, die, das or plural?`);
+  task.textContent=`Step 2 of ${total}`;ask(`Is <b>${noun.word}</b>${noun.g!=="p"&&isException(noun)?EXMARK[exKind(noun)]:""} der, die, das or plural?`);
   box.style.setProperty("--cols",4);
   box.innerHTML=GOPTS.map(g=>`<button type="button" class="opt g${g==="p"?" pl":""}" data-g="${g}"${g!=="p"?` style="--gc:var(--${GLABEL[g]})"`:""}${g==="p"?' data-pl':""}>${GLABEL[g]}</button>`).join("");
   const step2=e=>{
@@ -927,7 +981,7 @@ function guidedEntry(item,w,again,isNew){
    mark("g",noun.g);if(!ok)b.classList.add("wrong");ci.classList.add("answered");
    note(ok,noun.g==="p"?`plural`:`${GLABEL[noun.g]} ${noun.word}`,genderWhy(noun,ok));
    if(!w&&noun.key&&unlocked(noun))record(noun,ok,`${GLABEL[noun.g]} ${noun.word}`);
-   later(artStep,3);
+   later(isArt?formStep:artStep,3);
   };
   box.addEventListener("click",step2);
  };
@@ -961,7 +1015,7 @@ function guidedEntry(item,w,again,isNew){
  return entry;
 }
 function questionEntry(item,again,isNew,w){
- if(item.type==="case")return guidedEntry(item,w,again,isNew);
+ if(item.type==="case"||item.type==="art")return guidedEntry(item,w,again,isNew);
  let q=build(item);
  if(w&&item.type!=="caseid")q=simplify(q,item);
  const el=document.createElement("section");el.className="card";
@@ -969,7 +1023,7 @@ function questionEntry(item,again,isNew,w){
   ${metaRow(item,w,again,isNew)}
   <div class="prompt"><div class="task">${q.task}</div>${q.prompt}</div>
   <div class="fb" hidden></div>
-  <div class="opts" style="--cols:${q.cols}">${q.options.map((o,i)=>`<button type="button" class="opt ${o.cls||""}" data-i="${i}"${o.style?` style="${o.style}"`:""}>${o.label}</button>`).join("")}</div>${item.type==="case"||item.type==="caseid"?hintHtml(item):""}
+  <div class="opts" style="--cols:${q.cols}">${q.options.map((o,i)=>`<button type="button" class="opt ${o.cls||""}" data-i="${i}"${o.style?` style="${o.style}"`:""}>${o.label}</button>`).join("")}</div>${["case","caseid","artid"].includes(item.type)?hintHtml(item):""}
  </div>`;
  const entry={el,item,q,kind:"q",answered:false,warm:w||null};
  bindMeta(el);
@@ -1051,7 +1105,7 @@ function answer(entry,i){
  const fb=el.querySelector(".fb");
  if(entry.step1ok!==undefined&&entry.step1ok!==null){el.querySelectorAll(".steps,.stepq,.stepnext").forEach(x=>x.remove())}
  const two=entry.step1ok!==undefined&&entry.step1ok!==null;
- const vp=(n,o)=>`<span class="${o?"vok":"vbad"}">${n} ${o?"✓":"✗"}</span>`,head=two?`<div class="verdict">${[vp("Case",entry.step1ok),entry.step2ok!==null&&vp("Gender",entry.step2ok),entry.step3ok!==null&&vp("Article",entry.step3ok),vp("Form",ok)].filter(Boolean).join(" · ")}</div>`:w&&w.curve?`<div class="verdict curve">Curveball · ${ok?"you spotted it":"this one breaks the pattern"}</div>`:`<div class="verdict ${ok?"ok":"bad"}">${ok?"Right":"Not quite"}</div>`;
+ const vp=(n,o)=>`<span class="${o?"vok":"vbad"}">${n} ${o?"✓":"✗"}</span>`,head=two?`<div class="verdict">${[vp("Case",entry.step1ok),entry.step2ok!==null&&vp("Gender",entry.step2ok),entry.step3ok!==null&&vp("Article",entry.step3ok),vp(entry.item.type==="art"?"Article":"Form",ok)].filter(Boolean).join(" · ")}</div>`:w&&w.curve?`<div class="verdict curve">Curveball · ${ok?"you spotted it":"this one breaks the pattern"}</div>`:`<div class="verdict ${ok?"ok":"bad"}">${ok?"Right":"Not quite"}</div>`;
  fb.innerHTML=`${head}${!ok&&q.explainWrong?q.explainWrong:q.explain}
   <div class="fb-foot"><span class="rule-tag">${w?"Warm-up: not scored":entry.ruleOnly?"Warm-up: endings & rules":`Rule: ${ruleName(item)}${!ok?" · coming back soon":""}`}</span><button type="button" class="next">Next ↓</button></div>`;
  fb.hidden=false;dropHint(el);
@@ -1132,12 +1186,19 @@ const G_THEMES=[
 const S_THEMES={
  Kasus:[
   {name:"Four cases, four jobs",main:["case_id","case_verb"],curve:[],rule:"Without a preposition, the job of the phrase decides the case. The subject is Nominativ; the direct object is Akkusativ; an indirect object is often Dativ; relationships may use Genitiv. Fixed verb and preposition rules come first. Ask the question word: wer? wen? wem? wessen?"},
-  {name:"Dative prepositions",main:["case_dat_prep"],curve:["case_acc_prep"]},
-  {name:"Accusative prepositions",main:["case_acc_prep"],curve:["case_dat_prep"]},
+  {name:"Prepositions",main:["case_prep_rule"],curve:[],all:true,ruleHtml:`<p class="why">There is a pattern, and it comes from history. Old Germanic had more cases. The Dativ absorbed the old "where at", "from where" and "with what" cases, while the Akkusativ kept "where through / where to".</p>
+<ul class="hooks">
+ <li><b>Dativ</b> = source, place, company: from (aus, von), at (bei), with (mit), since (seit, "from a point in time")</li>
+ <li><b>Akkusativ</b> = path or target: through (durch), around (um), against (gegen), for (für, aimed at someone)</li>
+ <li><b>Genitiv</b> = the "…of" words: because of, in spite of, instead of, in the course of. They grew out of nouns (Trotz = defiance, Statt = place), so they take the "of" case.</li>
+ <li><b>Nominativ</b>: never after a preposition.</li>
+</ul>
+<p class="why"><b>Exceptions to memorise:</b> zu and nach both mean "to" (a target) but take the Dativ. ohne (without) takes the Akkusativ.</p>`},
+  {name:"Verbs",main:["case_verb_rule"],curve:[],all:true},
+  {name:"Just the article",main:["case_article"],curve:[]},
   {name:"Two-way prepositions",main:["case_twoway"],curve:[]},
   {name:"Spotting the case",main:["case_id"],curve:[]},
   {name:"Subjects and objects",main:["case_verb"],curve:["case_dat_prep"]},
-  {name:"Genitive",main:["case_gen_prep"],curve:["case_dat_prep"]},
  ],
  Adjektive:[
   {name:"After der/die/das",main:["adj_weak"],curve:["adj_mixed"]},
@@ -1213,6 +1274,7 @@ function warmItems(area,t){
   curve=t.noteCurve?main.filter(i=>i.v&&i.v.note):open.filter(i=>t.curve.includes(i.skill));
   if(t.noteCurve)main=main.filter(i=>!(i.v&&i.v.note));
  }
+ if(t.all)return {qs:shuffle(main).map(i=>({item:i,curve:false})),examples:[]};
  const take=(arr,n)=>shuffle(arr.slice(0,Math.max(n*4,12))).slice(0,n);
  const m=take(main,6),c=take(curve,2);
  const qs=m.slice(0,6-c.length).map(i=>({item:i,curve:false}));
@@ -1229,7 +1291,7 @@ function startWarm(area,withIntro,selectedTheme){
  warm={area,ti,right:0,done:0,total:qs.length,queue:[]};
  if(withIntro){warm.queue.push(()=>warmIntroCard(area))}
  warm.queue.push(()=>warmThemeCard(area,t,examples));
- qs.forEach((q,k)=>{const w={n:k+1,total:qs.length,curve:q.curve};warm.queue.push(()=>q.item.type==="case"?guidedEntry(q.item,w):questionEntry(q.item,false,false,w))});
+ qs.forEach((q,k)=>{const w={n:k+1,total:qs.length,curve:q.curve};warm.queue.push(()=>q.item.type==="case"||q.item.type==="art"?guidedEntry(q.item,w):questionEntry(q.item,false,false,w))});
  warm.queue.push(()=>warmDoneCard(area,t));
 }
 function updateWarmScore(){
@@ -1263,7 +1325,7 @@ const PREP_HTML=`<div class="tablewrap"><table class="ref compact rules"><tbody>
   <tr><th>Dat</th><td>aus, bei, mit, nach, seit, von, zu, gegenüber</td></tr>
   <tr><th>Gen</th><td>wegen, trotz, während, statt</td></tr>
  </tbody></table></div>`;
-const PLACE_HTML=`<div class="tablewrap"><table class="ref compact place"><thead><tr><th></th><th>Akk · going there</th><th>Dat · already there</th></tr></thead><tbody><tr><th>in</th><td>→ into</td><td>in</td></tr><tr><th>an</th><td>→ to</td><td>at</td></tr><tr><th>auf</th><td>→ onto</td><td>on</td></tr><tr><th>über</th><td>→ over, across</td><td>above</td></tr><tr><th>unter</th><td>→ under</td><td>under</td></tr><tr><th>vor</th><td>→ in front of</td><td>in front of</td></tr><tr><th>hinter</th><td>→ behind</td><td>behind</td></tr><tr><th>neben</th><td>→ next to</td><td>next to</td></tr><tr><th>zwischen</th><td>→ between</td><td>between</td></tr></tbody></table></div>`;
+const PLACE_HTML=`<div class="tablewrap"><table class="ref compact place"><thead><tr><th></th><th>Akk · into / onto</th><th>Dat · in / on</th></tr></thead><tbody><tr><th>in</th><td>→ into</td><td>in</td></tr><tr><th>an</th><td>→ to</td><td>at</td></tr><tr><th>auf</th><td>→ onto</td><td>on</td></tr><tr><th>über</th><td>→ over, across</td><td>above</td></tr><tr><th>unter</th><td>→ under</td><td>under</td></tr><tr><th>vor</th><td>→ in front of</td><td>in front of</td></tr><tr><th>hinter</th><td>→ behind</td><td>behind</td></tr><tr><th>neben</th><td>→ next to</td><td>next to</td></tr><tr><th>zwischen</th><td>→ between</td><td>between</td></tr></tbody></table></div>`;
 const VERB_HTML=`<div class="tablewrap"><table class="ref compact rules"><tbody>
   <tr><th>Nom</th><td>sein, werden, bleiben, heißen</td></tr>
   <tr><th>Akk</th><td>es gibt</td></tr>
@@ -1389,10 +1451,10 @@ function warmIntroCard(area){
 }
 function warmThemeCard(area,t,examples){
  const ex=examples.map(i=>`<li>${i.type==="gender"?`<b class="art-${i.g}">${ART[i.g]}</b> ${i.word}`:build(i).summary}</li>`).join("");
- const rule=t.rule||SKILLS[t.main[0]].rule;
+ const rule=t.ruleHtml?"":(t.rule||SKILLS[t.main[0]].rule);
  return infoEntry(`<div class="meta"><span>Warm-up · Pattern</span><button type="button" class="skipwarm">Skip warm-up</button></div>
-  <div class="prompt"><h2 class="big-h">${t.name}</h2><p class="why">${rule}</p>${ex?`<div class="task">For example</div><ul class="misslist">${ex}</ul>`:""}
-  <p class="note">Next: ${warm?warm.total:6} easy cards in this pattern, with a couple of curveballs.</p></div>
+  <div class="prompt"><h2 class="big-h">${t.name}</h2>${t.ruleHtml||`<p class="why">${rule}</p>`}${ex?`<div class="task">For example</div><ul class="misslist">${ex}</ul>`:""}
+  <p class="note">Next: ${warm?warm.total:6} ${t.all?"quick cards, one for each word in the table.":"easy cards in this pattern, with a couple of curveballs."}</p></div>
   <div class="hint">${ARROW} Swipe up to try it</div>`,
   el=>el.querySelector(".skipwarm").addEventListener("click",()=>goToExercises(area)));
 }
@@ -1417,7 +1479,8 @@ function simplify(q,item){
  if(item.type==="case"){const stem=item.s.match(/\{(\w+)\}/)[1];const other={A:"D",D:"A",N:"A",G:"D"}[item.c];pref=[stem+EIN[item.g][other]]}
  else if(item.type==="adj"){pref=labels.filter(l=>/e$|en$/.test(l))}
  else if(item.type==="tense"){pref=[{"Perfekt":"Präteritum","Präteritum":"Perfekt","Plusquamperfekt":"Perfekt","Futur I":"Präsens","Präsens":"Futur I"}[right]]}
- else if(item.type==="caseid")return q;
+ else if(["caseid","artid","rulecase"].includes(item.type))return q;
+ else if(item.type==="art"){const k=shuffle(q.options.filter((o,i)=>i!==q.correct)).slice(0,3).map(o=>o.label);const keep=q.options.filter((o,i)=>i===q.correct||k.includes(o.label));return {...q,options:keep,correct:keep.findIndex(o=>o.label===q.options[q.correct].label),cols:4}}
  const wrong=[...new Set(pref.filter(l=>l&&l!==right&&labels.includes(l)).concat(shuffle(labels.filter(l=>l!==right))))].slice(0,2);
  const keep=q.options.filter(o=>o.label===right||wrong.includes(o.label)).map(o=>({...o,cls:(o.cls||"").replace("span","")}));
  const long=keep.some(o=>strip(o.label).length>11);
